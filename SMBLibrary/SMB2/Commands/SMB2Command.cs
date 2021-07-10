@@ -16,12 +16,12 @@ namespace SMBLibrary.SMB2
     {
         public SMB2Header Header;
 
-        public SMB2Command(SMB2CommandName commandName)
+        protected SMB2Command(SMB2CommandName commandName)
         {
             Header = new SMB2Header(commandName);
         }
 
-        public SMB2Command(byte[] buffer, int offset)
+        protected SMB2Command(byte[] buffer, int offset)
         {
             Header = new SMB2Header(buffer, offset);
         }
@@ -134,10 +134,7 @@ namespace SMBLibrary.SMB2
         {
             return GetCommandChainBytes(commands, null, SMB2Dialect.SMB2xx);
         }
-
-        /// <param name="sessionKey">
-        /// Message will be signed using this key if (not null and) SMB2_FLAGS_SIGNED is set.
-        /// </param>
+                
         /// <param name="dialect">
         /// Used for signature calculation when applicable.
         /// </param>

@@ -44,7 +44,8 @@ namespace SMBLibrary.Server.SMB1
                                     Capabilities.LargeRead |
                                     Capabilities.LargeWrite;
             response.SystemTime = DateTime.UtcNow;
-            response.ServerTimeZone = (short)-TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalMinutes;
+
+             response.ServerTimeZone = (short)-TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalMinutes;
             NegotiateMessage negotiateMessage = CreateNegotiateMessage();
             ChallengeMessage challengeMessage;
             NTStatus status = securityProvider.GetNTLMChallengeMessage(out state.AuthenticationContext, negotiateMessage, out challengeMessage);
