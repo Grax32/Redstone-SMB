@@ -30,17 +30,19 @@ namespace SMBLibrary.Client
         {
             handle = null;
             fileStatus = FileStatus.FILE_DOES_NOT_EXIST;
-            CreateRequest request = new CreateRequest();
-            request.Name = path;
-            request.DesiredAccess = desiredAccess;
-            request.FileAttributes = fileAttributes;
-            request.ShareAccess = shareAccess;
-            request.CreateDisposition = createDisposition;
-            request.CreateOptions = createOptions;
-            request.ImpersonationLevel = ImpersonationLevel.Impersonation;
+            var request = new CreateRequest
+            {
+                Name = path,
+                DesiredAccess = desiredAccess,
+                FileAttributes = fileAttributes,
+                ShareAccess = shareAccess,
+                CreateDisposition = createDisposition,
+                CreateOptions = createOptions,
+                ImpersonationLevel = ImpersonationLevel.Impersonation
+            };
             TrySendCommand(request);
 
-            SMB2Command response = m_client.WaitForCommand(request.MessageID);
+            var response = m_client.WaitForCommand(request.MessageID);
             if (response != null)
             {
                 if (response.Header.Status == NTStatus.STATUS_SUCCESS && response is CreateResponse)
@@ -57,8 +59,11 @@ namespace SMBLibrary.Client
 
         public NTStatus CloseFile(object handle)
         {
-            CloseRequest request = new CloseRequest();
-            request.FileId = (FileID)handle;
+            var request = new CloseRequest
+            {
+                FileId = (FileID)handle
+            };
+
             TrySendCommand(request);
             SMB2Command response = m_client.WaitForCommand(request.MessageID);
             if (response != null)
