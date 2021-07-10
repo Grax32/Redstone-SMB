@@ -4,10 +4,7 @@
  * the GNU Lesser Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  */
-using System;
 using System.Collections.Generic;
-using System.IO;
-using Utilities;
 
 namespace SMBLibrary
 {
@@ -25,8 +22,6 @@ namespace SMBLibrary
         NTStatus ReadFile(out byte[] data, object handle, long offset, int maxCount);
 
         NTStatus WriteFile(out int numberOfBytesWritten, object handle, long offset, byte[] data);
-
-        NTStatus FlushFileBuffers(object handle);
 
         NTStatus LockFile(object handle, long byteOffset, long length, bool exclusiveLock);
 

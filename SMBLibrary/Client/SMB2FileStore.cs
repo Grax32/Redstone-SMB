@@ -77,11 +77,14 @@ namespace SMBLibrary.Client
         public NTStatus ReadFile(out byte[] data, object handle, long offset, int maxCount)
         {
             data = null;
-            ReadRequest request = new ReadRequest();
+            var request = new ReadRequest
+            {
+                FileId = (FileID)handle,
+                Offset = (ulong)offset,
+                ReadLength = (uint)maxCount
+            };
+
             request.Header.CreditCharge = (ushort)Math.Ceiling((double)maxCount / BytesPerCredit);
-            request.FileId = (FileID)handle;
-            request.Offset = (ulong)offset;
-            request.ReadLength = (uint)maxCount;
             
             TrySendCommand(request);
             SMB2Command response = m_client.WaitForCommand(request.MessageID);
@@ -100,11 +103,13 @@ namespace SMBLibrary.Client
         public NTStatus WriteFile(out int numberOfBytesWritten, object handle, long offset, byte[] data)
         {
             numberOfBytesWritten = 0;
-            WriteRequest request = new WriteRequest();
+            var request = new WriteRequest
+            {
+                FileId = (FileID)handle,
+                Offset = (ulong)offset,
+                Data = data
+            };
             request.Header.CreditCharge = (ushort)Math.Ceiling((double)data.Length / BytesPerCredit);
-            request.FileId = (FileID)handle;
-            request.Offset = (ulong)offset;
-            request.Data = data;
 
             TrySendCommand(request);
             SMB2Command response = m_client.WaitForCommand(request.MessageID);
@@ -118,11 +123,6 @@ namespace SMBLibrary.Client
             }
 
             return NTStatus.STATUS_INVALID_SMB;
-        }
-
-        public NTStatus FlushFileBuffers(object handle)
-        {
-            throw new NotImplementedException();
         }
 
         public NTStatus LockFile(object handle, long byteOffset, long length, bool exclusiveLock)
