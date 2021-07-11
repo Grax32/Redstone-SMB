@@ -1,0 +1,43 @@
+/* Copyright (C) 2014-2017 Tal Aloni <tal.aloni.il@gmail.com>. All rights reserved.
+ * 
+ * You can redistribute this program and/or modify it under the terms of
+ * the GNU Lesser Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ */
+
+using SMBLibrary.NTFileStore.Enums.FileInformation;
+using SMBLibrary.Utilities.ByteUtils;
+using SMBLibrary.Utilities.Conversion;
+using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+
+namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
+{
+    /// <summary>
+    ///     [MS-FSCC] 2.4.13 - FileEndOfFileInformation
+    /// </summary>
+    public class FileEndOfFileInformation : FileInformation
+    {
+        public const int FixedLength = 8;
+
+        public long EndOfFile;
+
+        public FileEndOfFileInformation()
+        {
+        }
+
+        public FileEndOfFileInformation(byte[] buffer, int offset)
+        {
+            EndOfFile = LittleEndianConverter.ToInt64(buffer, offset);
+        }
+
+        public override FileInformationClass FileInformationClass => FileInformationClass.FileEndOfFileInformation;
+
+        public override int Length => FixedLength;
+
+        public override void WriteBytes(byte[] buffer, int offset)
+        {
+            LittleEndianWriter.WriteInt64(buffer, offset, EndOfFile);
+        }
+    }
+}

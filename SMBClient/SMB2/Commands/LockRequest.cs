@@ -1,0 +1,62 @@
+/* Copyright (C) 2017 Tal Aloni <tal.aloni.il@gmail.com>. All rights reserved.
+ * 
+ * You can redistribute this program and/or modify it under the terms of
+ * the GNU Lesser Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ */
+
+using System.Collections.Generic;
+using SMBLibrary.SMB2.Enums;
+using SMBLibrary.SMB2.Structures;
+using SMBLibrary.Utilities.ByteUtils;
+using SMBLibrary.Utilities.Conversion;
+using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+
+namespace SMBLibrary.SMB2.Commands
+{
+    /// <summary>
+    ///     SMB2 LOCK Request
+    /// </summary>
+    public class LockRequest : SMB2Command
+    {
+        public const int DeclaredSize = 48;
+        public FileID FileId;
+        public List<LockElement> Locks;
+
+        public uint LockSequenceIndex; // 28 bits
+
+        // ushort LockCount;
+        public byte LSN; // 4 bits
+
+        private readonly ushort StructureSize;
+
+        public LockRequest() : base(SMB2CommandName.Lock)
+        {
+            StructureSize = DeclaredSize;
+        }
+
+        public LockRequest(byte[] buffer, int offset) : base(buffer, offset)
+        {
+            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
+            var lockCount = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
+            var temp = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
+            LSN = (byte) (temp >> 28);
+            LockSequenceIndex = temp & 0x0FFFFFFF;
+            FileId = new FileID(buffer, offset + SMB2Header.Length + 8);
+            Locks = LockElement.ReadLockList(buffer, offset + SMB2Header.Length + 24, lockCount);
+        }
+
+        public override int CommandLength => 48 + Locks.Count * LockElement.StructureLength;
+
+        public override void WriteCommandBytes(byte[] buffer, int offset)
+        {
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 2, (ushort) Locks.Count);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 4,
+                ((uint) (LSN & 0x0F) << 28) | LockSequenceIndex & 0x0FFFFFFF);
+            FileId.WriteBytes(buffer, offset + 8);
+            LockElement.WriteLockList(buffer, offset + 24, Locks);
+        }
+    }
+}

@@ -1,0 +1,50 @@
+/* Copyright (C) 2017 Tal Aloni <tal.aloni.il@gmail.com>. All rights reserved.
+ * 
+ * You can redistribute this program and/or modify it under the terms of
+ * the GNU Lesser Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ */
+
+using SMBLibrary.NTFileStore.Enums.FileInformation;
+using SMBLibrary.Utilities.ByteUtils;
+using SMBLibrary.Utilities.Conversion;
+using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
+using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+
+namespace SMBLibrary.NTFileStore.Structures.FileInformation.QueryDirectory
+{
+    /// <summary>
+    ///     [MS-FSCC] 2.4.26 - FileNamesInformation
+    /// </summary>
+    public class FileNamesInformation : QueryDirectoryFileInformation
+    {
+        public const int FixedLength = 12;
+        public string FileName = string.Empty;
+
+        private uint FileNameLength;
+
+        public FileNamesInformation()
+        {
+        }
+
+        public FileNamesInformation(byte[] buffer, int offset) : base(buffer, offset)
+        {
+            FileNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
+            FileName = ByteReader.ReadUTF16String(buffer, offset + 12, (int) FileNameLength / 2);
+        }
+
+        public override FileInformationClass FileInformationClass => FileInformationClass.FileNamesInformation;
+
+        public override int Length => FixedLength + FileName.Length * 2;
+
+        public override void WriteBytes(byte[] buffer, int offset)
+        {
+            base.WriteBytes(buffer, offset);
+            FileNameLength = (uint) (FileName.Length * 2);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 8, FileNameLength);
+            ByteWriter.WriteUTF16String(buffer, offset + 12, FileName);
+        }
+    }
+}

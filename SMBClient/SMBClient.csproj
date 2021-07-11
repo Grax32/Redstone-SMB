@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>SMBClient</AssemblyName>
+    <Version>1.4.6.1</Version>
+    <NoWarn>1573;1591</NoWarn>
+    <RootNamespace>SMBLibrary</RootNamespace>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Tal Aloni,David Walker</Authors>
+    <PackageDescription>SMBClient is an open-source C# SMB 2.0, SMB 2.1 and SMB 3.0 client implementation</PackageDescription>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Grax32/SMBClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Grax32/SMBClient</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>
