@@ -6,10 +6,12 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using SMBLibrary.Authentication.NTLM.Structures.Enums;
 using SMBLibrary.Utilities.ByteUtils;
 using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
@@ -17,8 +19,18 @@ using ByteUtils = SMBLibrary.Utilities.ByteUtils.ByteUtils;
 
 namespace SMBLibrary.Authentication.NTLM.Helpers
 {
-    public class NTLMCryptography
+    public static class NTLMCryptography
     {
+        private static bool _isReady = InitCodePage();
+
+        private static bool InitCodePage()
+        {
+            CodePagesEncodingProvider.Instance.GetEncoding(437);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            return true;
+        }
+
         public static byte[] ComputeLMv1Response(byte[] challenge, string password)
         {
             var hash = LMOWFv1(password);
@@ -85,10 +97,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         {
             var des = DES.Create();
             des.Mode = mode;
-            var sm = des as DESCryptoServiceProvider;
-            var mi = sm.GetType().GetMethod("_NewEncryptor", BindingFlags.NonPublic | BindingFlags.Instance);
-            object[] Par = {rgbKey, mode, rgbIV, sm.FeedbackSize, 0};
-            var trans = mi.Invoke(sm, Par) as ICryptoTransform;
+            var trans = des.CreateEncryptor(rgbKey, rgbIV);
             return trans;
         }
 
@@ -124,6 +133,12 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
 
         public static Encoding GetOEMEncoding()
         {
+            while (!_isReady)
+            {
+                Debug.WriteLine("Should not get here.");
+                Thread.Sleep(1000);
+            }
+
             return Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.OEMCodePage);
         }
 
@@ -185,15 +200,15 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             var result = new byte[8];
             int i;
 
-            result[0] = (byte) ((key[0] >> 1) & 0xff);
-            result[1] = (byte) ((((key[0] & 0x01) << 6) | (((key[1] & 0xff) >> 2) & 0xff)) & 0xff);
-            result[2] = (byte) ((((key[1] & 0x03) << 5) | (((key[2] & 0xff) >> 3) & 0xff)) & 0xff);
-            result[3] = (byte) ((((key[2] & 0x07) << 4) | (((key[3] & 0xff) >> 4) & 0xff)) & 0xff);
-            result[4] = (byte) ((((key[3] & 0x0F) << 3) | (((key[4] & 0xff) >> 5) & 0xff)) & 0xff);
-            result[5] = (byte) ((((key[4] & 0x1F) << 2) | (((key[5] & 0xff) >> 6) & 0xff)) & 0xff);
-            result[6] = (byte) ((((key[5] & 0x3F) << 1) | (((key[6] & 0xff) >> 7) & 0xff)) & 0xff);
-            result[7] = (byte) (key[6] & 0x7F);
-            for (i = 0; i < 8; i++) result[i] = (byte) (result[i] << 1);
+            result[0] = (byte)((key[0] >> 1) & 0xff);
+            result[1] = (byte)((((key[0] & 0x01) << 6) | (((key[1] & 0xff) >> 2) & 0xff)) & 0xff);
+            result[2] = (byte)((((key[1] & 0x03) << 5) | (((key[2] & 0xff) >> 3) & 0xff)) & 0xff);
+            result[3] = (byte)((((key[2] & 0x07) << 4) | (((key[3] & 0xff) >> 4) & 0xff)) & 0xff);
+            result[4] = (byte)((((key[3] & 0x0F) << 3) | (((key[4] & 0xff) >> 5) & 0xff)) & 0xff);
+            result[5] = (byte)((((key[4] & 0x1F) << 2) | (((key[5] & 0xff) >> 6) & 0xff)) & 0xff);
+            result[6] = (byte)((((key[5] & 0x3F) << 1) | (((key[6] & 0xff) >> 7) & 0xff)) & 0xff);
+            result[7] = (byte)(key[6] & 0x7F);
+            for (i = 0; i < 8; i++) result[i] = (byte)(result[i] << 1);
 
             return result;
         }
@@ -213,7 +228,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
                 {
                     var k1 = ByteReader.ReadBytes(lmowf, 0, 7);
                     var k2 = ByteUtils.Concatenate(ByteReader.ReadBytes(lmowf, 7, 1),
-                        new byte[] {0xBD, 0xBD, 0xBD, 0xBD, 0xBD, 0xBD});
+                        new byte[] { 0xBD, 0xBD, 0xBD, 0xBD, 0xBD, 0xBD });
                     var temp1 = DesEncrypt(ExtendDESKey(k1), ByteReader.ReadBytes(lmChallengeResponse, 0, 8));
                     var temp2 = DesEncrypt(ExtendDESKey(k2), ByteReader.ReadBytes(lmChallengeResponse, 0, 8));
                     var keyExchangeKey = ByteUtils.Concatenate(temp1, temp2);

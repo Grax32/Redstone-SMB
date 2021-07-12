@@ -14,5 +14,10 @@
     <PackageProjectUrl>https://github.com/Grax32/SMBClient</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Grax32/SMBClient</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+  </ItemGroup>
 </Project>
