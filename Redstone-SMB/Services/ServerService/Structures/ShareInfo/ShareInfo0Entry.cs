@@ -5,16 +5,16 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ShareInfo
 {
     /// <summary>
     ///     [MS-SRVS] SHARE_INFO_0
     /// </summary>
     public class ShareInfo0Entry : IShareInfoEntry
     {
-        public NDRUnicodeString NetName;
+        public NdrUnicodeString NetName;
 
         public ShareInfo0Entry()
         {
@@ -22,22 +22,22 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
 
         public ShareInfo0Entry(string shareName)
         {
-            NetName = new NDRUnicodeString(shareName);
+            NetName = new NdrUnicodeString(shareName);
         }
 
-        public ShareInfo0Entry(NDRParser parser)
+        public ShareInfo0Entry(NdrParser parser)
         {
             Read(parser);
         }
 
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             parser.BeginStructure();
             parser.ReadEmbeddedStructureFullPointer(ref NetName);
             parser.EndStructure();
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             writer.BeginStructure();
             writer.WriteEmbeddedStructureFullPointer(NetName);

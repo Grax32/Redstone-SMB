@@ -5,37 +5,35 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NTFileStore.Enums.AccessMask;
-using SMBLibrary.NTFileStore.Structures.SecurityInformation.ACE.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.AccessMask;
+using RedstoneSmb.NTFileStore.Structures.SecurityInformation.ACE.Enums;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.SecurityInformation.ACE
+namespace RedstoneSmb.NTFileStore.Structures.SecurityInformation.ACE
 {
     /// <summary>
     ///     [MS-DTYP] ACCESS_ALLOWED_ACE
     /// </summary>
-    public class AccessAllowedACE : ACE
+    public class AccessAllowedAce : Ace
     {
         public const int FixedLength = 8;
 
         public AceHeader Header;
         public AccessMask Mask;
-        public SID Sid;
+        public Sid Sid;
 
-        public AccessAllowedACE()
+        public AccessAllowedAce()
         {
             Header = new AceHeader();
-            Header.AceType = AceType.ACCESS_ALLOWED_ACE_TYPE;
+            Header.AceType = AceType.AccessAllowedAceType;
         }
 
-        public AccessAllowedACE(byte[] buffer, int offset)
+        public AccessAllowedAce(byte[] buffer, int offset)
         {
             Header = new AceHeader(buffer, offset + 0);
             Mask = (AccessMask) LittleEndianConverter.ToUInt32(buffer, offset + 4);
-            Sid = new SID(buffer, offset + 8);
+            Sid = new Sid(buffer, offset + 8);
         }
 
         public override int Length => FixedLength + Sid.Length;

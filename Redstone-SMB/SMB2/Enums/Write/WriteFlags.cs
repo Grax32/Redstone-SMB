@@ -1,4 +1,4 @@
-namespace SMBLibrary.SMB2.Enums.Write
+namespace RedstoneSmb.SMB2.Enums.Write
 {
     public enum WriteFlags : uint
     {

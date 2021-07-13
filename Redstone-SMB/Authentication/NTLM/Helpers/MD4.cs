@@ -31,7 +31,7 @@
 using System;
 using System.Text;
 
-namespace SMBLibrary.Authentication.NTLM.Helpers
+namespace RedstoneSmb.Authentication.NTLM.Helpers
 {
     /// <summary>
     ///     Implements the MD4 message digest algorithm in C#
@@ -52,7 +52,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
     ///         </ol>
     ///     </p>
     /// </remarks>
-    public class MD4
+    public class Md4
     {
         // MD4 specific object variables
         //-----------------------------------------------------------------------
@@ -60,32 +60,32 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <summary>
         ///     The size in bytes of the input block to the transformation algorithm
         /// </summary>
-        private const int BLOCK_LENGTH = 64; // = 512 / 8
+        private const int BlockLength = 64; // = 512 / 8
 
         /// <summary>
         ///     4 32-bit words (interim result)
         /// </summary>
-        private readonly uint[] context = new uint[4];
+        private readonly uint[] _context = new uint[4];
 
         /// <summary>
         ///     512-bit work buffer = 16 x 32-bit words
         /// </summary>
-        private readonly uint[] X = new uint[16];
+        private readonly uint[] _x = new uint[16];
 
         /// <summary>
         ///     512-bit input buffer = 16 x 32-bit words holds until it reaches 512 bits
         /// </summary>
-        private byte[] buffer = new byte[BLOCK_LENGTH];
+        private byte[] _buffer = new byte[BlockLength];
 
         /// <summary>
         ///     Number of bytes procesed so far mod. 2 power of 64.
         /// </summary>
-        private long count;
+        private long _count;
 
 
         // Constructors
         //------------------------------------------------------------------------
-        public MD4()
+        public Md4()
         {
             EngineReset();
         }
@@ -94,20 +94,20 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         ///     This constructor is here to implement the clonability of this class
         /// </summary>
         /// <param name="md"> </param>
-        private MD4(MD4 md)
+        private Md4(Md4 md)
             : this()
         {
             //this();
-            context = (uint[]) md.context.Clone();
-            buffer = (byte[]) md.buffer.Clone();
-            count = md.count;
+            _context = (uint[]) md._context.Clone();
+            _buffer = (byte[]) md._buffer.Clone();
+            _count = md._count;
         }
 
         // Clonable method implementation
         //-------------------------------------------------------------------------
         public object Clone()
         {
-            return new MD4(this);
+            return new Md4(this);
         }
 
         // JCE methods
@@ -121,13 +121,13 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         {
             // initial values of MD4 i.e. A, B, C, D
             // as per rfc-1320; they are low-order byte first
-            context[0] = 0x67452301;
-            context[1] = 0xEFCDAB89;
-            context[2] = 0x98BADCFE;
-            context[3] = 0x10325476;
-            count = 0L;
-            for (var i = 0; i < BLOCK_LENGTH; i++)
-                buffer[i] = 0;
+            _context[0] = 0x67452301;
+            _context[1] = 0xEFCDAB89;
+            _context[2] = 0x98BADCFE;
+            _context[3] = 0x10325476;
+            _count = 0L;
+            for (var i = 0; i < BlockLength; i++)
+                _buffer[i] = 0;
         }
 
 
@@ -138,11 +138,11 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         private void EngineUpdate(byte b)
         {
             // compute number of bytes still unhashed; ie. present in buffer
-            var i = (int) (count % BLOCK_LENGTH);
-            count++; // update number of bytes
-            buffer[i] = b;
-            if (i == BLOCK_LENGTH - 1)
-                Transform(ref buffer, 0);
+            var i = (int) (_count % BlockLength);
+            _count++; // update number of bytes
+            _buffer[i] = b;
+            if (i == BlockLength - 1)
+                Transform(ref _buffer, 0);
         }
 
         /// <summary>
@@ -164,24 +164,24 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
                 throw new ArgumentOutOfRangeException();
 
             // compute number of bytes still unhashed; ie. present in buffer
-            var bufferNdx = (int) (count % BLOCK_LENGTH);
-            count += len; // update number of bytes
-            var partLen = BLOCK_LENGTH - bufferNdx;
+            var bufferNdx = (int) (_count % BlockLength);
+            _count += len; // update number of bytes
+            var partLen = BlockLength - bufferNdx;
             var i = 0;
             if (len >= partLen)
             {
-                Array.Copy(input, offset + i, buffer, bufferNdx, partLen);
+                Array.Copy(input, offset + i, _buffer, bufferNdx, partLen);
 
-                Transform(ref buffer, 0);
+                Transform(ref _buffer, 0);
 
-                for (i = partLen; i + BLOCK_LENGTH - 1 < len; i += BLOCK_LENGTH)
+                for (i = partLen; i + BlockLength - 1 < len; i += BlockLength)
                     Transform(ref input, offset + i);
                 bufferNdx = 0;
             }
 
             // buffer remaining input
             if (i < len)
-                Array.Copy(input, offset + i, buffer, bufferNdx, len - i);
+                Array.Copy(input, offset + i, _buffer, bufferNdx, len - i);
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         private byte[] EngineDigest()
         {
             // pad output to 56 mod 64; as RFC1320 puts it: congruent to 448 mod 512
-            var bufferNdx = (int) (count % BLOCK_LENGTH);
+            var bufferNdx = (int) (_count % BlockLength);
             var padLen = bufferNdx < 56 ? 56 - bufferNdx : 120 - bufferNdx;
 
             // padding is always binary 1 followed by binary 0's
@@ -204,7 +204,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             // save number of bits, casting the long to an array of 8 bytes
             // save low-order byte first.
             for (var i = 0; i < 8; i++)
-                tail[padLen + i] = (byte) ((count * 8) >> (8 * i));
+                tail[padLen + i] = (byte) ((_count * 8) >> (8 * i));
 
             EngineUpdate(tail, 0, tail.Length);
 
@@ -212,7 +212,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             // cast this MD4's context (array of 4 uints) into an array of 16 bytes.
             for (var i = 0; i < 4; i++)
             for (var j = 0; j < 4; j++)
-                result[i * 4 + j] = (byte) (context[i] >> (8 * j));
+                result[i * 4 + j] = (byte) (_context[i] >> (8 * j));
 
             // reset the engine
             EngineReset();
@@ -227,7 +227,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         public byte[] GetByteHashFromString(string s)
         {
             var b = Encoding.UTF8.GetBytes(s);
-            var md4 = new MD4();
+            var md4 = new Md4();
 
             md4.EngineUpdate(b, 0, b.Length);
 
@@ -241,7 +241,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <returns>binary hash of input</returns>
         public byte[] GetByteHashFromBytes(byte[] b)
         {
-            var md4 = new MD4();
+            var md4 = new Md4();
 
             md4.EngineUpdate(b, 0, b.Length);
 
@@ -266,7 +266,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <returns>binary hash of the input byte</returns>
         public byte[] GetByteHashFromByte(byte b)
         {
-            var md4 = new MD4();
+            var md4 = new Md4();
 
             md4.EngineUpdate(b);
 
@@ -326,89 +326,89 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             // decodes 64 bytes from input block into an array of 16 32-bit
             // entities. Use A as a temp var.
             for (var i = 0; i < 16; i++)
-                X[i] = ((uint) block[offset++] & 0xFF) |
+                _x[i] = ((uint) block[offset++] & 0xFF) |
                        (((uint) block[offset++] & 0xFF) << 8) |
                        (((uint) block[offset++] & 0xFF) << 16) |
                        (((uint) block[offset++] & 0xFF) << 24);
 
 
-            var A = context[0];
-            var B = context[1];
-            var C = context[2];
-            var D = context[3];
+            var a = _context[0];
+            var b = _context[1];
+            var c = _context[2];
+            var d = _context[3];
 
-            A = FF(A, B, C, D, X[0], 3);
-            D = FF(D, A, B, C, X[1], 7);
-            C = FF(C, D, A, B, X[2], 11);
-            B = FF(B, C, D, A, X[3], 19);
-            A = FF(A, B, C, D, X[4], 3);
-            D = FF(D, A, B, C, X[5], 7);
-            C = FF(C, D, A, B, X[6], 11);
-            B = FF(B, C, D, A, X[7], 19);
-            A = FF(A, B, C, D, X[8], 3);
-            D = FF(D, A, B, C, X[9], 7);
-            C = FF(C, D, A, B, X[10], 11);
-            B = FF(B, C, D, A, X[11], 19);
-            A = FF(A, B, C, D, X[12], 3);
-            D = FF(D, A, B, C, X[13], 7);
-            C = FF(C, D, A, B, X[14], 11);
-            B = FF(B, C, D, A, X[15], 19);
+            a = Ff(a, b, c, d, _x[0], 3);
+            d = Ff(d, a, b, c, _x[1], 7);
+            c = Ff(c, d, a, b, _x[2], 11);
+            b = Ff(b, c, d, a, _x[3], 19);
+            a = Ff(a, b, c, d, _x[4], 3);
+            d = Ff(d, a, b, c, _x[5], 7);
+            c = Ff(c, d, a, b, _x[6], 11);
+            b = Ff(b, c, d, a, _x[7], 19);
+            a = Ff(a, b, c, d, _x[8], 3);
+            d = Ff(d, a, b, c, _x[9], 7);
+            c = Ff(c, d, a, b, _x[10], 11);
+            b = Ff(b, c, d, a, _x[11], 19);
+            a = Ff(a, b, c, d, _x[12], 3);
+            d = Ff(d, a, b, c, _x[13], 7);
+            c = Ff(c, d, a, b, _x[14], 11);
+            b = Ff(b, c, d, a, _x[15], 19);
 
-            A = GG(A, B, C, D, X[0], 3);
-            D = GG(D, A, B, C, X[4], 5);
-            C = GG(C, D, A, B, X[8], 9);
-            B = GG(B, C, D, A, X[12], 13);
-            A = GG(A, B, C, D, X[1], 3);
-            D = GG(D, A, B, C, X[5], 5);
-            C = GG(C, D, A, B, X[9], 9);
-            B = GG(B, C, D, A, X[13], 13);
-            A = GG(A, B, C, D, X[2], 3);
-            D = GG(D, A, B, C, X[6], 5);
-            C = GG(C, D, A, B, X[10], 9);
-            B = GG(B, C, D, A, X[14], 13);
-            A = GG(A, B, C, D, X[3], 3);
-            D = GG(D, A, B, C, X[7], 5);
-            C = GG(C, D, A, B, X[11], 9);
-            B = GG(B, C, D, A, X[15], 13);
+            a = Gg(a, b, c, d, _x[0], 3);
+            d = Gg(d, a, b, c, _x[4], 5);
+            c = Gg(c, d, a, b, _x[8], 9);
+            b = Gg(b, c, d, a, _x[12], 13);
+            a = Gg(a, b, c, d, _x[1], 3);
+            d = Gg(d, a, b, c, _x[5], 5);
+            c = Gg(c, d, a, b, _x[9], 9);
+            b = Gg(b, c, d, a, _x[13], 13);
+            a = Gg(a, b, c, d, _x[2], 3);
+            d = Gg(d, a, b, c, _x[6], 5);
+            c = Gg(c, d, a, b, _x[10], 9);
+            b = Gg(b, c, d, a, _x[14], 13);
+            a = Gg(a, b, c, d, _x[3], 3);
+            d = Gg(d, a, b, c, _x[7], 5);
+            c = Gg(c, d, a, b, _x[11], 9);
+            b = Gg(b, c, d, a, _x[15], 13);
 
-            A = HH(A, B, C, D, X[0], 3);
-            D = HH(D, A, B, C, X[8], 9);
-            C = HH(C, D, A, B, X[4], 11);
-            B = HH(B, C, D, A, X[12], 15);
-            A = HH(A, B, C, D, X[2], 3);
-            D = HH(D, A, B, C, X[10], 9);
-            C = HH(C, D, A, B, X[6], 11);
-            B = HH(B, C, D, A, X[14], 15);
-            A = HH(A, B, C, D, X[1], 3);
-            D = HH(D, A, B, C, X[9], 9);
-            C = HH(C, D, A, B, X[5], 11);
-            B = HH(B, C, D, A, X[13], 15);
-            A = HH(A, B, C, D, X[3], 3);
-            D = HH(D, A, B, C, X[11], 9);
-            C = HH(C, D, A, B, X[7], 11);
-            B = HH(B, C, D, A, X[15], 15);
+            a = Hh(a, b, c, d, _x[0], 3);
+            d = Hh(d, a, b, c, _x[8], 9);
+            c = Hh(c, d, a, b, _x[4], 11);
+            b = Hh(b, c, d, a, _x[12], 15);
+            a = Hh(a, b, c, d, _x[2], 3);
+            d = Hh(d, a, b, c, _x[10], 9);
+            c = Hh(c, d, a, b, _x[6], 11);
+            b = Hh(b, c, d, a, _x[14], 15);
+            a = Hh(a, b, c, d, _x[1], 3);
+            d = Hh(d, a, b, c, _x[9], 9);
+            c = Hh(c, d, a, b, _x[5], 11);
+            b = Hh(b, c, d, a, _x[13], 15);
+            a = Hh(a, b, c, d, _x[3], 3);
+            d = Hh(d, a, b, c, _x[11], 9);
+            c = Hh(c, d, a, b, _x[7], 11);
+            b = Hh(b, c, d, a, _x[15], 15);
 
-            context[0] += A;
-            context[1] += B;
-            context[2] += C;
-            context[3] += D;
+            _context[0] += a;
+            _context[1] += b;
+            _context[2] += c;
+            _context[3] += d;
         }
 
         // The basic MD4 atomic functions.
 
-        private uint FF(uint a, uint b, uint c, uint d, uint x, int s)
+        private uint Ff(uint a, uint b, uint c, uint d, uint x, int s)
         {
             var t = a + ((b & c) | (~b & d)) + x;
             return (t << s) | (t >> (32 - s));
         }
 
-        private uint GG(uint a, uint b, uint c, uint d, uint x, int s)
+        private uint Gg(uint a, uint b, uint c, uint d, uint x, int s)
         {
             var t = a + ((b & (c | d)) | (c & d)) + x + 0x5A827999;
             return (t << s) | (t >> (32 - s));
         }
 
-        private uint HH(uint a, uint b, uint c, uint d, uint x, int s)
+        private uint Hh(uint a, uint b, uint c, uint d, uint x, int s)
         {
             var t = a + (b ^ c ^ d) + x + 0x6ED9EBA1;
             return (t << s) | (t >> (32 - s));

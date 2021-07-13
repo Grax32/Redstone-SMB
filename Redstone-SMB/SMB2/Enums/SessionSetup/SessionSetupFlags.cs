@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.SessionSetup
+namespace RedstoneSmb.SMB2.Enums.SessionSetup
 {
     [Flags]
     public enum SessionSetupFlags : byte

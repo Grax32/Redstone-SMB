@@ -5,11 +5,11 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ShareInfo
 {
-    public interface IShareInfoEntry : INDRStructure
+    public interface IShareInfoEntry : INdrStructure
     {
         uint Level { get; }
     }

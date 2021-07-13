@@ -6,31 +6,30 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Enums;
-using SMBLibrary.NTFileStore;
-using SMBLibrary.NTFileStore.Enums;
-using SMBLibrary.RPC.Enums;
-using SMBLibrary.RPC.EnumStructures;
-using SMBLibrary.RPC.PDU;
-using SMBLibrary.Services.ServerService;
-using SMBLibrary.Services.ServerService.Enums;
-using SMBLibrary.Services.ServerService.EnumStructures;
-using SMBLibrary.Services.ServerService.Structures.ShareInfo;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteUtils = SMBLibrary.Utilities.ByteUtils.ByteUtils;
+using RedstoneSmb.Enums;
+using RedstoneSmb.NTFileStore;
+using RedstoneSmb.NTFileStore.Enums;
+using RedstoneSmb.RPC.Enums;
+using RedstoneSmb.RPC.EnumStructures;
+using RedstoneSmb.RPC.PDU;
+using RedstoneSmb.Services.ServerService;
+using RedstoneSmb.Services.ServerService.Enums;
+using RedstoneSmb.Services.ServerService.EnumStructures;
+using RedstoneSmb.Services.ServerService.Structures.ShareInfo;
+using ByteUtils = RedstoneSmb.Utilities.ByteUtils.ByteUtils;
 
-namespace SMBLibrary.Client.Helpers
+namespace RedstoneSmb.Client.Helpers
 {
     public class ServerServiceHelper
     {
-        public static List<string> ListShares(INTFileStore namedPipeShare, ShareType? shareType, out NTStatus status)
+        public static List<string> ListShares(INtFileStore namedPipeShare, ShareType? shareType, out NtStatus status)
         {
             object pipeHandle;
             int maxTransmitFragmentSize;
             status = NamedPipeHelper.BindPipe(namedPipeShare, ServerService.ServicePipeName,
                 ServerService.ServiceInterfaceGuid, ServerService.ServiceVersion, out pipeHandle,
                 out maxTransmitFragmentSize);
-            if (status != NTStatus.STATUS_SUCCESS) return null;
+            if (status != NtStatus.StatusSuccess) return null;
 
             var shareEnumRequest = new NetrShareEnumRequest();
             shareEnumRequest.InfoStruct = new ShareEnum();
@@ -38,44 +37,44 @@ namespace SMBLibrary.Client.Helpers
             shareEnumRequest.InfoStruct.Info = new ShareInfo1Container();
             shareEnumRequest.PreferedMaximumLength = uint.MaxValue;
             shareEnumRequest.ServerName = "*";
-            var requestPDU = new RequestPDU
+            var requestPdu = new RequestPdu
             {
                 Flags = PacketFlags.FirstFragment | PacketFlags.LastFragment,
                 DataRepresentation =
                 {
-                    CharacterFormat = CharacterFormat.ASCII,
+                    CharacterFormat = CharacterFormat.Ascii,
                     ByteOrder = ByteOrder.LittleEndian,
-                    FloatingPointRepresentation = FloatingPointRepresentation.IEEE
+                    FloatingPointRepresentation = FloatingPointRepresentation.Ieee
                 },
                 OpNum = (ushort) ServerServiceOpName.NetrShareEnum,
                 Data = shareEnumRequest.GetBytes()
             };
-            requestPDU.AllocationHint = (uint) requestPDU.Data.Length;
-            var input = requestPDU.GetBytes();
+            requestPdu.AllocationHint = (uint) requestPdu.Data.Length;
+            var input = requestPdu.GetBytes();
             var maxOutputLength = maxTransmitFragmentSize;
-            status = namedPipeShare.DeviceIOControl(pipeHandle, (uint) IoControlCode.FSCTL_PIPE_TRANSCEIVE, input,
+            status = namedPipeShare.DeviceIoControl(pipeHandle, (uint) IoControlCode.FsctlPipeTransceive, input,
                 out var output, maxOutputLength);
-            if (status != NTStatus.STATUS_SUCCESS) return null;
-            var responsePDU = RPCPDU.GetPDU(output, 0) as ResponsePDU;
-            if (responsePDU == null)
+            if (status != NtStatus.StatusSuccess) return null;
+            var responsePdu = Rpcpdu.GetPdu(output, 0) as ResponsePdu;
+            if (responsePdu == null)
             {
-                status = NTStatus.STATUS_NOT_SUPPORTED;
+                status = NtStatus.StatusNotSupported;
                 return null;
             }
 
-            var responseData = responsePDU.Data;
-            while ((responsePDU.Flags & PacketFlags.LastFragment) == 0)
+            var responseData = responsePdu.Data;
+            while ((responsePdu.Flags & PacketFlags.LastFragment) == 0)
             {
                 status = namedPipeShare.ReadFile(out output, pipeHandle, 0, maxOutputLength);
-                if (status != NTStatus.STATUS_SUCCESS) return null;
-                responsePDU = RPCPDU.GetPDU(output, 0) as ResponsePDU;
-                if (responsePDU == null)
+                if (status != NtStatus.StatusSuccess) return null;
+                responsePdu = Rpcpdu.GetPdu(output, 0) as ResponsePdu;
+                if (responsePdu == null)
                 {
-                    status = NTStatus.STATUS_NOT_SUPPORTED;
+                    status = NtStatus.StatusNotSupported;
                     return null;
                 }
 
-                responseData = ByteUtils.Concatenate(responseData, responsePDU.Data);
+                responseData = ByteUtils.Concatenate(responseData, responsePdu.Data);
             }
 
             namedPipeShare.CloseFile(pipeHandle);
@@ -83,10 +82,10 @@ namespace SMBLibrary.Client.Helpers
             var shareInfo1 = shareEnumResponse.InfoStruct.Info as ShareInfo1Container;
             if (shareInfo1 == null || shareInfo1.Entries == null)
             {
-                if (shareEnumResponse.Result == Win32Error.ERROR_ACCESS_DENIED)
-                    status = NTStatus.STATUS_ACCESS_DENIED;
+                if (shareEnumResponse.Result == Win32Error.ErrorAccessDenied)
+                    status = NtStatus.StatusAccessDenied;
                 else
-                    status = NTStatus.STATUS_NOT_SUPPORTED;
+                    status = NtStatus.StatusNotSupported;
                 return null;
             }
 

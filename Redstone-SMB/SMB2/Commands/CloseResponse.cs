@@ -6,21 +6,19 @@
  */
 
 using System;
-using SMBLibrary.Helpers;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.Close;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Helpers;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.Close;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 CLOSE Response
     /// </summary>
-    public class CloseResponse : SMB2Command
+    public class CloseResponse : Smb2Command
     {
         public const int DeclaredSize = 60;
         public long AllocationSize;
@@ -33,33 +31,33 @@ namespace SMBLibrary.SMB2.Commands
         public DateTime? LastWriteTime;
         public uint Reserved;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public CloseResponse() : base(SMB2CommandName.Close)
+        public CloseResponse() : base(Smb2CommandName.Close)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public CloseResponse(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            Flags = (CloseFlags) LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
-            Reserved = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            CreationTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + SMB2Header.Length + 8);
-            LastAccessTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + SMB2Header.Length + 16);
-            LastWriteTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + SMB2Header.Length + 24);
-            ChangeTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + SMB2Header.Length + 32);
-            AllocationSize = LittleEndianConverter.ToInt64(buffer, offset + SMB2Header.Length + 40);
-            EndofFile = LittleEndianConverter.ToInt64(buffer, offset + SMB2Header.Length + 48);
-            FileAttributes = (FileAttributes) LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 56);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            Flags = (CloseFlags) LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 2);
+            Reserved = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            CreationTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + Smb2Header.Length + 8);
+            LastAccessTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + Smb2Header.Length + 16);
+            LastWriteTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + Smb2Header.Length + 24);
+            ChangeTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + Smb2Header.Length + 32);
+            AllocationSize = LittleEndianConverter.ToInt64(buffer, offset + Smb2Header.Length + 40);
+            EndofFile = LittleEndianConverter.ToInt64(buffer, offset + Smb2Header.Length + 48);
+            FileAttributes = (FileAttributes) LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 56);
         }
 
         public override int CommandLength => DeclaredSize;
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             LittleEndianWriter.WriteUInt16(buffer, offset + 2, (ushort) Flags);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, Reserved);
             FileTimeHelper.WriteFileTime(buffer, offset + 8, CreationTime);

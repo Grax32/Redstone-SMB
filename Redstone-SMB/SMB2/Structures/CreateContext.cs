@@ -7,14 +7,12 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Structures
+namespace RedstoneSmb.SMB2.Structures
 {
     /// <summary>
     ///     [MS-SMB2] 2.2.13.2 - SMB2_CREATE_CONTEXT
@@ -23,11 +21,11 @@ namespace SMBLibrary.SMB2.Structures
     {
         public const int FixedLength = 16;
         public byte[] Data = new byte[0];
-        private uint DataLength;
-        private ushort DataOffset; // The offset from the beginning of this structure to the 8-byte aligned data payload
+        private uint _dataLength;
+        private ushort _dataOffset; // The offset from the beginning of this structure to the 8-byte aligned data payload
         public string Name = string.Empty;
-        private ushort NameLength;
-        private ushort NameOffset; // The offset from the beginning of this structure to the 8-byte aligned name value
+        private ushort _nameLength;
+        private ushort _nameOffset; // The offset from the beginning of this structure to the 8-byte aligned name value
 
         /// <summary>
         ///     The offset from the beginning of this Create Context to the beginning of a subsequent 8-byte aligned Create
@@ -45,13 +43,13 @@ namespace SMBLibrary.SMB2.Structures
         public CreateContext(byte[] buffer, int offset)
         {
             Next = LittleEndianConverter.ToUInt32(buffer, offset + 0);
-            NameOffset = LittleEndianConverter.ToUInt16(buffer, offset + 4);
-            NameLength = LittleEndianConverter.ToUInt16(buffer, offset + 6);
+            _nameOffset = LittleEndianConverter.ToUInt16(buffer, offset + 4);
+            _nameLength = LittleEndianConverter.ToUInt16(buffer, offset + 6);
             Reserved = LittleEndianConverter.ToUInt16(buffer, offset + 8);
-            DataOffset = LittleEndianConverter.ToUInt16(buffer, offset + 10);
-            DataLength = LittleEndianConverter.ToUInt32(buffer, offset + 12);
-            if (NameLength > 0) Name = ByteReader.ReadUTF16String(buffer, offset + NameOffset, NameLength / 2);
-            if (DataLength > 0) Data = ByteReader.ReadBytes(buffer, offset + DataOffset, (int) DataLength);
+            _dataOffset = LittleEndianConverter.ToUInt16(buffer, offset + 10);
+            _dataLength = LittleEndianConverter.ToUInt32(buffer, offset + 12);
+            if (_nameLength > 0) Name = ByteReader.ReadUtf16String(buffer, offset + _nameOffset, _nameLength / 2);
+            if (_dataLength > 0) Data = ByteReader.ReadBytes(buffer, offset + _dataOffset, (int) _dataLength);
         }
 
         public int Length
@@ -71,23 +69,23 @@ namespace SMBLibrary.SMB2.Structures
         private void WriteBytes(byte[] buffer, int offset)
         {
             LittleEndianWriter.WriteUInt32(buffer, offset + 0, Next);
-            NameOffset = 0;
-            NameLength = (ushort) (Name.Length * 2);
-            if (Name.Length > 0) NameOffset = FixedLength;
-            LittleEndianWriter.WriteUInt16(buffer, offset + 4, NameOffset);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 6, NameLength);
+            _nameOffset = 0;
+            _nameLength = (ushort) (Name.Length * 2);
+            if (Name.Length > 0) _nameOffset = FixedLength;
+            LittleEndianWriter.WriteUInt16(buffer, offset + 4, _nameOffset);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 6, _nameLength);
             LittleEndianWriter.WriteUInt16(buffer, offset + 8, Reserved);
-            DataOffset = 0;
-            DataLength = (uint) Data.Length;
+            _dataOffset = 0;
+            _dataLength = (uint) Data.Length;
             if (Data.Length > 0)
             {
                 var paddedNameLength = (int) Math.Ceiling((double) (Name.Length * 2) / 8) * 8;
-                DataOffset = (ushort) (FixedLength + paddedNameLength);
+                _dataOffset = (ushort) (FixedLength + paddedNameLength);
             }
 
-            LittleEndianWriter.WriteUInt16(buffer, offset + 10, DataOffset);
-            ByteWriter.WriteUTF16String(buffer, NameOffset, Name);
-            ByteWriter.WriteBytes(buffer, DataOffset, Data);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 10, _dataOffset);
+            ByteWriter.WriteUtf16String(buffer, _nameOffset, Name);
+            ByteWriter.WriteBytes(buffer, _dataOffset, Data);
         }
 
         public static List<CreateContext> ReadCreateContextList(byte[] buffer, int offset)

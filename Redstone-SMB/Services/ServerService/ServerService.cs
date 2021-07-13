@@ -7,15 +7,15 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.Enums;
-using SMBLibrary.Services.Enums;
-using SMBLibrary.Services.Exceptions;
-using SMBLibrary.Services.ServerService.Enums;
-using SMBLibrary.Services.ServerService.EnumStructures;
-using SMBLibrary.Services.ServerService.Structures.ServerInfo;
-using SMBLibrary.Services.ServerService.Structures.ShareInfo;
+using RedstoneSmb.Enums;
+using RedstoneSmb.Services.Enums;
+using RedstoneSmb.Services.Exceptions;
+using RedstoneSmb.Services.ServerService.Enums;
+using RedstoneSmb.Services.ServerService.EnumStructures;
+using RedstoneSmb.Services.ServerService.Structures.ServerInfo;
+using RedstoneSmb.Services.ServerService.Structures.ShareInfo;
 
-namespace SMBLibrary.Services.ServerService
+namespace RedstoneSmb.Services.ServerService
 {
     /// <summary>
     ///     [MS-SRVS]
@@ -28,24 +28,24 @@ namespace SMBLibrary.Services.ServerService
         public const int MaxPreferredLength = -1; // MAX_PREFERRED_LENGTH
         public static readonly Guid ServiceInterfaceGuid = new Guid("4B324FC8-1670-01D3-1278-5A47BF6EE188");
 
-        private readonly PlatformName m_platformID;
-        private readonly string m_serverName;
-        private readonly ServerType m_serverType;
+        private readonly PlatformName _mPlatformId;
+        private readonly string _mServerName;
+        private readonly ServerType _mServerType;
 
-        private readonly List<string> m_shares;
-        private readonly uint m_verMajor;
-        private readonly uint m_verMinor;
+        private readonly List<string> _mShares;
+        private readonly uint _mVerMajor;
+        private readonly uint _mVerMinor;
 
         public ServerService(string serverName, List<string> shares)
         {
-            m_platformID = PlatformName.NT;
-            m_serverName = serverName;
-            m_verMajor = 5;
-            m_verMinor = 2;
-            m_serverType = ServerType.Workstation | ServerType.Server | ServerType.WindowsNT | ServerType.ServerNT |
+            _mPlatformId = PlatformName.Nt;
+            _mServerName = serverName;
+            _mVerMajor = 5;
+            _mVerMinor = 2;
+            _mServerType = ServerType.Workstation | ServerType.Server | ServerType.WindowsNt | ServerType.ServerNt |
                            ServerType.MasterBrowser;
 
-            m_shares = shares;
+            _mShares = shares;
         }
 
         public override Guid InterfaceGuid => ServiceInterfaceGuid;
@@ -88,21 +88,21 @@ namespace SMBLibrary.Services.ServerService
                 {
                     // We ignore request.PreferedMaximumLength
                     var info = new ShareInfo0Container();
-                    foreach (var shareName in m_shares) info.Add(new ShareInfo0Entry(shareName));
+                    foreach (var shareName in _mShares) info.Add(new ShareInfo0Entry(shareName));
                     response.InfoStruct = new ShareEnum(info);
-                    response.TotalEntries = (uint) m_shares.Count;
-                    response.Result = Win32Error.ERROR_SUCCESS;
+                    response.TotalEntries = (uint) _mShares.Count;
+                    response.Result = Win32Error.ErrorSuccess;
                     return response;
                 }
                 case 1:
                 {
                     // We ignore request.PreferedMaximumLength
                     var info = new ShareInfo1Container();
-                    foreach (var shareName in m_shares)
+                    foreach (var shareName in _mShares)
                         info.Add(new ShareInfo1Entry(shareName, new ShareTypeExtended(ShareType.DiskDrive)));
                     response.InfoStruct = new ShareEnum(info);
-                    response.TotalEntries = (uint) m_shares.Count;
-                    response.Result = Win32Error.ERROR_SUCCESS;
+                    response.TotalEntries = (uint) _mShares.Count;
+                    response.Result = Win32Error.ErrorSuccess;
                     return response;
                 }
                 case 2:
@@ -111,13 +111,13 @@ namespace SMBLibrary.Services.ServerService
                 case 503:
                 {
                     response.InfoStruct = new ShareEnum(request.InfoStruct.Level);
-                    response.Result = Win32Error.ERROR_NOT_SUPPORTED;
+                    response.Result = Win32Error.ErrorNotSupported;
                     return response;
                 }
                 default:
                 {
                     response.InfoStruct = new ShareEnum(request.InfoStruct.Level);
-                    response.Result = Win32Error.ERROR_INVALID_LEVEL;
+                    response.Result = Win32Error.ErrorInvalidLevel;
                     return response;
                 }
             }
@@ -131,7 +131,7 @@ namespace SMBLibrary.Services.ServerService
             if (shareIndex == -1)
             {
                 response.InfoStruct = new ShareInfo(request.Level);
-                response.Result = Win32Error.NERR_NetNameNotFound;
+                response.Result = Win32Error.NerrNetNameNotFound;
                 return response;
             }
 
@@ -139,23 +139,23 @@ namespace SMBLibrary.Services.ServerService
             {
                 case 0:
                 {
-                    var info = new ShareInfo0Entry(m_shares[shareIndex]);
+                    var info = new ShareInfo0Entry(_mShares[shareIndex]);
                     response.InfoStruct = new ShareInfo(info);
-                    response.Result = Win32Error.ERROR_SUCCESS;
+                    response.Result = Win32Error.ErrorSuccess;
                     return response;
                 }
                 case 1:
                 {
-                    var info = new ShareInfo1Entry(m_shares[shareIndex], new ShareTypeExtended(ShareType.DiskDrive));
+                    var info = new ShareInfo1Entry(_mShares[shareIndex], new ShareTypeExtended(ShareType.DiskDrive));
                     response.InfoStruct = new ShareInfo(info);
-                    response.Result = Win32Error.ERROR_SUCCESS;
+                    response.Result = Win32Error.ErrorSuccess;
                     return response;
                 }
                 case 2:
                 {
-                    var info = new ShareInfo2Entry(m_shares[shareIndex], new ShareTypeExtended(ShareType.DiskDrive));
+                    var info = new ShareInfo2Entry(_mShares[shareIndex], new ShareTypeExtended(ShareType.DiskDrive));
                     response.InfoStruct = new ShareInfo(info);
-                    response.Result = Win32Error.ERROR_SUCCESS;
+                    response.Result = Win32Error.ErrorSuccess;
                     return response;
                 }
                 case 501:
@@ -164,13 +164,13 @@ namespace SMBLibrary.Services.ServerService
                 case 1005:
                 {
                     response.InfoStruct = new ShareInfo(request.Level);
-                    response.Result = Win32Error.ERROR_NOT_SUPPORTED;
+                    response.Result = Win32Error.ErrorNotSupported;
                     return response;
                 }
                 default:
                 {
                     response.InfoStruct = new ShareInfo(request.Level);
-                    response.Result = Win32Error.ERROR_INVALID_LEVEL;
+                    response.Result = Win32Error.ErrorInvalidLevel;
                     return response;
                 }
             }
@@ -184,23 +184,23 @@ namespace SMBLibrary.Services.ServerService
                 case 100:
                 {
                     var info = new ServerInfo100();
-                    info.PlatformID = m_platformID;
-                    info.ServerName.Value = m_serverName;
+                    info.PlatformId = _mPlatformId;
+                    info.ServerName.Value = _mServerName;
                     response.InfoStruct = new ServerInfo(info);
-                    response.Result = Win32Error.ERROR_SUCCESS;
+                    response.Result = Win32Error.ErrorSuccess;
                     return response;
                 }
                 case 101:
                 {
                     var info = new ServerInfo101();
-                    info.PlatformID = m_platformID;
-                    info.ServerName.Value = m_serverName;
-                    info.VerMajor = m_verMajor;
-                    info.VerMinor = m_verMinor;
-                    info.Type = m_serverType;
+                    info.PlatformId = _mPlatformId;
+                    info.ServerName.Value = _mServerName;
+                    info.VerMajor = _mVerMajor;
+                    info.VerMinor = _mVerMinor;
+                    info.Type = _mServerType;
                     info.Comment.Value = string.Empty;
                     response.InfoStruct = new ServerInfo(info);
-                    response.Result = Win32Error.ERROR_SUCCESS;
+                    response.Result = Win32Error.ErrorSuccess;
                     return response;
                 }
                 case 102:
@@ -209,13 +209,13 @@ namespace SMBLibrary.Services.ServerService
                 case 503:
                 {
                     response.InfoStruct = new ServerInfo(request.Level);
-                    response.Result = Win32Error.ERROR_NOT_SUPPORTED;
+                    response.Result = Win32Error.ErrorNotSupported;
                     return response;
                 }
                 default:
                 {
                     response.InfoStruct = new ServerInfo(request.Level);
-                    response.Result = Win32Error.ERROR_INVALID_LEVEL;
+                    response.Result = Win32Error.ErrorInvalidLevel;
                     return response;
                 }
             }
@@ -223,8 +223,8 @@ namespace SMBLibrary.Services.ServerService
 
         private int IndexOfShare(string shareName)
         {
-            for (var index = 0; index < m_shares.Count; index++)
-                if (m_shares[index].Equals(shareName, StringComparison.OrdinalIgnoreCase))
+            for (var index = 0; index < _mShares.Count; index++)
+                if (_mShares[index].Equals(shareName, StringComparison.OrdinalIgnoreCase))
                     return index;
 
             return -1;

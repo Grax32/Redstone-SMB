@@ -6,13 +6,11 @@
  */
 
 using System.IO;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using BigEndianConverter = SMBLibrary.Utilities.Conversion.BigEndianConverter;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using BigEndianConverter = RedstoneSmb.Utilities.Conversion.BigEndianConverter;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
 
-namespace SMBLibrary.NetBios.NameServicePackets
+namespace RedstoneSmb.NetBios.NameServicePackets
 {
     /// <summary>
     ///     [RFC 1002] 4.2.1.1. HEADER
@@ -20,15 +18,15 @@ namespace SMBLibrary.NetBios.NameServicePackets
     public class NameServicePacketHeader
     {
         public const int Length = 12;
-        public ushort ANCount;
-        public ushort ARCount;
+        public ushort AnCount;
+        public ushort ArCount;
         public OperationFlags Flags;
-        public ushort NSCount;
+        public ushort NsCount;
         public NameServiceOperation OpCode;
-        public ushort QDCount;
+        public ushort QdCount;
         public byte ResultCode;
 
-        public ushort TransactionID;
+        public ushort TransactionId;
 
         public NameServicePacketHeader()
         {
@@ -41,28 +39,28 @@ namespace SMBLibrary.NetBios.NameServicePackets
 
         public NameServicePacketHeader(byte[] buffer, int offset)
         {
-            TransactionID = BigEndianConverter.ToUInt16(buffer, offset + 0);
+            TransactionId = BigEndianConverter.ToUInt16(buffer, offset + 0);
             var temp = BigEndianConverter.ToUInt16(buffer, offset + 2);
             ResultCode = (byte) (temp & 0xF);
             Flags = (OperationFlags) ((temp >> 4) & 0x7F);
             OpCode = (NameServiceOperation) ((temp >> 11) & 0x1F);
-            QDCount = BigEndianConverter.ToUInt16(buffer, offset + 4);
-            ANCount = BigEndianConverter.ToUInt16(buffer, offset + 6);
-            NSCount = BigEndianConverter.ToUInt16(buffer, offset + 8);
-            ARCount = BigEndianConverter.ToUInt16(buffer, offset + 10);
+            QdCount = BigEndianConverter.ToUInt16(buffer, offset + 4);
+            AnCount = BigEndianConverter.ToUInt16(buffer, offset + 6);
+            NsCount = BigEndianConverter.ToUInt16(buffer, offset + 8);
+            ArCount = BigEndianConverter.ToUInt16(buffer, offset + 10);
         }
 
         public void WriteBytes(Stream stream)
         {
-            BigEndianWriter.WriteUInt16(stream, TransactionID);
+            BigEndianWriter.WriteUInt16(stream, TransactionId);
             var temp = (ushort) (ResultCode & 0xF);
             temp |= (ushort) ((byte) Flags << 4);
             temp |= (ushort) ((byte) OpCode << 11);
             BigEndianWriter.WriteUInt16(stream, temp);
-            BigEndianWriter.WriteUInt16(stream, QDCount);
-            BigEndianWriter.WriteUInt16(stream, ANCount);
-            BigEndianWriter.WriteUInt16(stream, NSCount);
-            BigEndianWriter.WriteUInt16(stream, ARCount);
+            BigEndianWriter.WriteUInt16(stream, QdCount);
+            BigEndianWriter.WriteUInt16(stream, AnCount);
+            BigEndianWriter.WriteUInt16(stream, NsCount);
+            BigEndianWriter.WriteUInt16(stream, ArCount);
         }
     }
 }

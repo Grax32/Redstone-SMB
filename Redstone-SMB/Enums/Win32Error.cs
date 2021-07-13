@@ -1,30 +1,30 @@
-namespace SMBLibrary.Enums
+namespace RedstoneSmb.Enums
 {
     // All Win32 error codes MUST be in the range 0x0000 to 0xFFFF
     public enum Win32Error : ushort
     {
-        ERROR_SUCCESS = 0x0000,
-        ERROR_ACCESS_DENIED = 0x0005,
-        ERROR_SHARING_VIOLATION = 0x0020,
-        ERROR_NOT_SUPPORTED = 0x0032,
-        ERROR_INVALID_PARAMETER = 0x0057,
-        ERROR_DISK_FULL = 0x0070,
-        ERROR_INVALID_NAME = 0x007B,
-        ERROR_INVALID_LEVEL = 0x007C,
-        ERROR_DIR_NOT_EMPTY = 0x0091,
-        ERROR_BAD_PATHNAME = 0x00A1,
-        ERROR_ALREADY_EXISTS = 0x00B7,
-        ERROR_NO_TOKEN = 0x03F0,
-        ERROR_LOGON_FAILURE = 0x052E,
-        ERROR_ACCOUNT_RESTRICTION = 0x052F,
-        ERROR_INVALID_LOGON_HOURS = 0x0530,
-        ERROR_INVALID_WORKSTATION = 0x0531,
-        ERROR_PASSWORD_EXPIRED = 0x0532,
-        ERROR_ACCOUNT_DISABLED = 0x0533,
-        ERROR_LOGON_TYPE_NOT_GRANTED = 0x0569,
-        ERROR_ACCOUNT_EXPIRED = 0x0701,
-        ERROR_PASSWORD_MUST_CHANGE = 0x0773,
-        ERROR_ACCOUNT_LOCKED_OUT = 0x0775,
-        NERR_NetNameNotFound = 0x0906
+        ErrorSuccess = 0x0000,
+        ErrorAccessDenied = 0x0005,
+        ErrorSharingViolation = 0x0020,
+        ErrorNotSupported = 0x0032,
+        ErrorInvalidParameter = 0x0057,
+        ErrorDiskFull = 0x0070,
+        ErrorInvalidName = 0x007B,
+        ErrorInvalidLevel = 0x007C,
+        ErrorDirNotEmpty = 0x0091,
+        ErrorBadPathname = 0x00A1,
+        ErrorAlreadyExists = 0x00B7,
+        ErrorNoToken = 0x03F0,
+        ErrorLogonFailure = 0x052E,
+        ErrorAccountRestriction = 0x052F,
+        ErrorInvalidLogonHours = 0x0530,
+        ErrorInvalidWorkstation = 0x0531,
+        ErrorPasswordExpired = 0x0532,
+        ErrorAccountDisabled = 0x0533,
+        ErrorLogonTypeNotGranted = 0x0569,
+        ErrorAccountExpired = 0x0701,
+        ErrorPasswordMustChange = 0x0773,
+        ErrorAccountLockedOut = 0x0775,
+        NerrNetNameNotFound = 0x0906
     }
 }

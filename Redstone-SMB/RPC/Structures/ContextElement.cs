@@ -6,27 +6,25 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.RPC.Structures
+namespace RedstoneSmb.RPC.Structures
 {
     /// <summary>
     ///     p_cont_elem_t
     /// </summary>
     public class ContextElement // Presentation Context Element
     {
-        public SyntaxID AbstractSyntax;
+        public SyntaxId AbstractSyntax;
 
-        public ushort ContextID;
+        public ushort ContextId;
 
         // byte NumberOfTransferSyntaxItems;
         public byte Reserved;
-        public List<SyntaxID> TransferSyntaxList = new List<SyntaxID>();
+        public List<SyntaxId> TransferSyntaxList = new List<SyntaxId>();
 
         public ContextElement()
         {
@@ -34,35 +32,35 @@ namespace SMBLibrary.RPC.Structures
 
         public ContextElement(byte[] buffer, int offset)
         {
-            ContextID = LittleEndianConverter.ToUInt16(buffer, offset + 0);
+            ContextId = LittleEndianConverter.ToUInt16(buffer, offset + 0);
             var numberOfTransferSyntaxItems = ByteReader.ReadByte(buffer, offset + 2);
             Reserved = ByteReader.ReadByte(buffer, offset + 3);
-            AbstractSyntax = new SyntaxID(buffer, offset + 4);
-            offset += 4 + SyntaxID.Length;
+            AbstractSyntax = new SyntaxId(buffer, offset + 4);
+            offset += 4 + SyntaxId.Length;
             for (var index = 0; index < numberOfTransferSyntaxItems; index++)
             {
-                var syntax = new SyntaxID(buffer, offset);
+                var syntax = new SyntaxId(buffer, offset);
                 TransferSyntaxList.Add(syntax);
-                offset += SyntaxID.Length;
+                offset += SyntaxId.Length;
             }
         }
 
-        public int Length => 4 + SyntaxID.Length * (TransferSyntaxList.Count + 1);
+        public int Length => 4 + SyntaxId.Length * (TransferSyntaxList.Count + 1);
 
         public void WriteBytes(byte[] buffer, int offset)
         {
             var numberOfTransferSyntaxItems = (byte) TransferSyntaxList.Count;
 
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, ContextID);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, ContextId);
             ByteWriter.WriteByte(buffer, offset + 2, numberOfTransferSyntaxItems);
             ByteWriter.WriteByte(buffer, offset + 3, Reserved);
             AbstractSyntax.WriteBytes(buffer, offset + 4);
-            offset += 4 + SyntaxID.Length;
+            offset += 4 + SyntaxId.Length;
 
             for (var index = 0; index < numberOfTransferSyntaxItems; index++)
             {
                 TransferSyntaxList[index].WriteBytes(buffer, offset);
-                offset += SyntaxID.Length;
+                offset += SyntaxId.Length;
             }
         }
     }

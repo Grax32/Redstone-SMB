@@ -1,6 +1,6 @@
-namespace SMBLibrary.Authentication.GSSAPI.Enums
+namespace RedstoneSmb.Authentication.GSSAPI.Enums
 {
-    public enum GSSAttributeName
+    public enum GssAttributeName
     {
         AccessToken,
         DomainName,
@@ -11,7 +11,7 @@ namespace SMBLibrary.Authentication.GSSAPI.Enums
         /// </summary>
         IsGuest,
         MachineName,
-        OSVersion,
+        OsVersion,
         SessionKey,
         UserName
     }

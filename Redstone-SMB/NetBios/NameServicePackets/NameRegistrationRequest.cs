@@ -7,14 +7,13 @@
 
 using System.IO;
 using System.Net;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.NetBios.NameServicePackets.EnumStructures;
-using SMBLibrary.NetBios.NameServicePackets.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using RedstoneSmb.NetBios.NameServicePackets.EnumStructures;
+using RedstoneSmb.NetBios.NameServicePackets.Structures;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NetBios.NameServicePackets
+namespace RedstoneSmb.NetBios.NameServicePackets
 {
     /// <summary>
     ///     [RFC 1002] 4.2.2. NAME REGISTRATION REQUEST
@@ -33,17 +32,17 @@ namespace SMBLibrary.NetBios.NameServicePackets
         {
             Header = new NameServicePacketHeader();
             Header.OpCode = NameServiceOperation.RegistrationRequest;
-            Header.QDCount = 1;
-            Header.ARCount = 1;
+            Header.QdCount = 1;
+            Header.ArCount = 1;
             Header.Flags = OperationFlags.Broadcast | OperationFlags.RecursionDesired;
             Question = new QuestionSection();
-            Resource = new ResourceRecord(NameRecordType.NB);
+            Resource = new ResourceRecord(NameRecordType.Nb);
             Address = new byte[4];
         }
 
         public NameRegistrationRequest(string machineName, NetBiosSuffix suffix, IPAddress address) : this()
         {
-            Question.Name = NetBiosUtils.GetMSNetBiosName(machineName, suffix);
+            Question.Name = NetBiosUtils.GetMsNetBiosName(machineName, suffix);
             Address = address.GetAddressBytes();
         }
 

@@ -1,26 +1,26 @@
-namespace SMBLibrary.NTFileStore.Structures.SecurityInformation.ACE.Enums
+namespace RedstoneSmb.NTFileStore.Structures.SecurityInformation.ACE.Enums
 {
     public enum AceType : byte
     {
-        ACCESS_ALLOWED_ACE_TYPE = 0x00,
-        ACCESS_DENIED_ACE_TYPE = 0x01,
-        SYSTEM_AUDIT_ACE_TYPE = 0x02,
-        SYSTEM_ALARM_ACE_TYPE = 0x03,
-        ACCESS_ALLOWED_COMPOUND_ACE_TYPE = 0x04,
-        ACCESS_ALLOWED_OBJECT_ACE_TYPE = 0x05,
-        ACCESS_DENIED_OBJECT_ACE_TYPE = 0x06,
-        SYSTEM_AUDIT_OBJECT_ACE_TYPE = 0x07,
-        SYSTEM_ALARM_OBJECT_ACE_TYPE = 0x08,
-        ACCESS_ALLOWED_CALLBACK_ACE_TYPE = 0x09,
-        ACCESS_DENIED_CALLBACK_ACE_TYPE = 0x0A,
-        ACCESS_ALLOWED_CALLBACK_OBJECT_ACE_TYPE = 0x0B,
-        ACCESS_DENIED_CALLBACK_OBJECT_ACE_TYPE = 0x0C,
-        SYSTEM_AUDIT_CALLBACK_ACE_TYPE = 0x0D,
-        SYSTEM_ALARM_CALLBACK_ACE_TYPE = 0x0E,
-        SYSTEM_AUDIT_CALLBACK_OBJECT_ACE_TYPE = 0x0F,
-        SYSTEM_ALARM_CALLBACK_OBJECT_ACE_TYPE = 0x10,
-        SYSTEM_MANDATORY_LABEL_ACE_TYPE = 0x11,
-        SYSTEM_RESOURCE_ATTRIBUTE_ACE_TYPE = 0x12,
-        SYSTEM_SCOPED_POLICY_ID_ACE_TYPE = 0x13
+        AccessAllowedAceType = 0x00,
+        AccessDeniedAceType = 0x01,
+        SystemAuditAceType = 0x02,
+        SystemAlarmAceType = 0x03,
+        AccessAllowedCompoundAceType = 0x04,
+        AccessAllowedObjectAceType = 0x05,
+        AccessDeniedObjectAceType = 0x06,
+        SystemAuditObjectAceType = 0x07,
+        SystemAlarmObjectAceType = 0x08,
+        AccessAllowedCallbackAceType = 0x09,
+        AccessDeniedCallbackAceType = 0x0A,
+        AccessAllowedCallbackObjectAceType = 0x0B,
+        AccessDeniedCallbackObjectAceType = 0x0C,
+        SystemAuditCallbackAceType = 0x0D,
+        SystemAlarmCallbackAceType = 0x0E,
+        SystemAuditCallbackObjectAceType = 0x0F,
+        SystemAlarmCallbackObjectAceType = 0x10,
+        SystemMandatoryLabelAceType = 0x11,
+        SystemResourceAttributeAceType = 0x12,
+        SystemScopedPolicyIdAceType = 0x13
     }
 }

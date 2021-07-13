@@ -7,7 +7,7 @@
 
 using System.Collections.Generic;
 
-namespace SMBLibrary.Utilities.Generics
+namespace RedstoneSmb.Utilities.Generics
 {
     public class KeyValuePairList<TKey, TValue> : List<KeyValuePair<TKey, TValue>>
     {

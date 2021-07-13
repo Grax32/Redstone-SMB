@@ -6,15 +6,13 @@
  */
 
 using System;
-using SMBLibrary.NTFileStore.Enums.FileSystemInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileSystemInformation;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Structures.FileSystemInformation
 {
     /// <summary>
     ///     [MS-FSCC] 2.5.6 - FileFsObjectIdInformation
@@ -24,7 +22,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
         public const int FixedLength = 64;
         public byte[] ExtendedInfo; //48 bytes
 
-        public Guid ObjectID;
+        public Guid ObjectId;
 
         public FileFsObjectIdInformation()
         {
@@ -44,7 +42,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
 
         public override void WriteBytes(byte[] buffer, int offset)
         {
-            LittleEndianWriter.WriteGuid(buffer, offset + 0, ObjectID);
+            LittleEndianWriter.WriteGuid(buffer, offset + 0, ObjectId);
             ByteWriter.WriteBytes(buffer, offset + 16, ExtendedInfo);
         }
     }

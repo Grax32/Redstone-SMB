@@ -1,8 +1,8 @@
-namespace SMBLibrary.Authentication.NTLM.Structures.Enums
+namespace RedstoneSmb.Authentication.NTLM.Structures.Enums
 {
-    public enum AVPairKey : ushort
+    public enum AvPairKey : ushort
     {
-        EOL = 0x0000,
+        Eol = 0x0000,
         NbComputerName = 0x0001, // Unicode
         NbDomainName = 0x0002, // Unicode
         DnsComputerName = 0x0003, // Unicode

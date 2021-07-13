@@ -7,21 +7,20 @@
 
 using System;
 using System.Security.Cryptography;
-using SMBLibrary.Authentication.GSSAPI.Enums;
-using SMBLibrary.Authentication.NTLM.Helpers;
-using SMBLibrary.Authentication.NTLM.Structures;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteUtils = SMBLibrary.Utilities.ByteUtils.ByteUtils;
+using RedstoneSmb.Authentication.GSSAPI.Enums;
+using RedstoneSmb.Authentication.NTLM.Helpers;
+using RedstoneSmb.Authentication.NTLM.Structures;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using RedstoneSmb.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteUtils = RedstoneSmb.Utilities.ByteUtils.ByteUtils;
 
-namespace SMBLibrary.Authentication.NTLM
+namespace RedstoneSmb.Authentication.NTLM
 {
     /// <returns>null if the account does not exist</returns>
     public delegate string GetUserPassword(string userName);
 
-    public class IndependentNTLMAuthenticationProvider : NTLMAuthenticationProviderBase
+    public class IndependentNtlmAuthenticationProvider : NtlmAuthenticationProviderBase
     {
         // Here is an account of the maximum number of times I have witnessed Windows 7 SP1 attempts to login
         // to a server with the same invalid credentials before displaying a login prompt:
@@ -35,27 +34,27 @@ namespace SMBLibrary.Authentication.NTLM
         // \\servername\sharename\dir1\dir2\dir3\dir4\dir5 - 57 login attempts
         private static readonly int DefaultMaxLoginAttemptsInWindow = 100;
         private static readonly TimeSpan DefaultLoginWindowDuration = new TimeSpan(0, 20, 0);
-        private readonly GetUserPassword m_GetUserPassword;
-        private readonly LoginCounter m_loginCounter;
+        private readonly GetUserPassword _mGetUserPassword;
+        private readonly LoginCounter _mLoginCounter;
 
         /// <param name="getUserPassword">
         ///     The NTLM challenge response will be compared against the provided password.
         /// </param>
-        public IndependentNTLMAuthenticationProvider(GetUserPassword getUserPassword) : this(getUserPassword,
+        public IndependentNtlmAuthenticationProvider(GetUserPassword getUserPassword) : this(getUserPassword,
             DefaultMaxLoginAttemptsInWindow, DefaultLoginWindowDuration)
         {
         }
 
-        public IndependentNTLMAuthenticationProvider(GetUserPassword getUserPassword, int maxLoginAttemptsInWindow,
+        public IndependentNtlmAuthenticationProvider(GetUserPassword getUserPassword, int maxLoginAttemptsInWindow,
             TimeSpan loginWindowDuration)
         {
-            m_GetUserPassword = getUserPassword;
-            m_loginCounter = new LoginCounter(maxLoginAttemptsInWindow, loginWindowDuration);
+            _mGetUserPassword = getUserPassword;
+            _mLoginCounter = new LoginCounter(maxLoginAttemptsInWindow, loginWindowDuration);
         }
 
-        private bool EnableGuestLogin => m_GetUserPassword("Guest") == string.Empty;
+        private bool EnableGuestLogin => _mGetUserPassword("Guest") == string.Empty;
 
-        public override NTStatus GetChallengeMessage(out object context, byte[] negotiateMessageBytes,
+        public override NtStatus GetChallengeMessage(out object context, byte[] negotiateMessageBytes,
             out byte[] challengeMessageBytes)
         {
             NegotiateMessage negotiateMessage;
@@ -67,7 +66,7 @@ namespace SMBLibrary.Authentication.NTLM
             {
                 context = null;
                 challengeMessageBytes = null;
-                return NTStatus.SEC_E_INVALID_TOKEN;
+                return NtStatus.SecEInvalidToken;
             }
 
             var serverChallenge = GenerateServerChallenge();
@@ -80,12 +79,12 @@ namespace SMBLibrary.Authentication.NTLM
                                               NegotiateFlags.TargetNameSupplied |
                                               NegotiateFlags.Version;
             // [MS-NLMP] NTLMSSP_NEGOTIATE_NTLM MUST be set in the [..] CHALLENGE_MESSAGE to the client.
-            challengeMessage.NegotiateFlags |= NegotiateFlags.NTLMSessionSecurity;
+            challengeMessage.NegotiateFlags |= NegotiateFlags.NtlmSessionSecurity;
 
             if ((negotiateMessage.NegotiateFlags & NegotiateFlags.UnicodeEncoding) > 0)
                 challengeMessage.NegotiateFlags |= NegotiateFlags.UnicodeEncoding;
-            else if ((negotiateMessage.NegotiateFlags & NegotiateFlags.OEMEncoding) > 0)
-                challengeMessage.NegotiateFlags |= NegotiateFlags.OEMEncoding;
+            else if ((negotiateMessage.NegotiateFlags & NegotiateFlags.OemEncoding) > 0)
+                challengeMessage.NegotiateFlags |= NegotiateFlags.OemEncoding;
 
             if ((negotiateMessage.NegotiateFlags & NegotiateFlags.ExtendedSessionSecurity) > 0)
                 challengeMessage.NegotiateFlags |= NegotiateFlags.ExtendedSessionSecurity;
@@ -123,13 +122,13 @@ namespace SMBLibrary.Authentication.NTLM
             challengeMessage.TargetName = Environment.MachineName;
             challengeMessage.ServerChallenge = serverChallenge;
             challengeMessage.TargetInfo =
-                AVPairUtils.GetAVPairSequence(Environment.MachineName, Environment.MachineName);
-            challengeMessage.Version = NTLMVersion.Server2003;
+                AvPairUtils.GetAvPairSequence(Environment.MachineName, Environment.MachineName);
+            challengeMessage.Version = NtlmVersion.Server2003;
             challengeMessageBytes = challengeMessage.GetBytes();
-            return NTStatus.SEC_I_CONTINUE_NEEDED;
+            return NtStatus.SecIContinueNeeded;
         }
 
-        public override NTStatus Authenticate(object context, byte[] authenticateMessageBytes)
+        public override NtStatus Authenticate(object context, byte[] authenticateMessageBytes)
         {
             AuthenticateMessage message;
             try
@@ -138,7 +137,7 @@ namespace SMBLibrary.Authentication.NTLM
             }
             catch
             {
-                return NTStatus.SEC_E_INVALID_TOKEN;
+                return NtStatus.SecEInvalidToken;
             }
 
             var authContext = context as AuthContext;
@@ -148,39 +147,39 @@ namespace SMBLibrary.Authentication.NTLM
                 //    according to [MS-SMB2] 3.3.5.5.1 we aren't allowed to return SEC_E_INVALID_HANDLE anyway.
                 // 2. The client sent AuthenticateMessage without sending NegotiateMessage first,
                 //    in this case the correct response is SEC_E_INVALID_TOKEN.
-                return NTStatus.SEC_E_INVALID_TOKEN;
+                return NtStatus.SecEInvalidToken;
 
             authContext.DomainName = message.DomainName;
             authContext.UserName = message.UserName;
             authContext.WorkStation = message.WorkStation;
-            if (message.Version != null) authContext.OSVersion = message.Version.ToString();
+            if (message.Version != null) authContext.OsVersion = message.Version.ToString();
 
             if ((message.NegotiateFlags & NegotiateFlags.Anonymous) > 0)
             {
                 if (EnableGuestLogin)
                 {
                     authContext.IsGuest = true;
-                    return NTStatus.STATUS_SUCCESS;
+                    return NtStatus.StatusSuccess;
                 }
 
-                return NTStatus.STATUS_LOGON_FAILURE;
+                return NtStatus.StatusLogonFailure;
             }
 
-            if (!m_loginCounter.HasRemainingLoginAttempts(message.UserName.ToLower()))
-                return NTStatus.STATUS_ACCOUNT_LOCKED_OUT;
+            if (!_mLoginCounter.HasRemainingLoginAttempts(message.UserName.ToLower()))
+                return NtStatus.StatusAccountLockedOut;
 
-            var password = m_GetUserPassword(message.UserName);
+            var password = _mGetUserPassword(message.UserName);
             if (password == null)
             {
                 if (EnableGuestLogin)
                 {
                     authContext.IsGuest = true;
-                    return NTStatus.STATUS_SUCCESS;
+                    return NtStatus.StatusSuccess;
                 }
 
-                if (m_loginCounter.HasRemainingLoginAttempts(message.UserName.ToLower(), true))
-                    return NTStatus.STATUS_LOGON_FAILURE;
-                return NTStatus.STATUS_ACCOUNT_LOCKED_OUT;
+                if (_mLoginCounter.HasRemainingLoginAttempts(message.UserName.ToLower(), true))
+                    return NtStatus.StatusLogonFailure;
+                return NtStatus.StatusAccountLockedOut;
             }
 
             bool success;
@@ -189,7 +188,7 @@ namespace SMBLibrary.Authentication.NTLM
             byte[] keyExchangeKey = null;
             if ((message.NegotiateFlags & NegotiateFlags.ExtendedSessionSecurity) > 0)
             {
-                if (AuthenticationMessageUtils.IsNTLMv1ExtendedSessionSecurity(message.LmChallengeResponse))
+                if (AuthenticationMessageUtils.IsNtlMv1ExtendedSessionSecurity(message.LmChallengeResponse))
                 {
                     // NTLM v1 Extended Session Security:
                     success = AuthenticateV1Extended(password, serverChallenge, message.LmChallengeResponse,
@@ -197,9 +196,9 @@ namespace SMBLibrary.Authentication.NTLM
                     if (success)
                     {
                         // https://msdn.microsoft.com/en-us/library/cc236699.aspx
-                        sessionBaseKey = new MD4().GetByteHashFromBytes(NTLMCryptography.NTOWFv1(password));
-                        var lmowf = NTLMCryptography.LMOWFv1(password);
-                        keyExchangeKey = NTLMCryptography.KXKey(sessionBaseKey, message.NegotiateFlags,
+                        sessionBaseKey = new Md4().GetByteHashFromBytes(NtlmCryptography.NtowFv1(password));
+                        var lmowf = NtlmCryptography.LmowFv1(password);
+                        keyExchangeKey = NtlmCryptography.KxKey(sessionBaseKey, message.NegotiateFlags,
                             message.LmChallengeResponse, serverChallenge, lmowf);
                     }
                 }
@@ -211,9 +210,9 @@ namespace SMBLibrary.Authentication.NTLM
                     if (success)
                     {
                         // https://msdn.microsoft.com/en-us/library/cc236700.aspx
-                        var responseKeyNT = NTLMCryptography.NTOWFv2(password, message.UserName, message.DomainName);
+                        var responseKeyNt = NtlmCryptography.NtowFv2(password, message.UserName, message.DomainName);
                         var ntProofStr = ByteReader.ReadBytes(message.NtChallengeResponse, 0, 16);
-                        sessionBaseKey = new HMACMD5(responseKeyNT).ComputeHash(ntProofStr);
+                        sessionBaseKey = new HMACMD5(responseKeyNt).ComputeHash(ntProofStr);
                         keyExchangeKey = sessionBaseKey;
                     }
                 }
@@ -225,9 +224,9 @@ namespace SMBLibrary.Authentication.NTLM
                 if (success)
                 {
                     // https://msdn.microsoft.com/en-us/library/cc236699.aspx
-                    sessionBaseKey = new MD4().GetByteHashFromBytes(NTLMCryptography.NTOWFv1(password));
-                    var lmowf = NTLMCryptography.LMOWFv1(password);
-                    keyExchangeKey = NTLMCryptography.KXKey(sessionBaseKey, message.NegotiateFlags,
+                    sessionBaseKey = new Md4().GetByteHashFromBytes(NtlmCryptography.NtowFv1(password));
+                    var lmowf = NtlmCryptography.LmowFv1(password);
+                    keyExchangeKey = NtlmCryptography.KxKey(sessionBaseKey, message.NegotiateFlags,
                         message.LmChallengeResponse, serverChallenge, lmowf);
                 }
             }
@@ -237,15 +236,15 @@ namespace SMBLibrary.Authentication.NTLM
                 // https://msdn.microsoft.com/en-us/library/cc236676.aspx
                 // https://blogs.msdn.microsoft.com/openspecification/2010/04/19/ntlm-keys-and-sundry-stuff/
                 if ((message.NegotiateFlags & NegotiateFlags.KeyExchange) > 0)
-                    authContext.SessionKey = RC4.Decrypt(keyExchangeKey, message.EncryptedRandomSessionKey);
+                    authContext.SessionKey = Rc4.Decrypt(keyExchangeKey, message.EncryptedRandomSessionKey);
                 else
                     authContext.SessionKey = keyExchangeKey;
-                return NTStatus.STATUS_SUCCESS;
+                return NtStatus.StatusSuccess;
             }
 
-            if (m_loginCounter.HasRemainingLoginAttempts(message.UserName.ToLower(), true))
-                return NTStatus.STATUS_LOGON_FAILURE;
-            return NTStatus.STATUS_ACCOUNT_LOCKED_OUT;
+            if (_mLoginCounter.HasRemainingLoginAttempts(message.UserName.ToLower(), true))
+                return NtStatus.StatusLogonFailure;
+            return NtStatus.StatusAccountLockedOut;
         }
 
         public override bool DeleteSecurityContext(ref object context)
@@ -254,23 +253,23 @@ namespace SMBLibrary.Authentication.NTLM
             return true;
         }
 
-        public override object GetContextAttribute(object context, GSSAttributeName attributeName)
+        public override object GetContextAttribute(object context, GssAttributeName attributeName)
         {
             if (!(context is AuthContext authContext)) return null;
             
             switch (attributeName)
             {
-                case GSSAttributeName.DomainName:
+                case GssAttributeName.DomainName:
                     return authContext.DomainName;
-                case GSSAttributeName.IsGuest:
+                case GssAttributeName.IsGuest:
                     return authContext.IsGuest;
-                case GSSAttributeName.MachineName:
+                case GssAttributeName.MachineName:
                     return authContext.WorkStation;
-                case GSSAttributeName.OSVersion:
-                    return authContext.OSVersion;
-                case GSSAttributeName.SessionKey:
+                case GssAttributeName.OsVersion:
+                    return authContext.OsVersion;
+                case GssAttributeName.SessionKey:
                     return authContext.SessionKey;
-                case GSSAttributeName.UserName:
+                case GssAttributeName.UserName:
                     return authContext.UserName;
             }
 
@@ -283,11 +282,11 @@ namespace SMBLibrary.Authentication.NTLM
         private static bool AuthenticateV1(string password, byte[] serverChallenge, byte[] lmResponse,
             byte[] ntResponse)
         {
-            var expectedLMResponse = NTLMCryptography.ComputeLMv1Response(serverChallenge, password);
-            if (ByteUtils.AreByteArraysEqual(expectedLMResponse, lmResponse)) return true;
+            var expectedLmResponse = NtlmCryptography.ComputeLMv1Response(serverChallenge, password);
+            if (ByteUtils.AreByteArraysEqual(expectedLmResponse, lmResponse)) return true;
 
-            var expectedNTResponse = NTLMCryptography.ComputeNTLMv1Response(serverChallenge, password);
-            return ByteUtils.AreByteArraysEqual(expectedNTResponse, ntResponse);
+            var expectedNtResponse = NtlmCryptography.ComputeNtlMv1Response(serverChallenge, password);
+            return ByteUtils.AreByteArraysEqual(expectedNtResponse, ntResponse);
         }
 
         /// <summary>
@@ -297,11 +296,11 @@ namespace SMBLibrary.Authentication.NTLM
             byte[] ntResponse)
         {
             var clientChallenge = ByteReader.ReadBytes(lmResponse, 0, 8);
-            var expectedNTLMv1Response =
-                NTLMCryptography.ComputeNTLMv1ExtendedSessionSecurityResponse(serverChallenge, clientChallenge,
+            var expectedNtlMv1Response =
+                NtlmCryptography.ComputeNtlMv1ExtendedSessionSecurityResponse(serverChallenge, clientChallenge,
                     password);
 
-            return ByteUtils.AreByteArraysEqual(expectedNTLMv1Response, ntResponse);
+            return ByteUtils.AreByteArraysEqual(expectedNtlMv1Response, ntResponse);
         }
 
         /// <summary>
@@ -313,20 +312,20 @@ namespace SMBLibrary.Authentication.NTLM
             // Note: Linux CIFS VFS 3.10 will send LmChallengeResponse with length of 0 bytes
             if (lmResponse.Length == 24)
             {
-                var _LMv2ClientChallenge = ByteReader.ReadBytes(lmResponse, 16, 8);
-                var expectedLMv2Response = NTLMCryptography.ComputeLMv2Response(serverChallenge, _LMv2ClientChallenge,
+                var lMv2ClientChallenge = ByteReader.ReadBytes(lmResponse, 16, 8);
+                var expectedLMv2Response = NtlmCryptography.ComputeLMv2Response(serverChallenge, lMv2ClientChallenge,
                     password, accountName, domainName);
                 if (ByteUtils.AreByteArraysEqual(expectedLMv2Response, lmResponse)) return true;
             }
 
-            if (AuthenticationMessageUtils.IsNTLMv2NTResponse(ntResponse))
+            if (AuthenticationMessageUtils.IsNtlMv2NtResponse(ntResponse))
             {
-                var clientNTProof = ByteReader.ReadBytes(ntResponse, 0, 16);
+                var clientNtProof = ByteReader.ReadBytes(ntResponse, 0, 16);
                 var clientChallengeStructurePadded = ByteReader.ReadBytes(ntResponse, 16, ntResponse.Length - 16);
-                var expectedNTProof = NTLMCryptography.ComputeNTLMv2Proof(serverChallenge,
+                var expectedNtProof = NtlmCryptography.ComputeNtlMv2Proof(serverChallenge,
                     clientChallengeStructurePadded, password, accountName, domainName);
 
-                return ByteUtils.AreByteArraysEqual(clientNTProof, expectedNTProof);
+                return ByteUtils.AreByteArraysEqual(clientNtProof, expectedNtProof);
             }
 
             return false;
@@ -346,7 +345,7 @@ namespace SMBLibrary.Authentication.NTLM
         {
             public string DomainName;
             public bool IsGuest;
-            public string OSVersion;
+            public string OsVersion;
             public byte[] ServerChallenge;
             public byte[] SessionKey;
             public string UserName;

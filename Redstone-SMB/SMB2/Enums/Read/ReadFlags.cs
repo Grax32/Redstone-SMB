@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.Read
+namespace RedstoneSmb.SMB2.Enums.Read
 {
     [Flags]
     public enum ReadFlags : byte

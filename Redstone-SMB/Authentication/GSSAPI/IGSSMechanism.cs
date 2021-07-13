@@ -5,19 +5,19 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Authentication.GSSAPI.Enums;
-using SMBLibrary.Enums;
+using RedstoneSmb.Authentication.GSSAPI.Enums;
+using RedstoneSmb.Enums;
 
-namespace SMBLibrary.Authentication.GSSAPI
+namespace RedstoneSmb.Authentication.GSSAPI
 {
-    public interface IGSSMechanism
+    public interface IGssMechanism
     {
         byte[] Identifier { get; }
 
         /// <summary>
         ///     Equivalent to GSS_Accept_sec_context
         /// </summary>
-        NTStatus AcceptSecurityContext(ref object context, byte[] inputToken, out byte[] outputToken);
+        NtStatus AcceptSecurityContext(ref object context, byte[] inputToken, out byte[] outputToken);
 
         /// <summary>
         ///     Equivalent to GSS_Delete_sec_context
@@ -28,6 +28,6 @@ namespace SMBLibrary.Authentication.GSSAPI
         ///     Equivalent to GSS_Inquire_context
         ///     Obtains information about a given security context (even an incomplete one)
         /// </summary>
-        object GetContextAttribute(object context, GSSAttributeName attributeName);
+        object GetContextAttribute(object context, GssAttributeName attributeName);
     }
 }

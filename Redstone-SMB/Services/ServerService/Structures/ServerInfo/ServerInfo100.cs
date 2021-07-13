@@ -5,46 +5,46 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
-using SMBLibrary.Services.Enums;
+using RedstoneSmb.RPC.NDR;
+using RedstoneSmb.Services.Enums;
 
-namespace SMBLibrary.Services.ServerService.Structures.ServerInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ServerInfo
 {
     /// <summary>
     ///     [MS-SRVS] SERVER_INFO_100
     /// </summary>
     public class ServerInfo100 : ServerInfoLevel
     {
-        public PlatformName PlatformID;
-        public NDRUnicodeString ServerName;
+        public PlatformName PlatformId;
+        public NdrUnicodeString ServerName;
 
         public ServerInfo100()
         {
-            ServerName = new NDRUnicodeString();
+            ServerName = new NdrUnicodeString();
         }
 
-        public ServerInfo100(NDRParser parser)
+        public ServerInfo100(NdrParser parser)
         {
             Read(parser);
         }
 
         public override uint Level => 100;
 
-        public override void Read(NDRParser parser)
+        public override void Read(NdrParser parser)
         {
             // If an array, structure, or union embeds a pointer, the representation of the referent of the
             // pointer is deferred to a position in the octet stream that follows the representation of the
             // embedding construction
             parser.BeginStructure();
-            PlatformID = (PlatformName) parser.ReadUInt32();
+            PlatformId = (PlatformName) parser.ReadUInt32();
             parser.ReadEmbeddedStructureFullPointer(ref ServerName);
             parser.EndStructure();
         }
 
-        public override void Write(NDRWriter writer)
+        public override void Write(NdrWriter writer)
         {
             writer.BeginStructure();
-            writer.WriteUInt32((uint) PlatformID);
+            writer.WriteUInt32((uint) PlatformId);
             writer.WriteEmbeddedStructureFullPointer(ServerName);
             writer.EndStructure();
         }

@@ -6,13 +6,12 @@
  */
 
 using System.IO;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using BigEndianReader = SMBLibrary.Utilities.ByteUtils.BigEndianReader;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using BigEndianReader = RedstoneSmb.Utilities.ByteUtils.BigEndianReader;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NetBios.NameServicePackets.Structures
+namespace RedstoneSmb.NetBios.NameServicePackets.Structures
 {
     /// <summary>
     ///     [RFC 1002] 4.2.1.2. QUESTION SECTION

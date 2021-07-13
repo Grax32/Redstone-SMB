@@ -7,15 +7,15 @@
 
 using System.Collections.Generic;
 
-namespace SMBLibrary.RPC.NDR
+namespace RedstoneSmb.RPC.NDR
 {
-    public class NDRConformantArray<T> : List<T>, INDRStructure where T : INDRStructure, new()
+    public class NdrConformantArray<T> : List<T>, INdrStructure where T : INdrStructure, new()
     {
         /// <summary>
         ///     See DCE 1.1: Remote Procedure Call - 14.3.3.2 - Uni-dimensional Conformant Arrays
         /// </summary>
         /// <param name="parser"></param>
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             parser.BeginStructure();
             var maxCount = parser.ReadUInt32();
@@ -29,7 +29,7 @@ namespace SMBLibrary.RPC.NDR
             parser.EndStructure();
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             writer.BeginStructure();
             var maxCount = (uint) Count;

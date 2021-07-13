@@ -1,4 +1,4 @@
-namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Enums.FileSystemInformation
 {
     public enum FileSystemControlFlags : uint
     {

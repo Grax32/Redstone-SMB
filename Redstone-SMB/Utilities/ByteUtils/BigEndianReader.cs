@@ -7,9 +7,9 @@
 
 using System;
 using System.IO;
-using SMBLibrary.Utilities.Conversion;
+using RedstoneSmb.Utilities.Conversion;
 
-namespace SMBLibrary.Utilities.ByteUtils
+namespace RedstoneSmb.Utilities.ByteUtils
 {
     public class BigEndianReader
     {

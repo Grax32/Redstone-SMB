@@ -8,56 +8,56 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace SMBLibrary.Utilities.Generics
+namespace RedstoneSmb.Utilities.Generics
 {
     public class BlockingQueue<T>
     {
-        private readonly Queue<T> m_queue = new Queue<T>();
-        private bool m_stopping;
+        private readonly Queue<T> _mQueue = new Queue<T>();
+        private bool _mStopping;
 
         public int Count { get; private set; }
 
         public void Enqueue(T item)
         {
-            lock (m_queue)
+            lock (_mQueue)
             {
-                m_queue.Enqueue(item);
+                _mQueue.Enqueue(item);
                 Count++;
-                if (m_queue.Count == 1) Monitor.Pulse(m_queue);
+                if (_mQueue.Count == 1) Monitor.Pulse(_mQueue);
             }
         }
 
         public void Enqueue(List<T> items)
         {
             if (items.Count == 0) return;
-            lock (m_queue)
+            lock (_mQueue)
             {
                 foreach (var item in items)
                 {
-                    m_queue.Enqueue(item);
+                    _mQueue.Enqueue(item);
                     Count++;
                 }
 
-                if (m_queue.Count == items.Count) Monitor.Pulse(m_queue);
+                if (_mQueue.Count == items.Count) Monitor.Pulse(_mQueue);
             }
         }
 
         /// <returns>Will return false if the BlockingQueue is stopped</returns>
         public bool TryDequeue(out T item)
         {
-            lock (m_queue)
+            lock (_mQueue)
             {
-                while (m_queue.Count == 0)
+                while (_mQueue.Count == 0)
                 {
-                    Monitor.Wait(m_queue);
-                    if (m_stopping)
+                    Monitor.Wait(_mQueue);
+                    if (_mStopping)
                     {
                         item = default;
                         return false;
                     }
                 }
 
-                item = m_queue.Dequeue();
+                item = _mQueue.Dequeue();
                 Count--;
                 return true;
             }
@@ -65,10 +65,10 @@ namespace SMBLibrary.Utilities.Generics
 
         public void Stop()
         {
-            lock (m_queue)
+            lock (_mQueue)
             {
-                m_stopping = true;
-                Monitor.PulseAll(m_queue);
+                _mStopping = true;
+                Monitor.PulseAll(_mQueue);
             }
         }
     }

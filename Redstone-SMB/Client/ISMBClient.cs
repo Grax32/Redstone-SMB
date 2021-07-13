@@ -7,29 +7,29 @@
 
 using System.Collections.Generic;
 using System.Net;
-using SMBLibrary.Client.Enums;
-using SMBLibrary.Enums;
+using RedstoneSmb.Client.Enums;
+using RedstoneSmb.Enums;
 
-namespace SMBLibrary.Client
+namespace RedstoneSmb.Client
 {
-    public interface ISMBClient
+    public interface ISmbClient
     {
         uint MaxReadSize { get; }
 
         uint MaxWriteSize { get; }
 
-        bool Connect(IPAddress serverAddress, SMBTransportType transport);
+        bool Connect(IPAddress serverAddress, SmbTransportType transport);
 
         void Disconnect();
 
-        NTStatus Login(string domainName, string userName, string password);
+        NtStatus Login(string domainName, string userName, string password);
 
-        NTStatus Login(string domainName, string userName, string password, AuthenticationMethod authenticationMethod);
+        NtStatus Login(string domainName, string userName, string password, AuthenticationMethod authenticationMethod);
 
-        NTStatus Logoff();
+        NtStatus Logoff();
 
-        List<string> ListShares(out NTStatus status);
+        List<string> ListShares(out NtStatus status);
 
-        ISMBFileStore TreeConnect(string shareName, out NTStatus status);
+        ISmbFileStore TreeConnect(string shareName, out NtStatus status);
     }
 }

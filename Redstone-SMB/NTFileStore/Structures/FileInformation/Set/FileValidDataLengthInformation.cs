@@ -5,13 +5,11 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Set
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.41 - FileValidDataLengthInformation

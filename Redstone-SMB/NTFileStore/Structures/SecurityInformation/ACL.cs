@@ -6,19 +6,17 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
+namespace RedstoneSmb.NTFileStore.Structures.SecurityInformation
 {
     /// <summary>
     ///     [MS-DTYP] ACL (Access Control List)
     /// </summary>
-    public class ACL : List<ACE.ACE>
+    public class Acl : List<ACE.Ace>
     {
         public const int FixedLength = 8;
 
@@ -30,12 +28,12 @@ namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
         // ushort AceCount;
         public ushort Sbz2;
 
-        public ACL()
+        public Acl()
         {
             AclRevision = 0x02;
         }
 
-        public ACL(byte[] buffer, int offset)
+        public Acl(byte[] buffer, int offset)
         {
             AclRevision = ByteReader.ReadByte(buffer, offset + 0);
             Sbz1 = ByteReader.ReadByte(buffer, offset + 1);
@@ -46,7 +44,7 @@ namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
             offset += 8;
             for (var index = 0; index < aceCount; index++)
             {
-                var ace = ACE.ACE.GetAce(buffer, offset);
+                var ace = ACE.Ace.GetAce(buffer, offset);
                 Add(ace);
                 offset += ace.Length;
             }

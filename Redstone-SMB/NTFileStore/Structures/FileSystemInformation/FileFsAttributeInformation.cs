@@ -5,15 +5,13 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NTFileStore.Enums.FileSystemInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileSystemInformation;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Structures.FileSystemInformation
 {
     /// <summary>
     ///     [MS-FSCC] 2.5.1 - FileFsAttributeInformation
@@ -24,7 +22,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
 
         public FileSystemAttributes FileSystemAttributes;
         public string FileSystemName = string.Empty;
-        private uint FileSystemNameLength;
+        private uint _fileSystemNameLength;
 
         /// <summary>
         ///     Maximum file name component length, in bytes, supported by the specified file system.
@@ -40,8 +38,8 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
         {
             FileSystemAttributes = (FileSystemAttributes) LittleEndianConverter.ToUInt32(buffer, offset + 0);
             MaximumComponentNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 4);
-            FileSystemNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
-            FileSystemName = ByteReader.ReadUTF16String(buffer, offset + 12, (int) FileSystemNameLength / 2);
+            _fileSystemNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
+            FileSystemName = ByteReader.ReadUtf16String(buffer, offset + 12, (int) _fileSystemNameLength / 2);
         }
 
         public override FileSystemInformationClass FileSystemInformationClass =>
@@ -51,11 +49,11 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
 
         public override void WriteBytes(byte[] buffer, int offset)
         {
-            FileSystemNameLength = (uint) (FileSystemName.Length * 2);
+            _fileSystemNameLength = (uint) (FileSystemName.Length * 2);
             LittleEndianWriter.WriteUInt32(buffer, offset + 0, (uint) FileSystemAttributes);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, MaximumComponentNameLength);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 8, FileSystemNameLength);
-            ByteWriter.WriteUTF16String(buffer, offset + 12, FileSystemName);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 8, _fileSystemNameLength);
+            ByteWriter.WriteUtf16String(buffer, offset + 12, FileSystemName);
         }
     }
 }

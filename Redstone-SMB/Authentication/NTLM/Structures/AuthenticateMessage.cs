@@ -5,16 +5,14 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Authentication.NTLM.Helpers;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Authentication.NTLM.Helpers;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.Authentication.NTLM.Structures
+namespace RedstoneSmb.Authentication.NTLM.Structures
 {
     /// <summary>
     ///     [MS-NLMP] AUTHENTICATE_MESSAGE (Type 3 Message)
@@ -29,7 +27,7 @@ namespace SMBLibrary.Authentication.NTLM.Structures
             LmChallengeResponse; // 1 byte for anonymous authentication, 24 bytes for NTLM v1, NTLM v1 Extended Session Security and NTLM v2.
 
         public MessageTypeName MessageType;
-        public byte[] MIC; // 16-byte MIC field is omitted for Windows NT / 2000 / XP / Server 2003
+        public byte[] Mic; // 16-byte MIC field is omitted for Windows NT / 2000 / XP / Server 2003
         public NegotiateFlags NegotiateFlags;
 
         public byte[]
@@ -37,7 +35,7 @@ namespace SMBLibrary.Authentication.NTLM.Structures
 
         public string Signature; // 8 bytes
         public string UserName;
-        public NTLMVersion Version;
+        public NtlmVersion Version;
         public string WorkStation;
 
         public AuthenticateMessage()
@@ -64,31 +62,31 @@ namespace SMBLibrary.Authentication.NTLM.Structures
             var offset = 64;
             if ((NegotiateFlags & NegotiateFlags.Version) > 0)
             {
-                Version = new NTLMVersion(buffer, offset);
-                offset += NTLMVersion.Length;
+                Version = new NtlmVersion(buffer, offset);
+                offset += NtlmVersion.Length;
             }
 
-            if (HasMicField()) MIC = ByteReader.ReadBytes(buffer, offset, 16);
+            if (HasMicField()) Mic = ByteReader.ReadBytes(buffer, offset, 16);
         }
 
         public bool HasMicField()
         {
-            if (!AuthenticationMessageUtils.IsNTLMv2NTResponse(NtChallengeResponse)) return false;
+            if (!AuthenticationMessageUtils.IsNtlMv2NtResponse(NtChallengeResponse)) return false;
 
-            NTLMv2ClientChallenge challenge;
+            NtlMv2ClientChallenge challenge;
             try
             {
-                challenge = new NTLMv2ClientChallenge(NtChallengeResponse, 16);
+                challenge = new NtlMv2ClientChallenge(NtChallengeResponse, 16);
             }
             catch
             {
                 return false;
             }
 
-            var index = challenge.AVPairs.IndexOfKey(AVPairKey.Flags);
+            var index = challenge.AvPairs.IndexOfKey(AvPairKey.Flags);
             if (index >= 0)
             {
-                var value = challenge.AVPairs[index].Value;
+                var value = challenge.AvPairs[index].Value;
                 if (value.Length == 4)
                 {
                     var flags = LittleEndianConverter.ToInt32(value, 0);
@@ -104,8 +102,8 @@ namespace SMBLibrary.Authentication.NTLM.Structures
             if ((NegotiateFlags & NegotiateFlags.KeyExchange) == 0) EncryptedRandomSessionKey = new byte[0];
 
             var fixedLength = 64;
-            if ((NegotiateFlags & NegotiateFlags.Version) > 0) fixedLength += NTLMVersion.Length;
-            if (MIC != null) fixedLength += MIC.Length;
+            if ((NegotiateFlags & NegotiateFlags.Version) > 0) fixedLength += NtlmVersion.Length;
+            if (Mic != null) fixedLength += Mic.Length;
             var payloadLength = LmChallengeResponse.Length + NtChallengeResponse.Length + DomainName.Length * 2 +
                                 UserName.Length * 2 + WorkStation.Length * 2 + EncryptedRandomSessionKey.Length;
             var buffer = new byte[fixedLength + payloadLength];
@@ -116,21 +114,21 @@ namespace SMBLibrary.Authentication.NTLM.Structures
             if ((NegotiateFlags & NegotiateFlags.Version) > 0)
             {
                 Version.WriteBytes(buffer, offset);
-                offset += NTLMVersion.Length;
+                offset += NtlmVersion.Length;
             }
 
-            if (MIC != null)
+            if (Mic != null)
             {
-                ByteWriter.WriteBytes(buffer, offset, MIC);
-                offset += MIC.Length;
+                ByteWriter.WriteBytes(buffer, offset, Mic);
+                offset += Mic.Length;
             }
 
             AuthenticationMessageUtils.WriteBufferPointer(buffer, 28, (ushort) (DomainName.Length * 2), (uint) offset);
-            ByteWriter.WriteUTF16String(buffer, ref offset, DomainName);
+            ByteWriter.WriteUtf16String(buffer, ref offset, DomainName);
             AuthenticationMessageUtils.WriteBufferPointer(buffer, 36, (ushort) (UserName.Length * 2), (uint) offset);
-            ByteWriter.WriteUTF16String(buffer, ref offset, UserName);
+            ByteWriter.WriteUtf16String(buffer, ref offset, UserName);
             AuthenticationMessageUtils.WriteBufferPointer(buffer, 44, (ushort) (WorkStation.Length * 2), (uint) offset);
-            ByteWriter.WriteUTF16String(buffer, ref offset, WorkStation);
+            ByteWriter.WriteUtf16String(buffer, ref offset, WorkStation);
             AuthenticationMessageUtils.WriteBufferPointer(buffer, 12, (ushort) LmChallengeResponse.Length,
                 (uint) offset);
             ByteWriter.WriteBytes(buffer, ref offset, LmChallengeResponse);

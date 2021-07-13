@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.Services.ServerService.Enums
+namespace RedstoneSmb.Services.ServerService.Enums
 {
     /// <summary>
     ///     [MS-SRVS] 2.2.2.7 Software Type Flags
@@ -20,10 +20,10 @@ namespace SMBLibrary.Services.ServerService.Enums
         PrintQueueServer = 0x00000200, // SV_TYPE_PRINTQ_SERVER
         DialInServer = 0x00000400, // SV_TYPE_DIALIN_SERVER
         XenixServer = 0x00000800, // SV_TYPE_XENIX_SERVER
-        WindowsNT = 0x00001000, // SV_TYPE_NT
+        WindowsNt = 0x00001000, // SV_TYPE_NT
         WindowsForWorkgroupServer = 0x00002000, // SV_TYPE_WFW
         FileAndPrintForNetware = 0x00004000, // SV_TYPE_SERVER_MFPN
-        ServerNT = 0x00008000, // SV_TYPE_SERVER_NT
+        ServerNt = 0x00008000, // SV_TYPE_SERVER_NT
         PotentialBrowser = 0x00010000, // SV_TYPE_POTENTIAL_BROWSER
         BackupBrowser = 0x00020000, // SV_TYPE_BACKUP_BROWSER
         MasterBrowser = 0x00040000, // SV_TYPE_MASTER_BROWSER
@@ -32,7 +32,7 @@ namespace SMBLibrary.Services.ServerService.Enums
         DfsServer = 0x00800000, // Not in the official documents
         TerminalServer = 0x02000000, // SV_TYPE_TERMINALSERVER
         ClusterVirtualServer = 0x04000000, // SV_TYPE_CLUSTER_NT
-        NTCluster = 0x10000000, // SV_TYPE_CLUSTER_NT
+        NtCluster = 0x10000000, // SV_TYPE_CLUSTER_NT
         LocalListOnly = 0x40000000, // SV_TYPE_LOCAL_LIST_ONLY
         PrimaryDomain = 0x80000000, // SV_TYPE_DOMAIN_ENUM
 

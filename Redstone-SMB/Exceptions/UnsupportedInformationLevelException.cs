@@ -7,7 +7,7 @@
 
 using System;
 
-namespace SMBLibrary.Exceptions
+namespace RedstoneSmb.Exceptions
 {
     public class UnsupportedInformationLevelException : Exception
     {

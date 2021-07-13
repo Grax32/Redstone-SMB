@@ -1,4 +1,4 @@
-namespace SMBLibrary.NTFileStore.Enums.FileInformation
+namespace RedstoneSmb.NTFileStore.Enums.FileInformation
 {
     /// <summary>
     ///     [MS-FSCC] 2.4 - File Information Classes

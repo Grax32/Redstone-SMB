@@ -6,52 +6,50 @@
  */
 
 using System;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.RPC.Structures
+namespace RedstoneSmb.RPC.Structures
 {
     /// <summary>
     ///     p_syntax_id_t
     /// </summary>
-    public struct SyntaxID
+    public struct SyntaxId
     {
         public const int Length = 20;
 
-        public Guid InterfaceUUID; // if_uuid
+        public Guid InterfaceUuid; // if_uuid
         public uint InterfaceVersion; // if_version
 
-        public SyntaxID(Guid interfaceUUID, uint interfaceVersion)
+        public SyntaxId(Guid interfaceUuid, uint interfaceVersion)
         {
-            InterfaceUUID = interfaceUUID;
+            InterfaceUuid = interfaceUuid;
             InterfaceVersion = interfaceVersion;
         }
 
-        public SyntaxID(byte[] buffer, int offset)
+        public SyntaxId(byte[] buffer, int offset)
         {
-            InterfaceUUID = LittleEndianConverter.ToGuid(buffer, offset + 0);
+            InterfaceUuid = LittleEndianConverter.ToGuid(buffer, offset + 0);
             InterfaceVersion = LittleEndianConverter.ToUInt32(buffer, offset + 16);
         }
 
         public void WriteBytes(byte[] buffer, int offset)
         {
-            LittleEndianWriter.WriteGuid(buffer, offset + 0, InterfaceUUID);
+            LittleEndianWriter.WriteGuid(buffer, offset + 0, InterfaceUuid);
             LittleEndianWriter.WriteUInt32(buffer, offset + 16, InterfaceVersion);
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is SyntaxID)
-                return InterfaceUUID.Equals(((SyntaxID) obj).InterfaceUUID) &&
-                       InterfaceVersion.Equals(((SyntaxID) obj).InterfaceVersion);
+            if (obj is SyntaxId)
+                return InterfaceUuid.Equals(((SyntaxId) obj).InterfaceUuid) &&
+                       InterfaceVersion.Equals(((SyntaxId) obj).InterfaceVersion);
             return false;
         }
 
         public override int GetHashCode()
         {
-            return InterfaceUUID.GetHashCode() * InterfaceVersion.GetHashCode();
+            return InterfaceUuid.GetHashCode() * InterfaceVersion.GetHashCode();
         }
     }
 }

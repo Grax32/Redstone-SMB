@@ -6,59 +6,58 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using LittleEndianReader = SMBLibrary.Utilities.ByteUtils.LittleEndianReader;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using LittleEndianReader = RedstoneSmb.Utilities.ByteUtils.LittleEndianReader;
 
-namespace SMBLibrary.RPC.NDR
+namespace RedstoneSmb.RPC.NDR
 {
     /// <summary>
     ///     NDR - Native Data Representation
     ///     See DCE 1.1: Remote Procedure Call, Chapter 14 - Transfer Syntax NDR
     /// </summary>
-    public class NDRParser
+    public class NdrParser
     {
-        private readonly byte[] m_buffer;
-        private readonly List<INDRStructure> m_deferredStructures = new List<INDRStructure>();
-        private int m_depth;
-        private int m_offset;
-        private readonly Dictionary<uint, INDRStructure> m_referentToInstance = new Dictionary<uint, INDRStructure>();
+        private readonly byte[] _mBuffer;
+        private readonly List<INdrStructure> _mDeferredStructures = new List<INdrStructure>();
+        private int _mDepth;
+        private int _mOffset;
+        private readonly Dictionary<uint, INdrStructure> _mReferentToInstance = new Dictionary<uint, INdrStructure>();
 
-        public NDRParser(byte[] buffer)
+        public NdrParser(byte[] buffer)
         {
-            m_buffer = buffer;
-            m_offset = 0;
-            m_depth = 0;
+            _mBuffer = buffer;
+            _mOffset = 0;
+            _mDepth = 0;
         }
 
         public void BeginStructure()
         {
-            m_depth++;
+            _mDepth++;
         }
 
         /// <summary>
         ///     Add embedded pointer deferred structure (referent) parser
         /// </summary>
-        private void AddDeferredStructure(INDRStructure structure)
+        private void AddDeferredStructure(INdrStructure structure)
         {
-            m_deferredStructures.Add(structure);
+            _mDeferredStructures.Add(structure);
         }
 
         public void EndStructure()
         {
-            m_depth--;
+            _mDepth--;
             // 14.3.12.3 - Algorithm for Deferral of Referents
             // Representations of (embedded) pointer referents are ordered according to a left-to-right, depth-first traversal of the embedding construction.
             // referent representations for the embedded construction are further deferred to a position in the octet stream that
             // follows the representation of the embedding construction. The set of referent representations for the embedded construction
             // is inserted among the referent representations for any pointers in the embedding construction, according to the order of elements or
             // members in the embedding construction
-            if (m_depth == 0)
+            if (_mDepth == 0)
             {
                 // Make a copy of all the deferred structures, additional deferred structures will be inserted to m_deferredStructures
                 // as we process the existing list
-                var deferredStructures = new List<INDRStructure>(m_deferredStructures);
-                m_deferredStructures.Clear();
+                var deferredStructures = new List<INdrStructure>(_mDeferredStructures);
+                _mDeferredStructures.Clear();
                 // Read all deferred types:
                 foreach (var deferredStructure in deferredStructures) deferredStructure.Read(this);
             }
@@ -66,11 +65,11 @@ namespace SMBLibrary.RPC.NDR
 
         public string ReadUnicodeString()
         {
-            var unicodeString = new NDRUnicodeString(this);
+            var unicodeString = new NdrUnicodeString(this);
             return unicodeString.Value;
         }
 
-        public void ReadStructure(INDRStructure structure)
+        public void ReadStructure(INdrStructure structure)
         {
             structure.Read(this);
         }
@@ -78,31 +77,31 @@ namespace SMBLibrary.RPC.NDR
         // 14.3.11.1 - Top-level Full Pointers
         public string ReadTopLevelUnicodeStringPointer()
         {
-            var referentID = ReadUInt32();
-            if (referentID == 0) return null;
+            var referentId = ReadUInt32();
+            if (referentId == 0) return null;
 
-            if (m_referentToInstance.ContainsKey(referentID))
+            if (_mReferentToInstance.ContainsKey(referentId))
             {
-                var unicodeString = (NDRUnicodeString) m_referentToInstance[referentID];
+                var unicodeString = (NdrUnicodeString) _mReferentToInstance[referentId];
                 return unicodeString.Value;
             }
             else
             {
-                var unicodeString = new NDRUnicodeString(this);
-                m_referentToInstance.Add(referentID, unicodeString);
+                var unicodeString = new NdrUnicodeString(this);
+                _mReferentToInstance.Add(referentId, unicodeString);
                 return unicodeString.Value;
             }
         }
 
-        public void ReadEmbeddedStructureFullPointer(ref NDRUnicodeString structure)
+        public void ReadEmbeddedStructureFullPointer(ref NdrUnicodeString structure)
         {
-            ReadEmbeddedStructureFullPointer<NDRUnicodeString>(ref structure);
+            ReadEmbeddedStructureFullPointer<NdrUnicodeString>(ref structure);
         }
 
-        public void ReadEmbeddedStructureFullPointer<T>(ref T structure) where T : INDRStructure, new()
+        public void ReadEmbeddedStructureFullPointer<T>(ref T structure) where T : INdrStructure, new()
         {
-            var referentID = ReadUInt32();
-            if (referentID != 0) // not null
+            var referentId = ReadUInt32();
+            if (referentId != 0) // not null
             {
                 if (structure == null) structure = new T();
                 AddDeferredStructure(structure);
@@ -116,20 +115,20 @@ namespace SMBLibrary.RPC.NDR
         // 14.2.2 - Alignment of Primitive Types
         public uint ReadUInt16()
         {
-            m_offset += (2 - m_offset % 2) % 2;
-            return LittleEndianReader.ReadUInt16(m_buffer, ref m_offset);
+            _mOffset += (2 - _mOffset % 2) % 2;
+            return LittleEndianReader.ReadUInt16(_mBuffer, ref _mOffset);
         }
 
         // 14.2.2 - Alignment of Primitive Types
         public uint ReadUInt32()
         {
-            m_offset += (4 - m_offset % 4) % 4;
-            return LittleEndianReader.ReadUInt32(m_buffer, ref m_offset);
+            _mOffset += (4 - _mOffset % 4) % 4;
+            return LittleEndianReader.ReadUInt32(_mBuffer, ref _mOffset);
         }
 
         public byte[] ReadBytes(int count)
         {
-            return ByteReader.ReadBytes(m_buffer, ref m_offset, count);
+            return ByteReader.ReadBytes(_mBuffer, ref _mOffset, count);
         }
     }
 }

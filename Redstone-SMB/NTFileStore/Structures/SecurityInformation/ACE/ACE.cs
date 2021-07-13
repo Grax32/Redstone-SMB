@@ -6,28 +6,27 @@
  */
 
 using System;
-using SMBLibrary.NTFileStore.Structures.SecurityInformation.ACE.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
+using RedstoneSmb.NTFileStore.Structures.SecurityInformation.ACE.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
 
-namespace SMBLibrary.NTFileStore.Structures.SecurityInformation.ACE
+namespace RedstoneSmb.NTFileStore.Structures.SecurityInformation.ACE
 {
     /// <summary>
     ///     [MS-DTYP] ACE (Access Control Entry)
     /// </summary>
-    public abstract class ACE
+    public abstract class Ace
     {
         public abstract int Length { get; }
 
         public abstract void WriteBytes(byte[] buffer, ref int offset);
 
-        public static ACE GetAce(byte[] buffer, int offset)
+        public static Ace GetAce(byte[] buffer, int offset)
         {
             var aceType = (AceType) ByteReader.ReadByte(buffer, offset + 0);
             switch (aceType)
             {
-                case AceType.ACCESS_ALLOWED_ACE_TYPE:
-                    return new AccessAllowedACE(buffer, offset);
+                case AceType.AccessAllowedAceType:
+                    return new AccessAllowedAce(buffer, offset);
                 default:
                     throw new NotImplementedException();
             }

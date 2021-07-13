@@ -6,55 +6,55 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Enums;
-using SMBLibrary.Models;
-using SMBLibrary.NTFileStore.Enums;
-using SMBLibrary.NTFileStore.Enums.AccessMask;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.NTFileStore.Enums.FileSystemInformation;
-using SMBLibrary.NTFileStore.Enums.NtCreateFile;
-using SMBLibrary.NTFileStore.Enums.SecurityInformation;
-using SMBLibrary.NTFileStore.Structures.FileInformation;
-using SMBLibrary.NTFileStore.Structures.FileInformation.QueryDirectory;
-using SMBLibrary.NTFileStore.Structures.FileSystemInformation;
-using SMBLibrary.NTFileStore.Structures.SecurityInformation;
+using RedstoneSmb.Enums;
+using RedstoneSmb.Models;
+using RedstoneSmb.NTFileStore.Enums;
+using RedstoneSmb.NTFileStore.Enums.AccessMask;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.NTFileStore.Enums.FileSystemInformation;
+using RedstoneSmb.NTFileStore.Enums.NtCreateFile;
+using RedstoneSmb.NTFileStore.Enums.SecurityInformation;
+using RedstoneSmb.NTFileStore.Structures.FileInformation;
+using RedstoneSmb.NTFileStore.Structures.FileInformation.QueryDirectory;
+using RedstoneSmb.NTFileStore.Structures.FileSystemInformation;
+using RedstoneSmb.NTFileStore.Structures.SecurityInformation;
 
-namespace SMBLibrary.NTFileStore
+namespace RedstoneSmb.NTFileStore
 {
-    public delegate void OnNotifyChangeCompleted(NTStatus status, byte[] buffer, object context);
+    public delegate void OnNotifyChangeCompleted(NtStatus status, byte[] buffer, object context);
 
     /// <summary>
     ///     A file store (a.k.a. object store) interface to allow access to a file system or a named pipe in an NT-like manner
     ///     dictated by the SMB protocol.
     /// </summary>
-    public interface INTFileStore
+    public interface INtFileStore
     {
-        NTStatus CreateFile(out object handle, out FileStatus fileStatus, string path, AccessMask desiredAccess,
+        NtStatus CreateFile(out object handle, out FileStatus fileStatus, string path, AccessMask desiredAccess,
             FileAttributes fileAttributes, ShareAccess shareAccess, CreateDisposition createDisposition,
             CreateOptions createOptions, SecurityContext securityContext);
 
-        NTStatus CloseFile(object handle);
+        NtStatus CloseFile(object handle);
 
-        NTStatus ReadFile(out byte[] data, object handle, long offset, int maxCount);
+        NtStatus ReadFile(out byte[] data, object handle, long offset, int maxCount);
 
-        NTStatus WriteFile(out int numberOfBytesWritten, object handle, long offset, byte[] data);
+        NtStatus WriteFile(out int numberOfBytesWritten, object handle, long offset, byte[] data);
 
-        NTStatus QueryDirectory(out List<QueryDirectoryFileInformation> result, object handle, string fileName,
+        NtStatus QueryDirectory(out List<QueryDirectoryFileInformation> result, object handle, string fileName,
             FileInformationClass informationClass);
 
-        NTStatus GetFileInformation(out FileInformation result, object handle, FileInformationClass informationClass);
+        NtStatus GetFileInformation(out FileInformation result, object handle, FileInformationClass informationClass);
 
-        NTStatus SetFileInformation(object handle, FileInformation information);
+        NtStatus SetFileInformation(object handle, FileInformation information);
 
-        NTStatus GetFileSystemInformation(out FileSystemInformation result,
+        NtStatus GetFileSystemInformation(out FileSystemInformation result,
             FileSystemInformationClass informationClass);
 
-        NTStatus SetFileSystemInformation(FileSystemInformation information);
+        NtStatus SetFileSystemInformation(FileSystemInformation information);
 
-        NTStatus GetSecurityInformation(out SecurityDescriptor result, object handle,
+        NtStatus GetSecurityInformation(out SecurityDescriptor result, object handle,
             SecurityInformation securityInformation);
 
-        NTStatus SetSecurityInformation(object handle, SecurityInformation securityInformation,
+        NtStatus SetSecurityInformation(object handle, SecurityInformation securityInformation,
             SecurityDescriptor securityDescriptor);
 
         /// <summary>
@@ -66,11 +66,11 @@ namespace SMBLibrary.NTFileStore
         ///     STATUS_NOT_SUPPORTED - The underlying object store does not support change notifications.
         ///     STATUS_INVALID_HANDLE - The handle supplied is invalid.
         /// </returns>
-        NTStatus NotifyChange(out object ioRequest, object handle, NotifyChangeFilter completionFilter, bool watchTree,
+        NtStatus NotifyChange(out object ioRequest, object handle, NotifyChangeFilter completionFilter, bool watchTree,
             int outputBufferSize, OnNotifyChangeCompleted onNotifyChangeCompleted, object context);
 
-        NTStatus Cancel(object ioRequest);
+        NtStatus Cancel(object ioRequest);
 
-        NTStatus DeviceIOControl(object handle, uint ctlCode, byte[] input, out byte[] output, int maxOutputLength);
+        NtStatus DeviceIoControl(object handle, uint ctlCode, byte[] input, out byte[] output, int maxOutputLength);
     }
 }

@@ -5,14 +5,12 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Query
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.40 - FileStreamInformation data element
@@ -24,7 +22,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
         public uint NextEntryOffset;
         public long StreamAllocationSize;
         public string StreamName = string.Empty;
-        private uint StreamNameLength;
+        private uint _streamNameLength;
         public long StreamSize;
 
         public FileStreamEntry()
@@ -34,10 +32,10 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
         public FileStreamEntry(byte[] buffer, int offset)
         {
             NextEntryOffset = LittleEndianConverter.ToUInt32(buffer, offset + 0);
-            StreamNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 4);
+            _streamNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 4);
             StreamSize = LittleEndianConverter.ToInt64(buffer, offset + 8);
             StreamAllocationSize = LittleEndianConverter.ToInt64(buffer, offset + 16);
-            StreamName = ByteReader.ReadUTF16String(buffer, offset + 24, (int) StreamNameLength / 2);
+            StreamName = ByteReader.ReadUtf16String(buffer, offset + 24, (int) _streamNameLength / 2);
         }
 
         public int Length => FixedLength + StreamName.Length * 2;
@@ -58,12 +56,12 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
 
         public void WriteBytes(byte[] buffer, int offset)
         {
-            StreamNameLength = (uint) (StreamName.Length * 2);
+            _streamNameLength = (uint) (StreamName.Length * 2);
             LittleEndianWriter.WriteUInt32(buffer, offset + 0, NextEntryOffset);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 4, StreamNameLength);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 4, _streamNameLength);
             LittleEndianWriter.WriteInt64(buffer, offset + 8, StreamSize);
             LittleEndianWriter.WriteInt64(buffer, offset + 16, StreamAllocationSize);
-            ByteWriter.WriteUTF16String(buffer, offset + 24, StreamName);
+            ByteWriter.WriteUtf16String(buffer, offset + 24, StreamName);
         }
     }
 }

@@ -6,17 +6,15 @@
  */
 
 using System;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.IOCtl
+namespace RedstoneSmb.NTFileStore.Structures.IOCtl
 {
     /// <summary>
     ///     [MS-FSCC] 2.1.3.1 - FILE_OBJECTID_BUFFER Type 1
     /// </summary>
-    public class ObjectIDBufferType1
+    public class ObjectIdBufferType1
     {
         public const int Length = 64;
         public Guid BirthObjectId;
@@ -25,11 +23,11 @@ namespace SMBLibrary.NTFileStore.Structures.IOCtl
 
         public Guid ObjectId;
 
-        public ObjectIDBufferType1()
+        public ObjectIdBufferType1()
         {
         }
 
-        public ObjectIDBufferType1(byte[] buffer)
+        public ObjectIdBufferType1(byte[] buffer)
         {
             ObjectId = LittleEndianConverter.ToGuid(buffer, 0);
             BirthVolumeId = LittleEndianConverter.ToGuid(buffer, 16);

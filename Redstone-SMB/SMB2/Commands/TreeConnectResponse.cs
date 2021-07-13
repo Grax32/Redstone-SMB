@@ -5,22 +5,20 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NTFileStore.Enums.AccessMask;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.TreeConnect;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.AccessMask;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.TreeConnect;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 TREE_CONNECT Response
     /// </summary>
-    public class TreeConnectResponse : SMB2Command
+    public class TreeConnectResponse : Smb2Command
     {
         public const int DeclaredSize = 16;
         public ShareCapabilities Capabilities;
@@ -29,29 +27,29 @@ namespace SMBLibrary.SMB2.Commands
         public ShareFlags ShareFlags;
         public ShareType ShareType;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public TreeConnectResponse() : base(SMB2CommandName.TreeConnect)
+        public TreeConnectResponse() : base(Smb2CommandName.TreeConnect)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public TreeConnectResponse(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            ShareType = (ShareType) ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 2);
-            Reserved = ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 3);
-            ShareFlags = (ShareFlags) LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            Capabilities = (ShareCapabilities) LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 8);
-            MaximalAccess = (AccessMask) LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 12);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            ShareType = (ShareType) ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 2);
+            Reserved = ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 3);
+            ShareFlags = (ShareFlags) LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            Capabilities = (ShareCapabilities) LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 8);
+            MaximalAccess = (AccessMask) LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 12);
         }
 
         public override int CommandLength => DeclaredSize;
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             ByteWriter.WriteByte(buffer, offset + 2, (byte) ShareType);
             ByteWriter.WriteByte(buffer, offset + 3, Reserved);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, (uint) ShareFlags);

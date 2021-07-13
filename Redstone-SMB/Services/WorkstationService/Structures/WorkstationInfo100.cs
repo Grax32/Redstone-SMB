@@ -5,41 +5,41 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.WorkstationService.Structures
+namespace RedstoneSmb.Services.WorkstationService.Structures
 {
     /// <summary>
     ///     [MS-WKST] WKSTA_INFO_100
     /// </summary>
     public class WorkstationInfo100 : WorkstationInfoLevel
     {
-        public NDRUnicodeString ComputerName;
-        public NDRUnicodeString LanGroup;
-        public uint PlatformID;
+        public NdrUnicodeString ComputerName;
+        public NdrUnicodeString LanGroup;
+        public uint PlatformId;
         public uint VerMajor;
         public uint VerMinor;
 
         public WorkstationInfo100()
         {
-            ComputerName = new NDRUnicodeString();
-            LanGroup = new NDRUnicodeString();
+            ComputerName = new NdrUnicodeString();
+            LanGroup = new NdrUnicodeString();
         }
 
-        public WorkstationInfo100(NDRParser parser)
+        public WorkstationInfo100(NdrParser parser)
         {
             Read(parser);
         }
 
         public override uint Level => 100;
 
-        public override void Read(NDRParser parser)
+        public override void Read(NdrParser parser)
         {
             // If an array, structure, or union embeds a pointer, the representation of the referent of the
             // pointer is deferred to a position in the octet stream that follows the representation of the
             // embedding construction
             parser.BeginStructure();
-            PlatformID = parser.ReadUInt32();
+            PlatformId = parser.ReadUInt32();
             parser.ReadEmbeddedStructureFullPointer(ref ComputerName);
             parser.ReadEmbeddedStructureFullPointer(ref LanGroup);
             VerMajor = parser.ReadUInt32();
@@ -47,10 +47,10 @@ namespace SMBLibrary.Services.WorkstationService.Structures
             parser.EndStructure();
         }
 
-        public override void Write(NDRWriter writer)
+        public override void Write(NdrWriter writer)
         {
             writer.BeginStructure();
-            writer.WriteUInt32(PlatformID);
+            writer.WriteUInt32(PlatformId);
             writer.WriteEmbeddedStructureFullPointer(ComputerName);
             writer.WriteEmbeddedStructureFullPointer(LanGroup);
             writer.WriteUInt32(VerMajor);

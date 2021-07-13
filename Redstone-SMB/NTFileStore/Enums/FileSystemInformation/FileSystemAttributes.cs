@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Enums.FileSystemInformation
 {
     [Flags]
     public enum FileSystemAttributes : uint
@@ -8,7 +8,7 @@ namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
         CaseSensitiveSearch = 0x0001, // FILE_CASE_SENSITIVE_SEARCH
         CasePreservedNamed = 0x0002, // FILE_CASE_PRESERVED_NAMES
         UnicodeOnDisk = 0x0004, // FILE_UNICODE_ON_DISK
-        PersistentACLs = 0x0008, // FILE_PERSISTENT_ACLS
+        PersistentAcLs = 0x0008, // FILE_PERSISTENT_ACLS
         FileCompression = 0x0010, // FILE_FILE_COMPRESSION
         VolumeQuotas = 0x0020, // FILE_VOLUME_QUOTAS
         SupportsSparseFiles = 0x0040, // FILE_SUPPORTS_SPARSE_FILES
@@ -23,7 +23,7 @@ namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
         SupportsTransactions = 0x00200000, // FILE_SUPPORTS_TRANSACTIONS
         SupportsHardLinks = 0x00400000, // FILE_SUPPORTS_HARD_LINKS
         SupportsExtendedAttributes = 0x00800000, // FILE_SUPPORTS_EXTENDED_ATTRIBUTES
-        SupportsOpenByFileID = 0x01000000, // FILE_SUPPORTS_OPEN_BY_FILE_ID
-        SupportsUSNJournal = 0x02000000 // FILE_SUPPORTS_USN_JOURNAL
+        SupportsOpenByFileId = 0x01000000, // FILE_SUPPORTS_OPEN_BY_FILE_ID
+        SupportsUsnJournal = 0x02000000 // FILE_SUPPORTS_USN_JOURNAL
     }
 }

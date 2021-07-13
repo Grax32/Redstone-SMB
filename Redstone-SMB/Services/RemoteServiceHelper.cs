@@ -7,24 +7,23 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.RPC.Enums;
-using SMBLibrary.RPC.PDU;
-using SMBLibrary.RPC.Structures;
-using SMBLibrary.Services.Exceptions;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
+using RedstoneSmb.RPC.Enums;
+using RedstoneSmb.RPC.PDU;
+using RedstoneSmb.RPC.Structures;
+using RedstoneSmb.Services.Exceptions;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
 
-namespace SMBLibrary.Services
+namespace RedstoneSmb.Services
 {
     public class RemoteServiceHelper
     {
-        public const int NDRTransferSyntaxVersion = 2;
+        public const int NdrTransferSyntaxVersion = 2;
 
         public const int BindTimeFeatureIdentifierVersion = 1;
 
         // v1 - DCE 1.1: Remote Procedure Call
         // v2 - [MS-RPCE] 2.2.4.12 NDR Transfer Syntax Identifier
-        public static readonly Guid NDRTransferSyntaxIdentifier = new Guid("8A885D04-1CEB-11C9-9FE8-08002B104860");
+        public static readonly Guid NdrTransferSyntaxIdentifier = new Guid("8A885D04-1CEB-11C9-9FE8-08002B104860");
 
         // v1 - [MS-RPCE] 3.3.1.5.3 - Bind Time Feature Negotiation
         // Windows will reject this:
@@ -32,36 +31,36 @@ namespace SMBLibrary.Services
         // Windows will return NegotiationResult.NegotiateAck:
         public static readonly Guid BindTimeFeatureIdentifier3 = new Guid("6CB71C2C-9812-4540-0300-000000000000");
 
-        private static uint m_associationGroupID = 1;
+        private static uint _mAssociationGroupId = 1;
 
-        public static BindAckPDU GetRPCBindResponse(BindPDU bindPDU, RemoteService service)
+        public static BindAckPdu GetRpcBindResponse(BindPdu bindPdu, RemoteService service)
         {
-            var bindAckPDU = new BindAckPDU();
-            bindAckPDU.Flags = PacketFlags.FirstFragment | PacketFlags.LastFragment;
-            bindAckPDU.DataRepresentation = bindPDU.DataRepresentation;
-            bindAckPDU.CallID = bindPDU.CallID;
+            var bindAckPdu = new BindAckPdu();
+            bindAckPdu.Flags = PacketFlags.FirstFragment | PacketFlags.LastFragment;
+            bindAckPdu.DataRepresentation = bindPdu.DataRepresentation;
+            bindAckPdu.CallId = bindPdu.CallId;
             // See DCE 1.1: Remote Procedure Call - 12.6.3.6
             // The client should set the assoc_group_id field either to 0 (zero), to indicate a new association group,
             // or to the known value. When the server receives a value of 0, this indicates that the client
             // has requested a new association group, and it assigns a server unique value to the group.
-            if (bindPDU.AssociationGroupID == 0)
+            if (bindPdu.AssociationGroupId == 0)
             {
-                bindAckPDU.AssociationGroupID = m_associationGroupID;
-                m_associationGroupID++;
-                if (m_associationGroupID == 0) m_associationGroupID++;
+                bindAckPdu.AssociationGroupId = _mAssociationGroupId;
+                _mAssociationGroupId++;
+                if (_mAssociationGroupId == 0) _mAssociationGroupId++;
             }
             else
             {
-                bindAckPDU.AssociationGroupID = bindPDU.AssociationGroupID;
+                bindAckPdu.AssociationGroupId = bindPdu.AssociationGroupId;
             }
 
-            bindAckPDU.SecondaryAddress = @"\PIPE\" + service.PipeName;
-            bindAckPDU.MaxTransmitFragmentSize = bindPDU.MaxReceiveFragmentSize;
-            bindAckPDU.MaxReceiveFragmentSize = bindPDU.MaxTransmitFragmentSize;
-            foreach (var element in bindPDU.ContextList)
+            bindAckPdu.SecondaryAddress = @"\PIPE\" + service.PipeName;
+            bindAckPdu.MaxTransmitFragmentSize = bindPdu.MaxReceiveFragmentSize;
+            bindAckPdu.MaxReceiveFragmentSize = bindPdu.MaxTransmitFragmentSize;
+            foreach (var element in bindPdu.ContextList)
             {
                 var resultElement = new ResultElement();
-                if (element.AbstractSyntax.InterfaceUUID.Equals(service.InterfaceGuid))
+                if (element.AbstractSyntax.InterfaceUuid.Equals(service.InterfaceGuid))
                 {
                     var index = IndexOfSupportedTransferSyntax(element.TransferSyntaxList);
                     if (index >= 0)
@@ -69,7 +68,7 @@ namespace SMBLibrary.Services
                         resultElement.Result = NegotiationResult.Acceptance;
                         resultElement.TransferSyntax = element.TransferSyntaxList[index];
                     }
-                    else if (element.TransferSyntaxList.Contains(new SyntaxID(BindTimeFeatureIdentifier3, 1)))
+                    else if (element.TransferSyntaxList.Contains(new SyntaxId(BindTimeFeatureIdentifier3, 1)))
                     {
                         // [MS-RPCE] 3.3.1.5.3
                         // If the server supports bind time feature negotiation, it MUST reply with the result
@@ -89,18 +88,18 @@ namespace SMBLibrary.Services
                     resultElement.Reason = RejectionReason.AbstractSyntaxNotSupported;
                 }
 
-                bindAckPDU.ResultList.Add(resultElement);
+                bindAckPdu.ResultList.Add(resultElement);
             }
 
-            return bindAckPDU;
+            return bindAckPdu;
         }
 
-        private static int IndexOfSupportedTransferSyntax(List<SyntaxID> syntaxList)
+        private static int IndexOfSupportedTransferSyntax(List<SyntaxId> syntaxList)
         {
-            var supportedTransferSyntaxes = new List<SyntaxID>();
-            supportedTransferSyntaxes.Add(new SyntaxID(NDRTransferSyntaxIdentifier, 1));
+            var supportedTransferSyntaxes = new List<SyntaxId>();
+            supportedTransferSyntaxes.Add(new SyntaxId(NdrTransferSyntaxIdentifier, 1));
             // [MS-RPCE] Version 2.0 data representation protocol:
-            supportedTransferSyntaxes.Add(new SyntaxID(NDRTransferSyntaxIdentifier, 2));
+            supportedTransferSyntaxes.Add(new SyntaxId(NdrTransferSyntaxIdentifier, 2));
 
             for (var index = 0; index < syntaxList.Count; index++)
                 if (supportedTransferSyntaxes.Contains(syntaxList[index]))
@@ -108,42 +107,42 @@ namespace SMBLibrary.Services
             return -1;
         }
 
-        public static List<RPCPDU> GetRPCResponse(RequestPDU requestPDU, RemoteService service,
+        public static List<Rpcpdu> GetRpcResponse(RequestPdu requestPdu, RemoteService service,
             int maxTransmitFragmentSize)
         {
-            var result = new List<RPCPDU>();
+            var result = new List<Rpcpdu>();
             byte[] responseBytes;
             try
             {
-                responseBytes = service.GetResponseBytes(requestPDU.OpNum, requestPDU.Data);
+                responseBytes = service.GetResponseBytes(requestPdu.OpNum, requestPdu.Data);
             }
             catch (UnsupportedOpNumException)
             {
-                var faultPDU = new FaultPDU();
-                faultPDU.Flags = PacketFlags.FirstFragment | PacketFlags.LastFragment | PacketFlags.DidNotExecute;
-                faultPDU.DataRepresentation = requestPDU.DataRepresentation;
-                faultPDU.CallID = requestPDU.CallID;
-                faultPDU.AllocationHint = RPCPDU.CommonFieldsLength + FaultPDU.FaultFieldsLength;
+                var faultPdu = new FaultPdu();
+                faultPdu.Flags = PacketFlags.FirstFragment | PacketFlags.LastFragment | PacketFlags.DidNotExecute;
+                faultPdu.DataRepresentation = requestPdu.DataRepresentation;
+                faultPdu.CallId = requestPdu.CallId;
+                faultPdu.AllocationHint = Rpcpdu.CommonFieldsLength + FaultPdu.FaultFieldsLength;
                 // Windows will return either nca_s_fault_ndr or nca_op_rng_error.
-                faultPDU.Status = FaultStatus.OpRangeError;
-                result.Add(faultPDU);
+                faultPdu.Status = FaultStatus.OpRangeError;
+                result.Add(faultPdu);
                 return result;
             }
 
             var offset = 0;
-            var maxPDUDataLength =
-                maxTransmitFragmentSize - RPCPDU.CommonFieldsLength - ResponsePDU.ResponseFieldsLength;
+            var maxPduDataLength =
+                maxTransmitFragmentSize - Rpcpdu.CommonFieldsLength - ResponsePdu.ResponseFieldsLength;
             do
             {
-                var responsePDU = new ResponsePDU();
-                var pduDataLength = Math.Min(responseBytes.Length - offset, maxPDUDataLength);
-                responsePDU.DataRepresentation = requestPDU.DataRepresentation;
-                responsePDU.CallID = requestPDU.CallID;
-                responsePDU.AllocationHint = (uint) (responseBytes.Length - offset);
-                responsePDU.Data = ByteReader.ReadBytes(responseBytes, offset, pduDataLength);
-                if (offset == 0) responsePDU.Flags |= PacketFlags.FirstFragment;
-                if (offset + pduDataLength == responseBytes.Length) responsePDU.Flags |= PacketFlags.LastFragment;
-                result.Add(responsePDU);
+                var responsePdu = new ResponsePdu();
+                var pduDataLength = Math.Min(responseBytes.Length - offset, maxPduDataLength);
+                responsePdu.DataRepresentation = requestPdu.DataRepresentation;
+                responsePdu.CallId = requestPdu.CallId;
+                responsePdu.AllocationHint = (uint) (responseBytes.Length - offset);
+                responsePdu.Data = ByteReader.ReadBytes(responseBytes, offset, pduDataLength);
+                if (offset == 0) responsePdu.Flags |= PacketFlags.FirstFragment;
+                if (offset + pduDataLength == responseBytes.Length) responsePdu.Flags |= PacketFlags.LastFragment;
+                result.Add(responsePdu);
                 offset += pduDataLength;
             } while (offset < responseBytes.Length);
 

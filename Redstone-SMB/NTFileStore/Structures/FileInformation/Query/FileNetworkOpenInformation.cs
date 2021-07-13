@@ -6,14 +6,12 @@
  */
 
 using System;
-using SMBLibrary.Helpers;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Helpers;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Query
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.12 - FileNetworkOpenInformation

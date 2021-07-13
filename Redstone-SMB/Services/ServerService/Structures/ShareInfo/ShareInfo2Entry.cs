@@ -5,11 +5,11 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
-using SMBLibrary.Services.ServerService.Enums;
-using SMBLibrary.Services.ServerService.EnumStructures;
+using RedstoneSmb.RPC.NDR;
+using RedstoneSmb.Services.ServerService.Enums;
+using RedstoneSmb.Services.ServerService.EnumStructures;
 
-namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ShareInfo
 {
     /// <summary>
     ///     [MS-SRVS] SHARE_INFO_2
@@ -20,11 +20,11 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
         public uint CurrentUses; // Number of current connections to the resource.
         public uint MaxUses; // Maximum number of concurrent connections that the shared resource can accommodate.
 
-        public NDRUnicodeString NetName;
-        public NDRUnicodeString Password; // Windows will set it to null
-        public NDRUnicodeString Path; // Windows will set this field to the on-disk path (.e.g 'D:\Shared')
+        public NdrUnicodeString NetName;
+        public NdrUnicodeString Password; // Windows will set it to null
+        public NdrUnicodeString Path; // Windows will set this field to the on-disk path (.e.g 'D:\Shared')
         public Permissions Permissions; // Windows will leave this field empty (0)
-        public NDRUnicodeString Remark;
+        public NdrUnicodeString Remark;
         public ShareTypeExtended ShareType;
 
         public ShareInfo2Entry()
@@ -33,21 +33,21 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
 
         public ShareInfo2Entry(string shareName, ShareTypeExtended shareType)
         {
-            NetName = new NDRUnicodeString(shareName);
+            NetName = new NdrUnicodeString(shareName);
             ShareType = shareType;
-            Remark = new NDRUnicodeString(string.Empty);
+            Remark = new NdrUnicodeString(string.Empty);
 
             MaxUses = UnlimitedConnections;
-            Path = new NDRUnicodeString(string.Empty);
+            Path = new NdrUnicodeString(string.Empty);
             Password = null;
         }
 
-        public ShareInfo2Entry(NDRParser parser)
+        public ShareInfo2Entry(NdrParser parser)
         {
             Read(parser);
         }
 
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             parser.BeginStructure();
             parser.ReadEmbeddedStructureFullPointer(ref NetName);
@@ -61,7 +61,7 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
             parser.EndStructure();
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             writer.BeginStructure();
             writer.WriteEmbeddedStructureFullPointer(NetName);

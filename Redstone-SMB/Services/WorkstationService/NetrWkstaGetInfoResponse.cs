@@ -5,11 +5,11 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Enums;
-using SMBLibrary.RPC.NDR;
-using SMBLibrary.Services.WorkstationService.Structures;
+using RedstoneSmb.Enums;
+using RedstoneSmb.RPC.NDR;
+using RedstoneSmb.Services.WorkstationService.Structures;
 
-namespace SMBLibrary.Services.WorkstationService
+namespace RedstoneSmb.Services.WorkstationService
 {
     public class NetrWkstaGetInfoResponse
     {
@@ -22,7 +22,7 @@ namespace SMBLibrary.Services.WorkstationService
 
         public NetrWkstaGetInfoResponse(byte[] buffer)
         {
-            var parser = new NDRParser(buffer);
+            var parser = new NdrParser(buffer);
             WkstaInfo = new WorkstationInfo(parser);
             // 14.4 - If an operation returns a result, the representation of the result appears after all parameters in
             Result = (Win32Error) parser.ReadUInt32();
@@ -30,7 +30,7 @@ namespace SMBLibrary.Services.WorkstationService
 
         public byte[] GetBytes()
         {
-            var writer = new NDRWriter();
+            var writer = new NdrWriter();
             writer.WriteStructure(WkstaInfo);
             writer.WriteUInt32((uint) Result);
 

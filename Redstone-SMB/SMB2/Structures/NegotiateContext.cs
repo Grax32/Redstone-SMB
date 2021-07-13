@@ -7,15 +7,13 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.SMB2.Enums.Negotiate;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.SMB2.Enums.Negotiate;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Structures
+namespace RedstoneSmb.SMB2.Structures
 {
     /// <summary>
     ///     [MS-SMB2] 2.2.3.1 - NEGOTIATE_CONTEXT
@@ -26,7 +24,7 @@ namespace SMBLibrary.SMB2.Structures
 
         public NegotiateContextType ContextType;
         public byte[] Data = new byte[0];
-        private ushort DataLength;
+        private ushort _dataLength;
         public uint Reserved;
 
         public NegotiateContext()
@@ -36,18 +34,18 @@ namespace SMBLibrary.SMB2.Structures
         public NegotiateContext(byte[] buffer, int offset)
         {
             ContextType = (NegotiateContextType) LittleEndianConverter.ToUInt16(buffer, offset + 0);
-            DataLength = LittleEndianConverter.ToUInt16(buffer, offset + 2);
+            _dataLength = LittleEndianConverter.ToUInt16(buffer, offset + 2);
             Reserved = LittleEndianConverter.ToUInt32(buffer, offset + 4);
-            ByteReader.ReadBytes(buffer, offset + 8, DataLength);
+            ByteReader.ReadBytes(buffer, offset + 8, _dataLength);
         }
 
         public int Length => FixedLength + Data.Length;
 
         public void WriteBytes(byte[] buffer, int offset)
         {
-            DataLength = (ushort) Data.Length;
+            _dataLength = (ushort) Data.Length;
             LittleEndianWriter.WriteUInt16(buffer, offset + 0, (ushort) ContextType);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 2, DataLength);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 2, _dataLength);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, Reserved);
             ByteWriter.WriteBytes(buffer, offset + 8, Data);
         }

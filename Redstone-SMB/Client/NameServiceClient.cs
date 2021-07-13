@@ -7,32 +7,32 @@
 
 using System.Net;
 using System.Net.Sockets;
-using SMBLibrary.NetBios;
-using SMBLibrary.NetBios.NameServicePackets;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
+using RedstoneSmb.NetBios;
+using RedstoneSmb.NetBios.NameServicePackets;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
 
-namespace SMBLibrary.Client
+namespace RedstoneSmb.Client
 {
     public class NameServiceClient
     {
         public static readonly int NetBiosNameServicePort = 137;
 
-        private readonly IPAddress m_serverAddress;
+        private readonly IPAddress _mServerAddress;
 
         public NameServiceClient(IPAddress serverAddress)
         {
-            m_serverAddress = serverAddress;
+            _mServerAddress = serverAddress;
         }
 
         public string GetServerName()
         {
             var request = new NodeStatusRequest();
-            request.Header.QDCount = 1;
+            request.Header.QdCount = 1;
             request.Question.Name = "*".PadRight(16, '\0');
             var response = SendNodeStatusRequest(request);
             foreach (var entry in response.Names)
             {
-                var suffix = NetBiosUtils.GetSuffixFromMSNetBiosName(entry.Key);
+                var suffix = NetBiosUtils.GetSuffixFromMsNetBiosName(entry.Key);
                 if (suffix == NetBiosSuffix.FileServiceService) return entry.Key;
             }
 
@@ -42,7 +42,7 @@ namespace SMBLibrary.Client
         private NodeStatusResponse SendNodeStatusRequest(NodeStatusRequest request)
         {
             var client = new UdpClient();
-            var serverEndPoint = new IPEndPoint(m_serverAddress, NetBiosNameServicePort);
+            var serverEndPoint = new IPEndPoint(_mServerAddress, NetBiosNameServicePort);
             client.Connect(serverEndPoint);
 
             var requestBytes = request.GetBytes();

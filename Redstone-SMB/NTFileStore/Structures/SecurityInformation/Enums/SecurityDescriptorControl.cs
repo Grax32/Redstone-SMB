@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.NTFileStore.Structures.SecurityInformation.Enums
+namespace RedstoneSmb.NTFileStore.Structures.SecurityInformation.Enums
 {
     /// <summary>
     ///     SECURITY_DESCRIPTOR_CONTROL
@@ -22,7 +22,7 @@ namespace SMBLibrary.NTFileStore.Structures.SecurityInformation.Enums
         SaclAutoInherited = 0x0800, // SE_SACL_AUTO_INHERITED
         DaclProtected = 0x1000, // SE_DACL_PROTECTED
         SaclProtected = 0x2000, // SE_SACL_PROTECTED
-        RMControlValid = 0x4000, // SE_RM_CONTROL_VALID
+        RmControlValid = 0x4000, // SE_RM_CONTROL_VALID
         SelfRelative = 0x8000 // SE_SELF_RELATIVE
     }
 }

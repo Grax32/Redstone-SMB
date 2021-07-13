@@ -1,4 +1,4 @@
-namespace SMBLibrary.NetBios.NameServicePackets.Enums
+namespace RedstoneSmb.NetBios.NameServicePackets.Enums
 {
     public enum NameServiceOperation : byte
     {

@@ -5,31 +5,31 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
-using SMBLibrary.Services.Enums;
-using SMBLibrary.Services.ServerService.Enums;
+using RedstoneSmb.RPC.NDR;
+using RedstoneSmb.Services.Enums;
+using RedstoneSmb.Services.ServerService.Enums;
 
-namespace SMBLibrary.Services.ServerService.Structures.ServerInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ServerInfo
 {
     /// <summary>
     ///     [MS-SRVS] SERVER_INFO_101
     /// </summary>
     public class ServerInfo101 : ServerInfoLevel
     {
-        public NDRUnicodeString Comment;
-        public PlatformName PlatformID;
-        public NDRUnicodeString ServerName;
+        public NdrUnicodeString Comment;
+        public PlatformName PlatformId;
+        public NdrUnicodeString ServerName;
         public ServerType Type;
         public uint VerMajor;
         public uint VerMinor;
 
         public ServerInfo101()
         {
-            ServerName = new NDRUnicodeString();
-            Comment = new NDRUnicodeString();
+            ServerName = new NdrUnicodeString();
+            Comment = new NdrUnicodeString();
         }
 
-        public ServerInfo101(NDRParser parser)
+        public ServerInfo101(NdrParser parser)
         {
             Read(parser);
         }
@@ -45,13 +45,13 @@ namespace SMBLibrary.Services.ServerService.Structures.ServerInfo
 
         public override uint Level => 101;
 
-        public override void Read(NDRParser parser)
+        public override void Read(NdrParser parser)
         {
             // If an array, structure, or union embeds a pointer, the representation of the referent of the
             // pointer is deferred to a position in the octet stream that follows the representation of the
             // embedding construction
             parser.BeginStructure();
-            PlatformID = (PlatformName) parser.ReadUInt32();
+            PlatformId = (PlatformName) parser.ReadUInt32();
             parser.ReadEmbeddedStructureFullPointer(ref ServerName);
             VerMajor = parser.ReadUInt32();
             VerMinor = parser.ReadUInt32();
@@ -60,10 +60,10 @@ namespace SMBLibrary.Services.ServerService.Structures.ServerInfo
             parser.EndStructure();
         }
 
-        public override void Write(NDRWriter writer)
+        public override void Write(NdrWriter writer)
         {
             writer.BeginStructure();
-            writer.WriteUInt32((uint) PlatformID);
+            writer.WriteUInt32((uint) PlatformId);
             writer.WriteEmbeddedStructureFullPointer(ServerName);
             writer.WriteUInt32(VerMajor);
             writer.WriteUInt32(VerMinor);

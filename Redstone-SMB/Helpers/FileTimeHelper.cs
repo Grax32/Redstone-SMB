@@ -7,13 +7,11 @@
 
 using System;
 using System.IO;
-using SMBLibrary.NTFileStore.Structures.FileInformation.Set;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Structures.FileInformation.Set;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.Helpers
+namespace RedstoneSmb.Helpers
 {
     public class FileTimeHelper
     {

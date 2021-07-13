@@ -8,7 +8,7 @@
 using System;
 using System.IO;
 
-namespace SMBLibrary.Utilities.ByteUtils
+namespace RedstoneSmb.Utilities.ByteUtils
 {
     public class ByteUtils
     {
@@ -31,14 +31,14 @@ namespace SMBLibrary.Utilities.ByteUtils
             return true;
         }
 
-        public static byte[] XOR(byte[] array1, byte[] array2)
+        public static byte[] Xor(byte[] array1, byte[] array2)
         {
             if (array1.Length == array2.Length)
-                return XOR(array1, 0, array2, 0, array1.Length);
+                return Xor(array1, 0, array2, 0, array1.Length);
             throw new ArgumentException("Arrays must be of equal length");
         }
 
-        public static byte[] XOR(byte[] array1, int offset1, byte[] array2, int offset2, int length)
+        public static byte[] Xor(byte[] array1, int offset1, byte[] array2, int offset2, int length)
         {
             if (offset1 + length <= array1.Length && offset2 + length <= array2.Length)
             {
@@ -59,8 +59,8 @@ namespace SMBLibrary.Utilities.ByteUtils
 
         public static long CopyStream(Stream input, Stream output, long count)
         {
-            const int MaxBufferSize = 1048576; // 1 MB
-            var bufferSize = (int) Math.Min(MaxBufferSize, count);
+            const int maxBufferSize = 1048576; // 1 MB
+            var bufferSize = (int) Math.Min(maxBufferSize, count);
             var buffer = new byte[bufferSize];
             long totalBytesRead = 0;
             while (totalBytesRead < count)

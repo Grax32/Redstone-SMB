@@ -6,14 +6,14 @@
  */
 
 using System;
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.WorkstationService.Structures
+namespace RedstoneSmb.Services.WorkstationService.Structures
 {
     /// <summary>
     ///     [MS-WKST] WKSTA_INFO Union
     /// </summary>
-    public class WorkstationInfo : INDRStructure
+    public class WorkstationInfo : INdrStructure
     {
         public WorkstationInfoLevel Info;
         public uint Level;
@@ -33,12 +33,12 @@ namespace SMBLibrary.Services.WorkstationService.Structures
             Info = info;
         }
 
-        public WorkstationInfo(NDRParser parser)
+        public WorkstationInfo(NdrParser parser)
         {
             Read(parser);
         }
 
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             parser.BeginStructure();
             Level = parser.ReadUInt32();
@@ -61,7 +61,7 @@ namespace SMBLibrary.Services.WorkstationService.Structures
             parser.EndStructure();
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             if (Info != null && Level != Info.Level) throw new ArgumentException("Invalid WKSTA_INFO Level");
 

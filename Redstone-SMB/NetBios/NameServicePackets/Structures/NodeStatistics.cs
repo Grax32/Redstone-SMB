@@ -5,13 +5,12 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Utilities.ByteUtils;
-using BigEndianReader = SMBLibrary.Utilities.ByteUtils.BigEndianReader;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using BigEndianReader = RedstoneSmb.Utilities.ByteUtils.BigEndianReader;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NetBios.NameServicePackets.Structures
+namespace RedstoneSmb.NetBios.NameServicePackets.Structures
 {
     public class NodeStatistics
     {
@@ -22,7 +21,7 @@ namespace SMBLibrary.NetBios.NameServicePackets.Structures
         public ushort MaxTotalsSessionsPossible;
         public ushort NumberOfAlignmentErrors;
         public ushort NumberOfCollisions;
-        public ushort NumberOfCRCs;
+        public ushort NumberOfCrCs;
         public ushort NumberOfFreeCommandBlocks;
         public uint NumberOfGoodReceives;
         public uint NumberOfGoodSends;
@@ -35,22 +34,22 @@ namespace SMBLibrary.NetBios.NameServicePackets.Structures
         public byte TestResult;
         public ushort TotalNumberOfCommandBlocks;
 
-        public byte[] UnitID; // MAC address, 6 bytes;
+        public byte[] UnitId; // MAC address, 6 bytes;
         public ushort VersionNumber;
 
         public NodeStatistics()
         {
-            UnitID = new byte[6];
+            UnitId = new byte[6];
         }
 
         public NodeStatistics(byte[] buffer, ref int offset)
         {
-            UnitID = ByteReader.ReadBytes(buffer, ref offset, 6);
+            UnitId = ByteReader.ReadBytes(buffer, ref offset, 6);
             Jumpers = ByteReader.ReadByte(buffer, ref offset);
             TestResult = ByteReader.ReadByte(buffer, ref offset);
             VersionNumber = BigEndianReader.ReadUInt16(buffer, ref offset);
             PeriodOfStatistics = BigEndianReader.ReadUInt16(buffer, ref offset);
-            NumberOfCRCs = BigEndianReader.ReadUInt16(buffer, ref offset);
+            NumberOfCrCs = BigEndianReader.ReadUInt16(buffer, ref offset);
             NumberOfAlignmentErrors = BigEndianReader.ReadUInt16(buffer, ref offset);
             NumberOfCollisions = BigEndianReader.ReadUInt16(buffer, ref offset);
             NumberOfSendAborts = BigEndianReader.ReadUInt16(buffer, ref offset);
@@ -69,12 +68,12 @@ namespace SMBLibrary.NetBios.NameServicePackets.Structures
 
         public void WriteBytes(byte[] buffer, int offset)
         {
-            ByteWriter.WriteBytes(buffer, ref offset, UnitID, 6);
+            ByteWriter.WriteBytes(buffer, ref offset, UnitId, 6);
             ByteWriter.WriteByte(buffer, ref offset, Jumpers);
             ByteWriter.WriteByte(buffer, ref offset, TestResult);
             BigEndianWriter.WriteUInt16(buffer, ref offset, VersionNumber);
             BigEndianWriter.WriteUInt16(buffer, ref offset, PeriodOfStatistics);
-            BigEndianWriter.WriteUInt16(buffer, ref offset, NumberOfCRCs);
+            BigEndianWriter.WriteUInt16(buffer, ref offset, NumberOfCrCs);
             BigEndianWriter.WriteUInt16(buffer, ref offset, NumberOfAlignmentErrors);
             BigEndianWriter.WriteUInt16(buffer, ref offset, NumberOfCollisions);
             BigEndianWriter.WriteUInt16(buffer, ref offset, NumberOfSendAborts);

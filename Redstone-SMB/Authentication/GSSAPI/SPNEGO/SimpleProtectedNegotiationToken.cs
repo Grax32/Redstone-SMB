@@ -5,18 +5,17 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteUtils = SMBLibrary.Utilities.ByteUtils.ByteUtils;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteUtils = RedstoneSmb.Utilities.ByteUtils.ByteUtils;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
+namespace RedstoneSmb.Authentication.GSSAPI.SPNEGO
 {
     public abstract class SimpleProtectedNegotiationToken
     {
         public const byte ApplicationTag = 0x60;
 
-        public static readonly byte[] SPNEGOIdentifier = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x02};
+        public static readonly byte[] SpnegoIdentifier = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x02};
 
         public abstract byte[] GetBytes();
 
@@ -26,17 +25,17 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
             var tokenBytes = GetBytes();
             if (includeHeader)
             {
-                var objectIdentifierFieldSize = DerEncodingHelper.GetLengthFieldSize(SPNEGOIdentifier.Length);
-                var tokenLength = 1 + objectIdentifierFieldSize + SPNEGOIdentifier.Length + tokenBytes.Length;
+                var objectIdentifierFieldSize = DerEncodingHelper.GetLengthFieldSize(SpnegoIdentifier.Length);
+                var tokenLength = 1 + objectIdentifierFieldSize + SpnegoIdentifier.Length + tokenBytes.Length;
                 var tokenLengthFieldSize = DerEncodingHelper.GetLengthFieldSize(tokenLength);
-                var headerLength = 1 + tokenLengthFieldSize + 1 + objectIdentifierFieldSize + SPNEGOIdentifier.Length;
+                var headerLength = 1 + tokenLengthFieldSize + 1 + objectIdentifierFieldSize + SpnegoIdentifier.Length;
                 var buffer = new byte[headerLength + tokenBytes.Length];
                 var offset = 0;
                 ByteWriter.WriteByte(buffer, ref offset, ApplicationTag);
                 DerEncodingHelper.WriteLength(buffer, ref offset, tokenLength);
                 ByteWriter.WriteByte(buffer, ref offset, (byte) DerEncodingTag.ObjectIdentifier);
-                DerEncodingHelper.WriteLength(buffer, ref offset, SPNEGOIdentifier.Length);
-                ByteWriter.WriteBytes(buffer, ref offset, SPNEGOIdentifier);
+                DerEncodingHelper.WriteLength(buffer, ref offset, SpnegoIdentifier.Length);
+                ByteWriter.WriteBytes(buffer, ref offset, SpnegoIdentifier);
                 ByteWriter.WriteBytes(buffer, ref offset, tokenBytes);
                 return buffer;
             }
@@ -66,7 +65,7 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
                 {
                     var objectIdentifierLength = DerEncodingHelper.ReadLength(tokenBytes, ref offset);
                     var objectIdentifier = ByteReader.ReadBytes(tokenBytes, ref offset, objectIdentifierLength);
-                    if (ByteUtils.AreByteArraysEqual(objectIdentifier, SPNEGOIdentifier))
+                    if (ByteUtils.AreByteArraysEqual(objectIdentifier, SpnegoIdentifier))
                     {
                         tag = ByteReader.ReadByte(tokenBytes, ref offset);
                         if (tag == SimpleProtectedNegotiationTokenInit.NegTokenInitTag)

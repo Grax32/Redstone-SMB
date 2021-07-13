@@ -7,13 +7,13 @@
 
 using System;
 using System.IO;
-using SMBLibrary.NetBios.SessionPackets.Enums;
-using BigEndianConverter = SMBLibrary.Utilities.Conversion.BigEndianConverter;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.NetBios.SessionPackets.Enums;
+using BigEndianConverter = RedstoneSmb.Utilities.Conversion.BigEndianConverter;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NetBios.SessionPackets
+namespace RedstoneSmb.NetBios.SessionPackets
 {
     /// <summary>
     ///     [RFC 1002] 4.3.1. SESSION PACKET

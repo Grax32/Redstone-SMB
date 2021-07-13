@@ -5,41 +5,39 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.SMB2.Enums;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 TREE_DISCONNECT Response
     /// </summary>
-    public class TreeDisconnectResponse : SMB2Command
+    public class TreeDisconnectResponse : Smb2Command
     {
         public const int DeclaredSize = 4;
         public ushort Reserved;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public TreeDisconnectResponse() : base(SMB2CommandName.TreeDisconnect)
+        public TreeDisconnectResponse() : base(Smb2CommandName.TreeDisconnect)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public TreeDisconnectResponse(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 2);
         }
 
         public override int CommandLength => DeclaredSize;
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             LittleEndianWriter.WriteUInt16(buffer, offset + 2, Reserved);
         }
     }

@@ -6,17 +6,15 @@
  */
 
 using System.IO;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.NetBios.NameServicePackets.EnumStructures;
-using SMBLibrary.NetBios.NameServicePackets.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Generics;
-using BigEndianReader = SMBLibrary.Utilities.ByteUtils.BigEndianReader;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using RedstoneSmb.NetBios.NameServicePackets.EnumStructures;
+using RedstoneSmb.NetBios.NameServicePackets.Structures;
+using BigEndianReader = RedstoneSmb.Utilities.ByteUtils.BigEndianReader;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NetBios.NameServicePackets
+namespace RedstoneSmb.NetBios.NameServicePackets
 {
     /// <summary>
     ///     [RFC 1002] 4.2.18. NODE STATUS RESPONSE
@@ -36,8 +34,8 @@ namespace SMBLibrary.NetBios.NameServicePackets
             Header = new NameServicePacketHeader();
             Header.OpCode = NameServiceOperation.QueryResponse;
             Header.Flags = OperationFlags.AuthoritativeAnswer | OperationFlags.RecursionAvailable;
-            Header.ANCount = 1;
-            Resource = new ResourceRecord(NameRecordType.NBStat);
+            Header.AnCount = 1;
+            Resource = new ResourceRecord(NameRecordType.NbStat);
             Statistics = new NodeStatistics();
         }
 

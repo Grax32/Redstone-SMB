@@ -6,9 +6,9 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Query
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.40 - FileStreamInformation

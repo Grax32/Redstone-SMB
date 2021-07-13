@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.ChangeNotify
+namespace RedstoneSmb.SMB2.Enums.ChangeNotify
 {
     [Flags]
     public enum ChangeNotifyFlags : ushort

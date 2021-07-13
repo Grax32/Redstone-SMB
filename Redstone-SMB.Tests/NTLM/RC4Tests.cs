@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SMBLibrary.Authentication.NTLM.Helpers;
-using SMBLibrary.Utilities.ByteUtils;
+using RedstoneSmb.Authentication.NTLM.Helpers;
+using RedstoneSmb.Utilities.ByteUtils;
 using Utilities;
 
 namespace SMBLibrary.Tests
@@ -19,7 +19,7 @@ namespace SMBLibrary.Tests
     /// Test Vectors from Appendix A
     /// </summary>
     [TestClass]
-    public class RC4Tests
+    public class Rc4Tests
     {
         [TestMethod]
         public void Test1()
@@ -27,7 +27,7 @@ namespace SMBLibrary.Tests
             byte[] key = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF };
             byte[] text = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             byte[] expectedCipher = new byte[] { 0x74, 0x94, 0xC2, 0xE7, 0x10, 0x4B, 0x08, 0x79 };
-            byte[] cipher = RC4.Encrypt(key, text);
+            byte[] cipher = Rc4.Encrypt(key, text);
             Assert.IsTrue(ByteUtils.AreByteArraysEqual(cipher, expectedCipher));
         }
 
@@ -37,7 +37,7 @@ namespace SMBLibrary.Tests
             byte[] key = new byte[] { 0x61, 0x8A, 0x63, 0xD2, 0xFB };
             byte[] text = new byte[] { 0xDC, 0xEE, 0x4C, 0xF9, 0x2C };
             byte[] expectedCipher = new byte[] { 0xF1, 0x38, 0x29, 0xC9, 0xDE };
-            byte[] cipher = RC4.Encrypt(key, text);
+            byte[] cipher = Rc4.Encrypt(key, text);
             Assert.IsTrue(ByteUtils.AreByteArraysEqual(cipher, expectedCipher));
         }
 
@@ -124,7 +124,7 @@ namespace SMBLibrary.Tests
                                                  0xe0, 0x98, 0x22, 0x65, 0xee, 0xf7, 0x01, 0x79,
                                                  0xbc, 0x55, 0x3f, 0x33, 0x9e, 0xb1, 0xa4, 0xc1,
                                                  0xaf, 0x5f, 0x6a, 0x54, 0x7f};
-            byte[] cipher = RC4.Encrypt(key, text);
+            byte[] cipher = Rc4.Encrypt(key, text);
             Assert.IsTrue(ByteUtils.AreByteArraysEqual(cipher, expectedCipher));
         }
 

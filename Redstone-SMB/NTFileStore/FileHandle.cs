@@ -7,7 +7,7 @@
 
 using System.IO;
 
-namespace SMBLibrary.NTFileStore
+namespace RedstoneSmb.NTFileStore
 {
     public class FileHandle
     {

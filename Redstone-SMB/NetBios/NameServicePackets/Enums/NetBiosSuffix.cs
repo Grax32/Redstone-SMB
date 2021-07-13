@@ -1,4 +1,4 @@
-namespace SMBLibrary.NetBios.NameServicePackets.Enums
+namespace RedstoneSmb.NetBios.NameServicePackets.Enums
 {
     /// <summary>
     ///     16th character suffix for netbios name.

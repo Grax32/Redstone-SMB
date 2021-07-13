@@ -8,20 +8,19 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SMBLibrary.Authentication.NTLM;
-using SMBLibrary.Authentication.NTLM.Helpers;
-using SMBLibrary.Authentication.NTLM.Structures;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Utilities.ByteUtils;
+using RedstoneSmb.Authentication.NTLM.Helpers;
+using RedstoneSmb.Authentication.NTLM.Structures;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using RedstoneSmb.Utilities.ByteUtils;
 using Utilities;
 
 namespace SMBLibrary.Tests
 {
     [TestClass]
-    public class NTLMSigningTests
+    public class NtlmSigningTests
     {
         [TestMethod]
-        public void TestLMMIC()
+        public void TestLmmic()
         {
             string password = "Password";
             byte[] type1 = new byte[] { 0x4e, 0x54, 0x4c, 0x4d, 0x53, 0x53, 0x50, 0x00, 0x01, 0x00, 0x00, 0x00, 0x97, 0x82, 0x08, 0xe2,
@@ -47,8 +46,8 @@ namespace SMBLibrary.Tests
 
             byte[] serverChallenge = new ChallengeMessage(type2).ServerChallenge;
             AuthenticateMessage authenticateMessage = new AuthenticateMessage(type3);
-            byte[] sessionBaseKey = new MD4().GetByteHashFromBytes(NTLMCryptography.NTOWFv1(password));
-            byte[] lmowf = NTLMCryptography.LMOWFv1(password);
+            byte[] sessionBaseKey = new Md4().GetByteHashFromBytes(NtlmCryptography.NtowFv1(password));
+            byte[] lmowf = NtlmCryptography.LmowFv1(password);
             byte[] exportedSessionKey = GetExportedSessionKey(sessionBaseKey, authenticateMessage, serverChallenge, lmowf);
 
             // https://msdn.microsoft.com/en-us/library/cc236695.aspx
@@ -62,7 +61,7 @@ namespace SMBLibrary.Tests
         }
 
         [TestMethod]
-        public void TestNTLMv1MIC()
+        public void TestNtlMv1Mic()
         {
             string password = "Password";
             byte[] type1 = new byte[] { 0x4e, 0x54, 0x4c, 0x4d, 0x53, 0x53, 0x50, 0x00, 0x01, 0x00, 0x00, 0x00, 0x97, 0x82, 0x08, 0xe2,
@@ -88,8 +87,8 @@ namespace SMBLibrary.Tests
 
             byte[] serverChallenge = new ChallengeMessage(type2).ServerChallenge;
             AuthenticateMessage authenticateMessage = new AuthenticateMessage(type3);
-            byte[] sessionBaseKey = new MD4().GetByteHashFromBytes(NTLMCryptography.NTOWFv1(password));
-            byte[] lmowf = NTLMCryptography.LMOWFv1(password);
+            byte[] sessionBaseKey = new Md4().GetByteHashFromBytes(NtlmCryptography.NtowFv1(password));
+            byte[] lmowf = NtlmCryptography.LmowFv1(password);
             byte[] exportedSessionKey = GetExportedSessionKey(sessionBaseKey, authenticateMessage, serverChallenge, lmowf);
             
             // https://msdn.microsoft.com/en-us/library/cc236695.aspx
@@ -103,7 +102,7 @@ namespace SMBLibrary.Tests
         }
 
         [TestMethod]
-        public void TestNTLMv1ExtendedSessionSecurityKeyExchangeMIC()
+        public void TestNtlMv1ExtendedSessionSecurityKeyExchangeMic()
         {
             string password = "Password";
             byte[] type1 = new byte[] { 0x4e, 0x54, 0x4c, 0x4d, 0x53, 0x53, 0x50, 0x00, 0x01, 0x00, 0x00, 0x00, 0x97, 0x82, 0x08, 0xe2,
@@ -135,8 +134,8 @@ namespace SMBLibrary.Tests
 
             byte[] serverChallenge = new ChallengeMessage(type2).ServerChallenge;
             AuthenticateMessage authenticateMessage = new AuthenticateMessage(type3);
-            byte[] sessionBaseKey = new MD4().GetByteHashFromBytes(NTLMCryptography.NTOWFv1(password));
-            byte[] lmowf = NTLMCryptography.LMOWFv1(password);
+            byte[] sessionBaseKey = new Md4().GetByteHashFromBytes(NtlmCryptography.NtowFv1(password));
+            byte[] lmowf = NtlmCryptography.LmowFv1(password);
             byte[] exportedSessionKey = GetExportedSessionKey(sessionBaseKey, authenticateMessage, serverChallenge, lmowf);
 
             // https://msdn.microsoft.com/en-us/library/cc236695.aspx
@@ -150,9 +149,9 @@ namespace SMBLibrary.Tests
         }
 
         [TestMethod]
-        public void TestNTLMv2KeyExchangeMIC()
+        public void TestNtlMv2KeyExchangeMic()
         {
-            byte[] responseKeyNT = NTLMCryptography.NTOWFv2("Password", "User", "TAL-VM6");
+            byte[] responseKeyNt = NtlmCryptography.NtowFv2("Password", "User", "TAL-VM6");
             byte[] type1 = new byte[] { 0x4e, 0x54, 0x4c, 0x4d, 0x53, 0x53, 0x50, 0x00, 0x01, 0x00, 0x00, 0x00, 0x97, 0x82, 0x08, 0xe2,
                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                         0x0a, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x0f};
@@ -198,7 +197,7 @@ namespace SMBLibrary.Tests
             byte[] serverChallenge = new ChallengeMessage(type2).ServerChallenge;
             AuthenticateMessage authenticateMessage = new AuthenticateMessage(type3);
             byte[] ntProofStr = ByteReader.ReadBytes(authenticateMessage.NtChallengeResponse, 0, 16);
-            byte[] sessionBaseKey = new HMACMD5(responseKeyNT).ComputeHash(ntProofStr);
+            byte[] sessionBaseKey = new HMACMD5(responseKeyNt).ComputeHash(ntProofStr);
             byte[] exportedSessionKey = GetExportedSessionKey(sessionBaseKey, authenticateMessage, serverChallenge, null);
 
             // https://msdn.microsoft.com/en-us/library/cc236695.aspx
@@ -213,27 +212,27 @@ namespace SMBLibrary.Tests
 
         public void TestAll()
         {
-            TestLMMIC();
-            TestNTLMv1MIC();
-            TestNTLMv1ExtendedSessionSecurityKeyExchangeMIC();
-            TestNTLMv2KeyExchangeMIC();
+            TestLmmic();
+            TestNtlMv1Mic();
+            TestNtlMv1ExtendedSessionSecurityKeyExchangeMic();
+            TestNtlMv2KeyExchangeMic();
         }
 
         private static byte[] GetExportedSessionKey(byte[] sessionBaseKey, AuthenticateMessage message, byte[] serverChallenge, byte[] lmowf)
         {
             byte[] keyExchangeKey;
-            if (AuthenticationMessageUtils.IsNTLMv2NTResponse(message.NtChallengeResponse))
+            if (AuthenticationMessageUtils.IsNtlMv2NtResponse(message.NtChallengeResponse))
             {
                 keyExchangeKey = sessionBaseKey;
             }
             else
             {
-                keyExchangeKey = NTLMCryptography.KXKey(sessionBaseKey, message.NegotiateFlags, message.LmChallengeResponse, serverChallenge, lmowf);
+                keyExchangeKey = NtlmCryptography.KxKey(sessionBaseKey, message.NegotiateFlags, message.LmChallengeResponse, serverChallenge, lmowf);
             }
 
             if ((message.NegotiateFlags & NegotiateFlags.KeyExchange) > 0)
             {
-                return RC4.Decrypt(keyExchangeKey, message.EncryptedRandomSessionKey);
+                return Rc4.Decrypt(keyExchangeKey, message.EncryptedRandomSessionKey);
             }
             else
             {

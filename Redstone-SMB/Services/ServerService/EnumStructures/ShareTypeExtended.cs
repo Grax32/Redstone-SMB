@@ -5,9 +5,9 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.ServerService.EnumStructures
+namespace RedstoneSmb.Services.ServerService.EnumStructures
 {
     /// <summary>
     ///     [MS-SRVS] 2.2.2.4 Share Types
@@ -17,7 +17,7 @@ namespace SMBLibrary.Services.ServerService.EnumStructures
         DiskDrive = 0x00000000, // STYPE_DISKTREE
         PrintQueue = 0x00000001, // STYPE_PRINTQ
         CommunicationDevice = 0x00000002, // STYPE_DEVICE
-        IPC = 0x00000003, // STYPE_IPC
+        Ipc = 0x00000003, // STYPE_IPC
         ClusterShare = 0x02000000, // STYPE_CLUSTER_FS
         ScaleOutClusterShare = 0x04000000, // STYPE_CLUSTER_SOFS
         DfsShareInCluster = 0x08000000 // STYPE_CLUSTER_DFS
@@ -43,7 +43,7 @@ namespace SMBLibrary.Services.ServerService.EnumStructures
             IsTemporary = isTemporary;
         }
 
-        public ShareTypeExtended(NDRParser parser) : this(parser.ReadUInt32())
+        public ShareTypeExtended(NdrParser parser) : this(parser.ReadUInt32())
         {
         }
 
@@ -54,7 +54,7 @@ namespace SMBLibrary.Services.ServerService.EnumStructures
             IsTemporary = (shareTypeExtended & 0x40000000) > 0;
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             writer.WriteUInt32(ToUInt32());
         }

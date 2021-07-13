@@ -5,16 +5,16 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.WorkstationService.Structures
+namespace RedstoneSmb.Services.WorkstationService.Structures
 {
-    public abstract class WorkstationInfoLevel : INDRStructure
+    public abstract class WorkstationInfoLevel : INdrStructure
     {
         public abstract uint Level { get; }
 
-        public abstract void Read(NDRParser parser);
+        public abstract void Read(NdrParser parser);
 
-        public abstract void Write(NDRWriter writer);
+        public abstract void Write(NdrWriter writer);
     }
 }

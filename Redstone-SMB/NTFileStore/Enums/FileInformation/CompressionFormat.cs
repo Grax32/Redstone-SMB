@@ -1,9 +1,9 @@
-namespace SMBLibrary.NTFileStore.Enums.FileInformation
+namespace RedstoneSmb.NTFileStore.Enums.FileInformation
 {
     public enum CompressionFormat : ushort
     {
-        COMPRESSION_FORMAT_NONE = 0x0000,
-        COMPRESSION_FORMAT_DEFAULT = 0x0001,
-        COMPRESSION_FORMAT_LZNT1 = 0x0002
+        CompressionFormatNone = 0x0000,
+        CompressionFormatDefault = 0x0001,
+        CompressionFormatLznt1 = 0x0002
     }
 }

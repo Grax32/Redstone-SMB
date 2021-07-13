@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.RPC.Enums
+namespace RedstoneSmb.RPC.Enums
 {
     [Flags]
     public enum PacketFlags : byte
@@ -11,6 +11,6 @@ namespace SMBLibrary.RPC.Enums
         ConcurrntMultiplexing = 0x10, // PFC_CONC_MPX
         DidNotExecute = 0x20, // PFC_DID_NOT_EXECUTE
         Maybe = 0x40, // PFC_MAYBE
-        ObjectUUID = 0x80 // PFC_OBJECT_UUID
+        ObjectUuid = 0x80 // PFC_OBJECT_UUID
     }
 }

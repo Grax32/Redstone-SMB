@@ -5,30 +5,29 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.Enums;
-using SMBLibrary.RPC.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using LittleEndianReader = SMBLibrary.Utilities.ByteUtils.LittleEndianReader;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.RPC.Enums;
+using RedstoneSmb.RPC.Structures;
+using LittleEndianReader = RedstoneSmb.Utilities.ByteUtils.LittleEndianReader;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.RPC.PDU
+namespace RedstoneSmb.RPC.PDU
 {
     /// <summary>
     ///     rpcconn_bind_nak_hdr_t
     /// </summary>
-    public class BindNakPDU : RPCPDU
+    public class BindNakPdu : Rpcpdu
     {
         public const int BindNakFieldsFixedLength = 2;
 
         public RejectionReason RejectReason; // provider_reject_reason
         public VersionsSupported Versions; // versions
 
-        public BindNakPDU()
+        public BindNakPdu()
         {
             PacketType = PacketTypeName.BindNak;
         }
 
-        public BindNakPDU(byte[] buffer, int offset) : base(buffer, offset)
+        public BindNakPdu(byte[] buffer, int offset) : base(buffer, offset)
         {
             var startOffset = offset;
             offset += CommonFieldsLength;

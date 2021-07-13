@@ -5,69 +5,67 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.NTFileStore.Enums.FileSystemInformation;
-using SMBLibrary.NTFileStore.Enums.SecurityInformation;
-using SMBLibrary.NTFileStore.Structures.FileInformation;
-using SMBLibrary.NTFileStore.Structures.FileSystemInformation;
-using SMBLibrary.NTFileStore.Structures.SecurityInformation;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.NTFileStore.Enums.FileSystemInformation;
+using RedstoneSmb.NTFileStore.Enums.SecurityInformation;
+using RedstoneSmb.NTFileStore.Structures.FileInformation;
+using RedstoneSmb.NTFileStore.Structures.FileSystemInformation;
+using RedstoneSmb.NTFileStore.Structures.SecurityInformation;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Structures;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 SET_INFO Request
     /// </summary>
-    public class SetInfoRequest : SMB2Command
+    public class SetInfoRequest : Smb2Command
     {
         public const int FixedSize = 32;
         public const int DeclaredSize = 33;
         public uint AdditionalInformation;
         public byte[] Buffer = new byte[0];
         public uint BufferLength;
-        private ushort BufferOffset;
-        public FileID FileId;
-        private byte FileInfoClass;
+        private ushort _bufferOffset;
+        public FileId FileId;
+        private byte _fileInfoClass;
         public InfoType InfoType;
         public ushort Reserved;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public SetInfoRequest() : base(SMB2CommandName.SetInfo)
+        public SetInfoRequest() : base(Smb2CommandName.SetInfo)
         {
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public SetInfoRequest(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            InfoType = (InfoType) ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 2);
-            FileInfoClass = ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 3);
-            BufferLength = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            BufferOffset = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 8);
-            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 10);
-            AdditionalInformation = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 12);
-            FileId = new FileID(buffer, offset + SMB2Header.Length + 16);
-            Buffer = ByteReader.ReadBytes(buffer, offset + BufferOffset, (int) BufferLength);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            InfoType = (InfoType) ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 2);
+            _fileInfoClass = ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 3);
+            BufferLength = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            _bufferOffset = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 8);
+            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 10);
+            AdditionalInformation = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 12);
+            FileId = new FileId(buffer, offset + Smb2Header.Length + 16);
+            Buffer = ByteReader.ReadBytes(buffer, offset + _bufferOffset, (int) BufferLength);
         }
 
         public FileInformationClass FileInformationClass
         {
-            get => (FileInformationClass) FileInfoClass;
-            set => FileInfoClass = (byte) value;
+            get => (FileInformationClass) _fileInfoClass;
+            set => _fileInfoClass = (byte) value;
         }
 
         public FileSystemInformationClass FileSystemInformationClass
         {
-            get => (FileSystemInformationClass) FileInfoClass;
-            set => FileInfoClass = (byte) value;
+            get => (FileSystemInformationClass) _fileInfoClass;
+            set => _fileInfoClass = (byte) value;
         }
 
         public SecurityInformation SecurityInformation
@@ -80,14 +78,14 @@ namespace SMBLibrary.SMB2.Commands
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            BufferOffset = 0;
+            _bufferOffset = 0;
             BufferLength = (uint) Buffer.Length;
-            if (Buffer.Length > 0) BufferOffset = SMB2Header.Length + FixedSize;
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            if (Buffer.Length > 0) _bufferOffset = Smb2Header.Length + FixedSize;
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             ByteWriter.WriteByte(buffer, offset + 2, (byte) InfoType);
-            ByteWriter.WriteByte(buffer, offset + 3, FileInfoClass);
+            ByteWriter.WriteByte(buffer, offset + 3, _fileInfoClass);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, BufferLength);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 8, BufferOffset);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 8, _bufferOffset);
             LittleEndianWriter.WriteUInt16(buffer, offset + 10, Reserved);
             LittleEndianWriter.WriteUInt32(buffer, offset + 12, AdditionalInformation);
             FileId.WriteBytes(buffer, offset + 16);

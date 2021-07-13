@@ -7,70 +7,68 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.Negotiate;
-using SMBLibrary.SMB2.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.Negotiate;
+using RedstoneSmb.SMB2.Structures;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 NEGOTIATE Response
     /// </summary>
-    public class NegotiateResponse : SMB2Command
+    public class NegotiateResponse : Smb2Command
     {
         public const int FixedSize = 64;
         public const int DeclaredSize = 65;
         public Capabilities Capabilities;
-        public SMB2Dialect DialectRevision;
+        public Smb2Dialect DialectRevision;
         public uint MaxReadSize;
         public uint MaxTransactSize;
         public uint MaxWriteSize;
-        private ushort NegotiateContextCount;
+        private ushort _negotiateContextCount;
         public List<NegotiateContext> NegotiateContextList = new List<NegotiateContext>();
-        private uint NegotiateContextOffset;
+        private uint _negotiateContextOffset;
         public byte[] SecurityBuffer = new byte[0];
-        private ushort SecurityBufferLength;
-        private ushort SecurityBufferOffset;
+        private ushort _securityBufferLength;
+        private ushort _securityBufferOffset;
         public SecurityMode SecurityMode;
         public Guid ServerGuid;
         public DateTime ServerStartTime;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
         public DateTime SystemTime;
 
-        public NegotiateResponse() : base(SMB2CommandName.Negotiate)
+        public NegotiateResponse() : base(Smb2CommandName.Negotiate)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public NegotiateResponse(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            SecurityMode = (SecurityMode) LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
-            DialectRevision = (SMB2Dialect) LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 4);
-            NegotiateContextCount = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 6);
-            ServerGuid = LittleEndianConverter.ToGuid(buffer, offset + SMB2Header.Length + 8);
-            Capabilities = (Capabilities) LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 24);
-            MaxTransactSize = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 28);
-            MaxReadSize = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 32);
-            MaxWriteSize = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 36);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            SecurityMode = (SecurityMode) LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 2);
+            DialectRevision = (Smb2Dialect) LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 4);
+            _negotiateContextCount = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 6);
+            ServerGuid = LittleEndianConverter.ToGuid(buffer, offset + Smb2Header.Length + 8);
+            Capabilities = (Capabilities) LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 24);
+            MaxTransactSize = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 28);
+            MaxReadSize = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 32);
+            MaxWriteSize = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 36);
             SystemTime =
-                DateTime.FromFileTimeUtc(LittleEndianConverter.ToInt64(buffer, offset + SMB2Header.Length + 40));
+                DateTime.FromFileTimeUtc(LittleEndianConverter.ToInt64(buffer, offset + Smb2Header.Length + 40));
             ServerStartTime =
-                DateTime.FromFileTimeUtc(LittleEndianConverter.ToInt64(buffer, offset + SMB2Header.Length + 48));
-            SecurityBufferOffset = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 56);
-            SecurityBufferLength = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 58);
-            NegotiateContextOffset = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 60);
-            SecurityBuffer = ByteReader.ReadBytes(buffer, offset + SecurityBufferOffset, SecurityBufferLength);
+                DateTime.FromFileTimeUtc(LittleEndianConverter.ToInt64(buffer, offset + Smb2Header.Length + 48));
+            _securityBufferOffset = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 56);
+            _securityBufferLength = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 58);
+            _negotiateContextOffset = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 60);
+            SecurityBuffer = ByteReader.ReadBytes(buffer, offset + _securityBufferOffset, _securityBufferLength);
             NegotiateContextList =
-                NegotiateContext.ReadNegotiateContextList(buffer, (int) NegotiateContextOffset, NegotiateContextCount);
+                NegotiateContext.ReadNegotiateContextList(buffer, (int) _negotiateContextOffset, _negotiateContextCount);
         }
 
         public override int CommandLength
@@ -82,7 +80,7 @@ namespace SMBLibrary.SMB2.Commands
                     return FixedSize + SecurityBuffer.Length;
                 }
 
-                var paddedSecurityBufferLength = (int) Math.Ceiling((double) SecurityBufferLength / 8) * 8;
+                var paddedSecurityBufferLength = (int) Math.Ceiling((double) _securityBufferLength / 8) * 8;
                 return FixedSize + paddedSecurityBufferLength +
                        NegotiateContext.GetNegotiateContextListLength(NegotiateContextList);
             }
@@ -90,19 +88,19 @@ namespace SMBLibrary.SMB2.Commands
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            SecurityBufferOffset = 0;
-            SecurityBufferLength = (ushort) SecurityBuffer.Length;
-            var paddedSecurityBufferLength = (int) Math.Ceiling((double) SecurityBufferLength / 8) * 8;
-            if (SecurityBuffer.Length > 0) SecurityBufferOffset = SMB2Header.Length + FixedSize;
-            NegotiateContextOffset = 0;
-            NegotiateContextCount = (ushort) NegotiateContextList.Count;
+            _securityBufferOffset = 0;
+            _securityBufferLength = (ushort) SecurityBuffer.Length;
+            var paddedSecurityBufferLength = (int) Math.Ceiling((double) _securityBufferLength / 8) * 8;
+            if (SecurityBuffer.Length > 0) _securityBufferOffset = Smb2Header.Length + FixedSize;
+            _negotiateContextOffset = 0;
+            _negotiateContextCount = (ushort) NegotiateContextList.Count;
             if (NegotiateContextList.Count > 0)
                 // NegotiateContextList must be 8-byte aligned
-                NegotiateContextOffset = (uint) (SMB2Header.Length + FixedSize + paddedSecurityBufferLength);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+                _negotiateContextOffset = (uint) (Smb2Header.Length + FixedSize + paddedSecurityBufferLength);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             LittleEndianWriter.WriteUInt16(buffer, offset + 2, (ushort) SecurityMode);
             LittleEndianWriter.WriteUInt16(buffer, offset + 4, (ushort) DialectRevision);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 6, NegotiateContextCount);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 6, _negotiateContextCount);
             LittleEndianWriter.WriteGuid(buffer, offset + 8, ServerGuid);
             LittleEndianWriter.WriteUInt32(buffer, offset + 24, (uint) Capabilities);
             LittleEndianWriter.WriteUInt32(buffer, offset + 28, MaxTransactSize);
@@ -110,9 +108,9 @@ namespace SMBLibrary.SMB2.Commands
             LittleEndianWriter.WriteUInt32(buffer, offset + 36, MaxWriteSize);
             LittleEndianWriter.WriteInt64(buffer, offset + 40, SystemTime.ToFileTimeUtc());
             LittleEndianWriter.WriteInt64(buffer, offset + 48, ServerStartTime.ToFileTimeUtc());
-            LittleEndianWriter.WriteUInt16(buffer, offset + 56, SecurityBufferOffset);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 58, SecurityBufferLength);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 60, NegotiateContextOffset);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 56, _securityBufferOffset);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 58, _securityBufferLength);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 60, _negotiateContextOffset);
             ByteWriter.WriteBytes(buffer, offset + FixedSize, SecurityBuffer);
             NegotiateContext.WriteNegotiateContextList(buffer, offset + FixedSize + paddedSecurityBufferLength,
                 NegotiateContextList);

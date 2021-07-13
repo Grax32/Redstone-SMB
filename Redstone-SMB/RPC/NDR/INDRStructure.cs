@@ -5,14 +5,14 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-namespace SMBLibrary.RPC.NDR
+namespace RedstoneSmb.RPC.NDR
 {
     /// <summary>
     ///     Serializable Structure / Union / Array
     /// </summary>
-    public interface INDRStructure
+    public interface INdrStructure
     {
-        void Read(NDRParser parser);
-        void Write(NDRWriter writer);
+        void Read(NdrParser parser);
+        void Write(NdrWriter writer);
     }
 }

@@ -6,59 +6,57 @@
  */
 
 using System;
-using SMBLibrary.Enums;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Enums;
+using RedstoneSmb.SMB2.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 ERROR Response
     /// </summary>
-    public class ErrorResponse : SMB2Command
+    public class ErrorResponse : Smb2Command
     {
         public const int FixedSize = 8;
         public const int DeclaredSize = 9;
-        private uint ByteCount;
+        private uint _byteCount;
         public byte ErrorContextCount;
         public byte[] ErrorData = new byte[0];
         public byte Reserved;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public ErrorResponse(SMB2CommandName commandName) : base(commandName)
+        public ErrorResponse(Smb2CommandName commandName) : base(commandName)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
-        public ErrorResponse(SMB2CommandName commandName, NTStatus status) : base(commandName)
+        public ErrorResponse(Smb2CommandName commandName, NtStatus status) : base(commandName)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
             Header.Status = status;
         }
 
-        public ErrorResponse(SMB2CommandName commandName, NTStatus status, byte[] errorData) : base(commandName)
+        public ErrorResponse(Smb2CommandName commandName, NtStatus status, byte[] errorData) : base(commandName)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
             Header.Status = status;
             ErrorData = errorData;
         }
 
         public ErrorResponse(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            ErrorContextCount = ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 2);
-            Reserved = ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 3);
-            ByteCount = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            ErrorData = ByteReader.ReadBytes(buffer, offset + SMB2Header.Length + 8, (int) ByteCount);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            ErrorContextCount = ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 2);
+            Reserved = ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 3);
+            _byteCount = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            ErrorData = ByteReader.ReadBytes(buffer, offset + Smb2Header.Length + 8, (int) _byteCount);
         }
 
         public override int CommandLength =>
@@ -67,11 +65,11 @@ namespace SMBLibrary.SMB2.Commands
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            ByteCount = (uint) ErrorData.Length;
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            _byteCount = (uint) ErrorData.Length;
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             ByteWriter.WriteByte(buffer, offset + 2, ErrorContextCount);
             ByteWriter.WriteByte(buffer, offset + 3, Reserved);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 4, ByteCount);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 4, _byteCount);
             if (ErrorData.Length > 0)
                 ByteWriter.WriteBytes(buffer, offset + 8, ErrorData);
             else

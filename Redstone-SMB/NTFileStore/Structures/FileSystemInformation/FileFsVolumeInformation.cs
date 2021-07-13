@@ -6,16 +6,14 @@
  */
 
 using System;
-using SMBLibrary.Helpers;
-using SMBLibrary.NTFileStore.Enums.FileSystemInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Helpers;
+using RedstoneSmb.NTFileStore.Enums.FileSystemInformation;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Structures.FileSystemInformation
 {
     /// <summary>
     ///     [MS-FSCC] 2.5.9 - FileFsVolumeInformation
@@ -28,7 +26,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
 
         public DateTime? VolumeCreationTime;
         public string VolumeLabel = string.Empty;
-        private uint VolumeLabelLength;
+        private uint _volumeLabelLength;
         public uint VolumeSerialNumber;
 
         public FileFsVolumeInformation()
@@ -39,11 +37,11 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
         {
             VolumeCreationTime = FileTimeHelper.ReadNullableFileTime(buffer, offset + 0);
             VolumeSerialNumber = LittleEndianConverter.ToUInt32(buffer, offset + 8);
-            VolumeLabelLength = LittleEndianConverter.ToUInt32(buffer, offset + 12);
+            _volumeLabelLength = LittleEndianConverter.ToUInt32(buffer, offset + 12);
             SupportsObjects = Convert.ToBoolean(ByteReader.ReadByte(buffer, offset + 16));
             Reserved = ByteReader.ReadByte(buffer, offset + 17);
-            if (VolumeLabelLength > 0)
-                VolumeLabel = ByteReader.ReadUTF16String(buffer, offset + 18, (int) VolumeLabelLength / 2);
+            if (_volumeLabelLength > 0)
+                VolumeLabel = ByteReader.ReadUtf16String(buffer, offset + 18, (int) _volumeLabelLength / 2);
         }
 
         public override FileSystemInformationClass FileSystemInformationClass =>
@@ -53,13 +51,13 @@ namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
 
         public override void WriteBytes(byte[] buffer, int offset)
         {
-            VolumeLabelLength = (uint) (VolumeLabel.Length * 2);
+            _volumeLabelLength = (uint) (VolumeLabel.Length * 2);
             FileTimeHelper.WriteFileTime(buffer, offset + 0, VolumeCreationTime);
             LittleEndianWriter.WriteUInt32(buffer, offset + 8, VolumeSerialNumber);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 12, VolumeLabelLength);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 12, _volumeLabelLength);
             ByteWriter.WriteByte(buffer, offset + 16, Convert.ToByte(SupportsObjects));
             ByteWriter.WriteByte(buffer, offset + 17, Reserved);
-            ByteWriter.WriteUTF16String(buffer, offset + 18, VolumeLabel);
+            ByteWriter.WriteUtf16String(buffer, offset + 18, VolumeLabel);
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace SMBLibrary.Services.WorkstationService.Enums
+namespace RedstoneSmb.Services.WorkstationService.Enums
 {
     public enum WorkstationServiceOpName : ushort
     {

@@ -6,25 +6,24 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianReader = SMBLibrary.Utilities.ByteUtils.LittleEndianReader;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianReader = RedstoneSmb.Utilities.ByteUtils.LittleEndianReader;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
+namespace RedstoneSmb.NTFileStore.Structures.SecurityInformation
 {
     /// <summary>
     ///     [MS-DTYP] 2.4.2.2 - SID (Packet Representation)
     /// </summary>
-    public class SID
+    public class Sid
     {
         public const int FixedLength = 8;
-        public static readonly byte[] WORLD_SID_AUTHORITY = {0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
-        public static readonly byte[] LOCAL_SID_AUTHORITY = {0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
-        public static readonly byte[] CREATOR_SID_AUTHORITY = {0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
+        public static readonly byte[] WorldSidAuthority = {0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+        public static readonly byte[] LocalSidAuthority = {0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
+        public static readonly byte[] CreatorSidAuthority = {0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
 
-        public static readonly byte[] SECURITY_NT_AUTHORITY = {0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
+        public static readonly byte[] SecurityNtAuthority = {0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
 
         // byte SubAuthorityCount;
         public byte[] IdentifierAuthority; // 6 bytes
@@ -32,12 +31,12 @@ namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
         public byte Revision;
         public List<uint> SubAuthority = new List<uint>();
 
-        public SID()
+        public Sid()
         {
             Revision = 0x01;
         }
 
-        public SID(byte[] buffer, int offset)
+        public Sid(byte[] buffer, int offset)
         {
             Revision = ByteReader.ReadByte(buffer, ref offset);
             var subAuthorityCount = ByteReader.ReadByte(buffer, ref offset);
@@ -51,23 +50,23 @@ namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
 
         public int Length => FixedLength + SubAuthority.Count * 4;
 
-        public static SID Everyone
+        public static Sid Everyone
         {
             get
             {
-                var sid = new SID();
-                sid.IdentifierAuthority = WORLD_SID_AUTHORITY;
+                var sid = new Sid();
+                sid.IdentifierAuthority = WorldSidAuthority;
                 sid.SubAuthority.Add(0);
                 return sid;
             }
         }
 
-        public static SID LocalSystem
+        public static Sid LocalSystem
         {
             get
             {
-                var sid = new SID();
-                sid.IdentifierAuthority = SECURITY_NT_AUTHORITY;
+                var sid = new Sid();
+                sid.IdentifierAuthority = SecurityNtAuthority;
                 sid.SubAuthority.Add(18);
                 return sid;
             }

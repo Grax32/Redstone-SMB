@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.NTFileStore.Enums.SecurityInformation
+namespace RedstoneSmb.NTFileStore.Enums.SecurityInformation
 {
     /// <summary>
     ///     [MS-DTYP] 2.4.7 - SECURITY_INFORMATION
@@ -8,13 +8,13 @@ namespace SMBLibrary.NTFileStore.Enums.SecurityInformation
     [Flags]
     public enum SecurityInformation : uint
     {
-        OWNER_SECURITY_INFORMATION = 0x00000001,
-        GROUP_SECURITY_INFORMATION = 0x00000002,
-        DACL_SECURITY_INFORMATION = 0x00000004,
-        SACL_SECURITY_INFORMATION = 0x00000008,
-        LABEL_SECURITY_INFORMATION = 0x00000010,
-        ATTRIBUTE_SECURITY_INFORMATION = 0x00000020,
-        SCOPE_SECURITY_INFORMATION = 0x00000040,
-        BACKUP_SECURITY_INFORMATION = 0x00010000
+        OwnerSecurityInformation = 0x00000001,
+        GroupSecurityInformation = 0x00000002,
+        DaclSecurityInformation = 0x00000004,
+        SaclSecurityInformation = 0x00000008,
+        LabelSecurityInformation = 0x00000010,
+        AttributeSecurityInformation = 0x00000020,
+        ScopeSecurityInformation = 0x00000040,
+        BackupSecurityInformation = 0x00010000
     }
 }

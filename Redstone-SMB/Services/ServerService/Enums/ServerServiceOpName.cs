@@ -1,4 +1,4 @@
-namespace SMBLibrary.Services.ServerService.Enums
+namespace RedstoneSmb.Services.ServerService.Enums
 {
     public enum ServerServiceOpName : ushort
     {
@@ -22,7 +22,7 @@ namespace SMBLibrary.Services.ServerService.Enums
         NetrServerTransportAdd = 25,
         NetrServerTransportEnum = 26,
         NetrServerTransportDel = 27,
-        NetrRemoteTOD = 28,
+        NetrRemoteTod = 28,
         NetprPathType = 30,
         NetprPathCanonicalize = 31,
         NetprPathCompare = 32,

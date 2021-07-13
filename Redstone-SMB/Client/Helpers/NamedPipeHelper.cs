@@ -6,55 +6,55 @@
  */
 
 using System;
-using SMBLibrary.Enums;
-using SMBLibrary.NTFileStore;
-using SMBLibrary.NTFileStore.Enums;
-using SMBLibrary.NTFileStore.Enums.AccessMask;
-using SMBLibrary.NTFileStore.Enums.NtCreateFile;
-using SMBLibrary.RPC.Enums;
-using SMBLibrary.RPC.EnumStructures;
-using SMBLibrary.RPC.PDU;
-using SMBLibrary.RPC.Structures;
-using SMBLibrary.Services;
+using RedstoneSmb.Enums;
+using RedstoneSmb.NTFileStore;
+using RedstoneSmb.NTFileStore.Enums;
+using RedstoneSmb.NTFileStore.Enums.AccessMask;
+using RedstoneSmb.NTFileStore.Enums.NtCreateFile;
+using RedstoneSmb.RPC.Enums;
+using RedstoneSmb.RPC.EnumStructures;
+using RedstoneSmb.RPC.PDU;
+using RedstoneSmb.RPC.Structures;
+using RedstoneSmb.Services;
 
-namespace SMBLibrary.Client.Helpers
+namespace RedstoneSmb.Client.Helpers
 {
     public class NamedPipeHelper
     {
-        public static NTStatus BindPipe(INTFileStore namedPipeShare, string pipeName, Guid interfaceGuid,
+        public static NtStatus BindPipe(INtFileStore namedPipeShare, string pipeName, Guid interfaceGuid,
             uint interfaceVersion, out object pipeHandle, out int maxTransmitFragmentSize)
         {
             maxTransmitFragmentSize = 0;
             FileStatus fileStatus;
             var status = namedPipeShare.CreateFile(out pipeHandle, out fileStatus, pipeName,
-                (AccessMask) (FileAccessMask.FILE_READ_DATA | FileAccessMask.FILE_WRITE_DATA), 0,
-                ShareAccess.Read | ShareAccess.Write, CreateDisposition.FILE_OPEN, 0, null);
-            if (status != NTStatus.STATUS_SUCCESS) return status;
-            var bindPDU = new BindPDU();
-            bindPDU.Flags = PacketFlags.FirstFragment | PacketFlags.LastFragment;
-            bindPDU.DataRepresentation.CharacterFormat = CharacterFormat.ASCII;
-            bindPDU.DataRepresentation.ByteOrder = ByteOrder.LittleEndian;
-            bindPDU.DataRepresentation.FloatingPointRepresentation = FloatingPointRepresentation.IEEE;
-            bindPDU.MaxTransmitFragmentSize = 5680;
-            bindPDU.MaxReceiveFragmentSize = 5680;
+                (AccessMask) (FileAccessMask.FileReadData | FileAccessMask.FileWriteData), 0,
+                ShareAccess.Read | ShareAccess.Write, CreateDisposition.FileOpen, 0, null);
+            if (status != NtStatus.StatusSuccess) return status;
+            var bindPdu = new BindPdu();
+            bindPdu.Flags = PacketFlags.FirstFragment | PacketFlags.LastFragment;
+            bindPdu.DataRepresentation.CharacterFormat = CharacterFormat.Ascii;
+            bindPdu.DataRepresentation.ByteOrder = ByteOrder.LittleEndian;
+            bindPdu.DataRepresentation.FloatingPointRepresentation = FloatingPointRepresentation.Ieee;
+            bindPdu.MaxTransmitFragmentSize = 5680;
+            bindPdu.MaxReceiveFragmentSize = 5680;
 
             var serviceContext = new ContextElement();
-            serviceContext.AbstractSyntax = new SyntaxID(interfaceGuid, interfaceVersion);
-            serviceContext.TransferSyntaxList.Add(new SyntaxID(RemoteServiceHelper.NDRTransferSyntaxIdentifier,
-                RemoteServiceHelper.NDRTransferSyntaxVersion));
+            serviceContext.AbstractSyntax = new SyntaxId(interfaceGuid, interfaceVersion);
+            serviceContext.TransferSyntaxList.Add(new SyntaxId(RemoteServiceHelper.NdrTransferSyntaxIdentifier,
+                RemoteServiceHelper.NdrTransferSyntaxVersion));
 
-            bindPDU.ContextList.Add(serviceContext);
+            bindPdu.ContextList.Add(serviceContext);
 
-            var input = bindPDU.GetBytes();
+            var input = bindPdu.GetBytes();
             byte[] output;
-            status = namedPipeShare.DeviceIOControl(pipeHandle, (uint) IoControlCode.FSCTL_PIPE_TRANSCEIVE, input,
+            status = namedPipeShare.DeviceIoControl(pipeHandle, (uint) IoControlCode.FsctlPipeTransceive, input,
                 out output, 4096);
-            if (status != NTStatus.STATUS_SUCCESS) return status;
-            var bindAckPDU = RPCPDU.GetPDU(output, 0) as BindAckPDU;
-            if (bindAckPDU == null) return NTStatus.STATUS_NOT_SUPPORTED;
+            if (status != NtStatus.StatusSuccess) return status;
+            var bindAckPdu = Rpcpdu.GetPdu(output, 0) as BindAckPdu;
+            if (bindAckPdu == null) return NtStatus.StatusNotSupported;
 
-            maxTransmitFragmentSize = bindAckPDU.MaxTransmitFragmentSize;
-            return NTStatus.STATUS_SUCCESS;
+            maxTransmitFragmentSize = bindAckPdu.MaxTransmitFragmentSize;
+            return NtStatus.StatusSuccess;
         }
     }
 }

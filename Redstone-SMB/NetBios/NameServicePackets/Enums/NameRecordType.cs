@@ -1,8 +1,8 @@
-namespace SMBLibrary.NetBios.NameServicePackets.Enums
+namespace RedstoneSmb.NetBios.NameServicePackets.Enums
 {
     public enum NameRecordType : ushort
     {
-        NB = 0x0020,
-        NBStat = 0x0021
+        Nb = 0x0020,
+        NbStat = 0x0021
     }
 }

@@ -7,9 +7,9 @@
 
 using System;
 using System.Text;
-using SMBLibrary.Utilities.Conversion;
+using RedstoneSmb.Utilities.Conversion;
 
-namespace SMBLibrary.Utilities.ByteUtils
+namespace RedstoneSmb.Utilities.ByteUtils
 {
     public class ByteReader
     {
@@ -53,13 +53,13 @@ namespace SMBLibrary.Utilities.ByteUtils
             return ReadAnsiString(buffer, offset - count, count);
         }
 
-        public static string ReadUTF16String(byte[] buffer, int offset, int numberOfCharacters)
+        public static string ReadUtf16String(byte[] buffer, int offset, int numberOfCharacters)
         {
             var numberOfBytes = numberOfCharacters * 2;
             return Encoding.Unicode.GetString(buffer, offset, numberOfBytes);
         }
 
-        public static string ReadNullTerminatedUTF16String(byte[] buffer, int offset)
+        public static string ReadNullTerminatedUtf16String(byte[] buffer, int offset)
         {
             var builder = new StringBuilder();
             var c = (char) LittleEndianConverter.ToUInt16(buffer, offset);

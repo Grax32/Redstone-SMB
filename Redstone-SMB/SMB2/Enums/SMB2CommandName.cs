@@ -1,6 +1,6 @@
-namespace SMBLibrary.SMB2.Enums
+namespace RedstoneSmb.SMB2.Enums
 {
-    public enum SMB2CommandName : ushort
+    public enum Smb2CommandName : ushort
     {
         Negotiate = 0x0000, // SMB2 NEGOTIATE
         SessionSetup = 0x0001, // SMB2 SESSION_SETUP
@@ -13,7 +13,7 @@ namespace SMBLibrary.SMB2.Enums
         Read = 0x0008, // SMB2 READ
         Write = 0x0009, // SMB2 WRITE
         Lock = 0x000A, // SMB2 LOCK
-        IOCtl = 0x000B, // SMB2 IOCTL
+        IoCtl = 0x000B, // SMB2 IOCTL
         Cancel = 0x000C, // SMB2 CANCEL
         Echo = 0x000D, // SMB2 ECHO
         QueryDirectory = 0x000E, // SMB2 QUERY_DIRECTORY

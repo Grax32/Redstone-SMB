@@ -5,7 +5,7 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-namespace SMBLibrary.NetBios.SessionPackets.Enums
+namespace RedstoneSmb.NetBios.SessionPackets.Enums
 {
     /// <summary>
     ///     [RFC 1002] 4.2.1.1. HEADER

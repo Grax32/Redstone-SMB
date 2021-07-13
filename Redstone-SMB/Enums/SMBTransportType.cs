@@ -1,8 +1,8 @@
-namespace SMBLibrary.Enums
+namespace RedstoneSmb.Enums
 {
-    public enum SMBTransportType
+    public enum SmbTransportType
     {
-        NetBiosOverTCP, // Port 139
-        DirectTCPTransport // Port 445
+        NetBiosOverTcp, // Port 139
+        DirectTcpTransport // Port 445
     }
 }

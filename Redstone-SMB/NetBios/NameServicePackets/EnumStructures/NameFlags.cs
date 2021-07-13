@@ -5,7 +5,7 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-namespace SMBLibrary.NetBios.NameServicePackets.EnumStructures
+namespace RedstoneSmb.NetBios.NameServicePackets.EnumStructures
 {
     public enum OwnerNodeType : byte
     {

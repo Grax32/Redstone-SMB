@@ -5,9 +5,9 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.ServerService
+namespace RedstoneSmb.Services.ServerService
 {
     /// <summary>
     ///     NetrServerGetInfo Request (opnum 21)
@@ -23,14 +23,14 @@ namespace SMBLibrary.Services.ServerService
 
         public NetrServerGetInfoRequest(byte[] buffer)
         {
-            var parser = new NDRParser(buffer);
+            var parser = new NdrParser(buffer);
             ServerName = parser.ReadTopLevelUnicodeStringPointer();
             Level = parser.ReadUInt32();
         }
 
         public byte[] GetBytes()
         {
-            var writer = new NDRWriter();
+            var writer = new NdrWriter();
             writer.WriteTopLevelUnicodeStringPointer(ServerName);
             writer.WriteUInt32(Level);
 

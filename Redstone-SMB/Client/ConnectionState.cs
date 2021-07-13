@@ -6,20 +6,20 @@
  */
 
 using System.Net.Sockets;
-using SMBLibrary.NetBios;
+using RedstoneSmb.NetBios;
 
-namespace SMBLibrary.Client
+namespace RedstoneSmb.Client
 {
     public class ConnectionState
     {
         public ConnectionState(Socket clientSocket)
         {
             ClientSocket = clientSocket;
-            ReceiveBuffer = new NBTConnectionReceiveBuffer();
+            ReceiveBuffer = new NbtConnectionReceiveBuffer();
         }
 
         public Socket ClientSocket { get; }
 
-        public NBTConnectionReceiveBuffer ReceiveBuffer { get; }
+        public NbtConnectionReceiveBuffer ReceiveBuffer { get; }
     }
 }

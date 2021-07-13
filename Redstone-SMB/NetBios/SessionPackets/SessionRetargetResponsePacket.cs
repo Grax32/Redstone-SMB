@@ -5,13 +5,11 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NetBios.SessionPackets.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using BigEndianConverter = SMBLibrary.Utilities.Conversion.BigEndianConverter;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
+using RedstoneSmb.NetBios.SessionPackets.Enums;
+using BigEndianConverter = RedstoneSmb.Utilities.Conversion.BigEndianConverter;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
 
-namespace SMBLibrary.NetBios.SessionPackets
+namespace RedstoneSmb.NetBios.SessionPackets
 {
     /// <summary>
     ///     [RFC 1002] 4.3.5. SESSION RETARGET RESPONSE PACKET

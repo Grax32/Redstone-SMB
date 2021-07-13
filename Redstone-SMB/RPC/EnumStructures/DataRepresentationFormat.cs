@@ -5,13 +5,13 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-namespace SMBLibrary.RPC.EnumStructures
+namespace RedstoneSmb.RPC.EnumStructures
 {
     // See DCE 1.1: Remote Procedure Call, Chapter 14.1 - Data Representation Format Label
     public enum CharacterFormat : byte
     {
-        ASCII = 0x00,
-        EBCDIC = 0x01
+        Ascii = 0x00,
+        Ebcdic = 0x01
     }
 
     public enum ByteOrder : byte
@@ -22,10 +22,10 @@ namespace SMBLibrary.RPC.EnumStructures
 
     public enum FloatingPointRepresentation : byte
     {
-        IEEE = 0x00,
-        VAX = 0x01,
+        Ieee = 0x00,
+        Vax = 0x01,
         Cray = 0x02,
-        IBM = 0x03
+        Ibm = 0x03
     }
 
     public struct DataRepresentationFormat // uint

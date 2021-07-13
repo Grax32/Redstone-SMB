@@ -1,4 +1,4 @@
-﻿namespace SMBLibrary.Models
+﻿namespace RedstoneSmb.Models
 {
     public class SecurityContext
     {

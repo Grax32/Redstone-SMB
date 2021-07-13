@@ -8,42 +8,40 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using SMBLibrary.Enums;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.Negotiate;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
+using RedstoneSmb.Enums;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.Negotiate;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
-    public abstract class SMB2Command
+    public abstract class Smb2Command
     {
-        public SMB2Header Header;
+        public Smb2Header Header;
 
-        protected SMB2Command(SMB2CommandName commandName)
+        protected Smb2Command(Smb2CommandName commandName)
         {
-            Header = new SMB2Header(commandName);
+            Header = new Smb2Header(commandName);
         }
 
-        protected SMB2Command(byte[] buffer, int offset)
+        protected Smb2Command(byte[] buffer, int offset)
         {
-            Header = new SMB2Header(buffer, offset);
+            Header = new Smb2Header(buffer, offset);
         }
 
-        public SMB2CommandName CommandName => Header.Command;
+        public Smb2CommandName CommandName => Header.Command;
 
-        public ulong MessageID => Header.MessageID;
+        public ulong MessageId => Header.MessageId;
 
-        public int Length => SMB2Header.Length + CommandLength;
+        public int Length => Smb2Header.Length + CommandLength;
 
         public abstract int CommandLength { get; }
 
         public void WriteBytes(byte[] buffer, int offset)
         {
             Header.WriteBytes(buffer, offset);
-            WriteCommandBytes(buffer, offset + SMB2Header.Length);
+            WriteCommandBytes(buffer, offset + Smb2Header.Length);
         }
 
         public abstract void WriteCommandBytes(byte[] buffer, int offset);
@@ -55,56 +53,56 @@ namespace SMBLibrary.SMB2.Commands
             return buffer;
         }
 
-        public static SMB2Command ReadRequest(byte[] buffer, int offset)
+        public static Smb2Command ReadRequest(byte[] buffer, int offset)
         {
-            var commandName = (SMB2CommandName) LittleEndianConverter.ToUInt16(buffer, offset + 12);
+            var commandName = (Smb2CommandName) LittleEndianConverter.ToUInt16(buffer, offset + 12);
             switch (commandName)
             {
-                case SMB2CommandName.Negotiate:
+                case Smb2CommandName.Negotiate:
                     return new NegotiateRequest(buffer, offset);
-                case SMB2CommandName.SessionSetup:
+                case Smb2CommandName.SessionSetup:
                     return new SessionSetupRequest(buffer, offset);
-                case SMB2CommandName.Logoff:
+                case Smb2CommandName.Logoff:
                     return new LogoffRequest(buffer, offset);
-                case SMB2CommandName.TreeConnect:
+                case Smb2CommandName.TreeConnect:
                     return new TreeConnectRequest(buffer, offset);
-                case SMB2CommandName.TreeDisconnect:
+                case Smb2CommandName.TreeDisconnect:
                     return new TreeDisconnectRequest(buffer, offset);
-                case SMB2CommandName.Create:
+                case Smb2CommandName.Create:
                     return new CreateRequest(buffer, offset);
-                case SMB2CommandName.Close:
+                case Smb2CommandName.Close:
                     return new CloseRequest(buffer, offset);
-                case SMB2CommandName.Flush:
+                case Smb2CommandName.Flush:
                     return new FlushRequest(buffer, offset);
-                case SMB2CommandName.Read:
+                case Smb2CommandName.Read:
                     return new ReadRequest(buffer, offset);
-                case SMB2CommandName.Write:
+                case Smb2CommandName.Write:
                     return new WriteRequest(buffer, offset);
-                case SMB2CommandName.Lock:
+                case Smb2CommandName.Lock:
                     return new LockRequest(buffer, offset);
-                case SMB2CommandName.IOCtl:
-                    return new IOCtlRequest(buffer, offset);
-                case SMB2CommandName.Cancel:
+                case Smb2CommandName.IoCtl:
+                    return new IoCtlRequest(buffer, offset);
+                case Smb2CommandName.Cancel:
                     return new CancelRequest(buffer, offset);
-                case SMB2CommandName.Echo:
+                case Smb2CommandName.Echo:
                     return new EchoRequest(buffer, offset);
-                case SMB2CommandName.QueryDirectory:
+                case Smb2CommandName.QueryDirectory:
                     return new QueryDirectoryRequest(buffer, offset);
-                case SMB2CommandName.ChangeNotify:
+                case Smb2CommandName.ChangeNotify:
                     return new ChangeNotifyRequest(buffer, offset);
-                case SMB2CommandName.QueryInfo:
+                case Smb2CommandName.QueryInfo:
                     return new QueryInfoRequest(buffer, offset);
-                case SMB2CommandName.SetInfo:
+                case Smb2CommandName.SetInfo:
                     return new SetInfoRequest(buffer, offset);
                 default:
                     throw new InvalidDataException("Invalid SMB2 command 0x" + ((ushort) commandName).ToString("X4"));
             }
         }
 
-        public static List<SMB2Command> ReadRequestChain(byte[] buffer, int offset)
+        public static List<Smb2Command> ReadRequestChain(byte[] buffer, int offset)
         {
-            var result = new List<SMB2Command>();
-            SMB2Command command;
+            var result = new List<Smb2Command>();
+            Smb2Command command;
             do
             {
                 command = ReadRequest(buffer, offset);
@@ -115,15 +113,15 @@ namespace SMBLibrary.SMB2.Commands
             return result;
         }
 
-        public static byte[] GetCommandChainBytes(List<SMB2Command> commands)
+        public static byte[] GetCommandChainBytes(List<Smb2Command> commands)
         {
-            return GetCommandChainBytes(commands, null, SMB2Dialect.SMB2xx);
+            return GetCommandChainBytes(commands, null, Smb2Dialect.Smb2Xx);
         }
 
         /// <param name="dialect">
         ///     Used for signature calculation when applicable.
         /// </param>
-        public static byte[] GetCommandChainBytes(List<SMB2Command> commands, byte[] signingKey, SMB2Dialect dialect)
+        public static byte[] GetCommandChainBytes(List<Smb2Command> commands, byte[] signingKey, Smb2Dialect dialect)
         {
             var totalLength = 0;
             for (var index = 0; index < commands.Count; index++)
@@ -163,9 +161,9 @@ namespace SMBLibrary.SMB2.Commands
                 {
                     // [MS-SMB2] Any padding at the end of the message MUST be used in the hash computation.
                     var signature =
-                        SMB2Cryptography.CalculateSignature(signingKey, dialect, buffer, offset, paddedLength);
+                        Smb2Cryptography.CalculateSignature(signingKey, dialect, buffer, offset, paddedLength);
                     // [MS-SMB2] The first 16 bytes of the hash MUST be copied into the 16-byte signature field of the SMB2 Header.
-                    ByteWriter.WriteBytes(buffer, offset + SMB2Header.SignatureOffset, signature, 16);
+                    ByteWriter.WriteBytes(buffer, offset + Smb2Header.SignatureOffset, signature, 16);
                 }
 
                 offset += paddedLength;
@@ -174,13 +172,13 @@ namespace SMBLibrary.SMB2.Commands
             return buffer;
         }
 
-        public static SMB2Command ReadResponse(byte[] buffer, int offset)
+        public static Smb2Command ReadResponse(byte[] buffer, int offset)
         {
-            var commandName = (SMB2CommandName) LittleEndianConverter.ToUInt16(buffer, offset + 12);
-            var structureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
+            var commandName = (Smb2CommandName) LittleEndianConverter.ToUInt16(buffer, offset + 12);
+            var structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
             switch (commandName)
             {
-                case SMB2CommandName.Negotiate:
+                case Smb2CommandName.Negotiate:
                 {
                     if (structureSize == NegotiateResponse.DeclaredSize)
                         return new NegotiateResponse(buffer, offset);
@@ -188,20 +186,20 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.SessionSetup:
+                case Smb2CommandName.SessionSetup:
                 {
                     // SESSION_SETUP Response and ERROR Response have the same declared StructureSize of 9.
                     if (structureSize == SessionSetupResponse.DeclaredSize)
                     {
-                        var status = (NTStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
-                        if (status == NTStatus.STATUS_SUCCESS || status == NTStatus.STATUS_MORE_PROCESSING_REQUIRED)
+                        var status = (NtStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
+                        if (status == NtStatus.StatusSuccess || status == NtStatus.StatusMoreProcessingRequired)
                             return new SessionSetupResponse(buffer, offset);
                         return new ErrorResponse(buffer, offset);
                     }
 
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Logoff:
+                case Smb2CommandName.Logoff:
                 {
                     if (structureSize == LogoffResponse.DeclaredSize)
                         return new LogoffResponse(buffer, offset);
@@ -209,7 +207,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.TreeConnect:
+                case Smb2CommandName.TreeConnect:
                 {
                     if (structureSize == TreeConnectResponse.DeclaredSize)
                         return new TreeConnectResponse(buffer, offset);
@@ -217,7 +215,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.TreeDisconnect:
+                case Smb2CommandName.TreeDisconnect:
                 {
                     if (structureSize == TreeDisconnectResponse.DeclaredSize)
                         return new TreeDisconnectResponse(buffer, offset);
@@ -225,7 +223,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Create:
+                case Smb2CommandName.Create:
                 {
                     if (structureSize == CreateResponse.DeclaredSize)
                         return new CreateResponse(buffer, offset);
@@ -233,7 +231,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Close:
+                case Smb2CommandName.Close:
                 {
                     if (structureSize == CloseResponse.DeclaredSize)
                         return new CloseResponse(buffer, offset);
@@ -241,7 +239,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Flush:
+                case Smb2CommandName.Flush:
                 {
                     if (structureSize == FlushResponse.DeclaredSize)
                         return new FlushResponse(buffer, offset);
@@ -249,7 +247,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Read:
+                case Smb2CommandName.Read:
                 {
                     if (structureSize == Commands.ReadResponse.DeclaredSize)
                         return new ReadResponse(buffer, offset);
@@ -257,7 +255,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Write:
+                case Smb2CommandName.Write:
                 {
                     if (structureSize == WriteResponse.DeclaredSize)
                         return new WriteResponse(buffer, offset);
@@ -265,7 +263,7 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Lock:
+                case Smb2CommandName.Lock:
                 {
                     if (structureSize == LockResponse.DeclaredSize)
                         return new LockResponse(buffer, offset);
@@ -273,21 +271,21 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.IOCtl:
+                case Smb2CommandName.IoCtl:
                 {
-                    if (structureSize == IOCtlResponse.DeclaredSize)
-                        return new IOCtlResponse(buffer, offset);
+                    if (structureSize == IoCtlResponse.DeclaredSize)
+                        return new IoCtlResponse(buffer, offset);
                     if (structureSize == ErrorResponse.DeclaredSize)
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Cancel:
+                case Smb2CommandName.Cancel:
                 {
                     if (structureSize == ErrorResponse.DeclaredSize)
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.Echo:
+                case Smb2CommandName.Echo:
                 {
                     if (structureSize == EchoResponse.DeclaredSize)
                         return new EchoResponse(buffer, offset);
@@ -295,48 +293,48 @@ namespace SMBLibrary.SMB2.Commands
                         return new ErrorResponse(buffer, offset);
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.QueryDirectory:
+                case Smb2CommandName.QueryDirectory:
                 {
                     // QUERY_DIRECTORY Response and ERROR Response have the same declared StructureSize of 9.
                     if (structureSize == QueryDirectoryResponse.DeclaredSize)
                     {
-                        var status = (NTStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
-                        if (status == NTStatus.STATUS_SUCCESS)
+                        var status = (NtStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
+                        if (status == NtStatus.StatusSuccess)
                             return new QueryDirectoryResponse(buffer, offset);
                         return new ErrorResponse(buffer, offset);
                     }
 
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.ChangeNotify:
+                case Smb2CommandName.ChangeNotify:
                 {
                     // CHANGE_NOTIFY Response and ERROR Response have the same declared StructureSize of 9.
                     if (structureSize == ChangeNotifyResponse.DeclaredSize)
                     {
-                        var status = (NTStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
-                        if (status == NTStatus.STATUS_SUCCESS ||
-                            status == NTStatus.STATUS_NOTIFY_CLEANUP ||
-                            status == NTStatus.STATUS_NOTIFY_ENUM_DIR)
+                        var status = (NtStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
+                        if (status == NtStatus.StatusSuccess ||
+                            status == NtStatus.StatusNotifyCleanup ||
+                            status == NtStatus.StatusNotifyEnumDir)
                             return new ChangeNotifyResponse(buffer, offset);
                         return new ErrorResponse(buffer, offset);
                     }
 
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.QueryInfo:
+                case Smb2CommandName.QueryInfo:
                 {
                     // QUERY_INFO Response and ERROR Response have the same declared StructureSize of 9.
                     if (structureSize == QueryInfoResponse.DeclaredSize)
                     {
-                        var status = (NTStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
-                        if (status == NTStatus.STATUS_SUCCESS || status == NTStatus.STATUS_BUFFER_OVERFLOW)
+                        var status = (NtStatus) LittleEndianConverter.ToUInt32(buffer, offset + 8);
+                        if (status == NtStatus.StatusSuccess || status == NtStatus.StatusBufferOverflow)
                             return new QueryInfoResponse(buffer, offset);
                         return new ErrorResponse(buffer, offset);
                     }
 
                     throw new InvalidDataException();
                 }
-                case SMB2CommandName.SetInfo:
+                case Smb2CommandName.SetInfo:
                 {
                     if (structureSize == SetInfoResponse.DeclaredSize)
                         return new SetInfoResponse(buffer, offset);
@@ -349,10 +347,10 @@ namespace SMBLibrary.SMB2.Commands
             }
         }
 
-        public static List<SMB2Command> ReadResponseChain(byte[] buffer, int offset)
+        public static List<Smb2Command> ReadResponseChain(byte[] buffer, int offset)
         {
-            var result = new List<SMB2Command>();
-            SMB2Command command;
+            var result = new List<Smb2Command>();
+            Smb2Command command;
             do
             {
                 command = ReadResponse(buffer, offset);

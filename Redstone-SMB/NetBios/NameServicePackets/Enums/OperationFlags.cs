@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.NetBios.NameServicePackets.Enums
+namespace RedstoneSmb.NetBios.NameServicePackets.Enums
 {
     /// <summary>
     ///     [RFC 1002] 4.2.1.1. HEADER

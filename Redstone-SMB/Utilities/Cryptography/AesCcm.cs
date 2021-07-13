@@ -8,10 +8,10 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
+using RedstoneSmb.Utilities.ByteUtils;
+using RedstoneSmb.Utilities.Conversion;
 
-namespace SMBLibrary.Utilities.Cryptography
+namespace RedstoneSmb.Utilities.Cryptography
 {
     /// <summary>
     ///     Implements the Counter with CBC-MAC (CCM) detailed in RFC 3610
@@ -28,17 +28,17 @@ namespace SMBLibrary.Utilities.Cryptography
                     throw new NotSupportedException("Associated data length of 65280 or more is not supported");
 
                 var associatedDataLength = BigEndianConverter.GetBytes((ushort) associatedData.Length);
-                messageToAuthenticate = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, associatedDataLength);
-                messageToAuthenticate = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, associatedData);
+                messageToAuthenticate = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, associatedDataLength);
+                messageToAuthenticate = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, associatedData);
                 var associatedDataPaddingLength = (16 - messageToAuthenticate.Length % 16) % 16;
                 messageToAuthenticate =
-                    global::SMBLibrary.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, new byte[associatedDataPaddingLength]);
+                    global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, new byte[associatedDataPaddingLength]);
             }
 
-            messageToAuthenticate = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, data);
+            messageToAuthenticate = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, data);
 
             var dataPaddingLength = (16 - messageToAuthenticate.Length % 16) % 16;
-            messageToAuthenticate = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, new byte[dataPaddingLength]);
+            messageToAuthenticate = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Concatenate(messageToAuthenticate, new byte[dataPaddingLength]);
 
             var encrypted = AesEncrypt(key, new byte[16], messageToAuthenticate, CipherMode.CBC);
 
@@ -57,8 +57,8 @@ namespace SMBLibrary.Utilities.Cryptography
             var keyStream = BuildKeyStream(key, nonce, data.Length);
 
             var mac = CalculateMac(key, nonce, data, associatedData, signatureLength);
-            signature = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.XOR(keyStream, 0, mac, 0, mac.Length);
-            return global::SMBLibrary.Utilities.ByteUtils.ByteUtils.XOR(data, 0, keyStream, 16, data.Length);
+            signature = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Xor(keyStream, 0, mac, 0, mac.Length);
+            return global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Xor(data, 0, keyStream, 16, data.Length);
         }
 
         public static byte[] DecryptAndAuthenticate(byte[] key, byte[] nonce, byte[] encryptedData,
@@ -72,11 +72,11 @@ namespace SMBLibrary.Utilities.Cryptography
 
             var keyStream = BuildKeyStream(key, nonce, encryptedData.Length);
 
-            var data = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.XOR(encryptedData, 0, keyStream, 16, encryptedData.Length);
+            var data = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Xor(encryptedData, 0, keyStream, 16, encryptedData.Length);
 
             var mac = CalculateMac(key, nonce, data, associatedData, signature.Length);
-            var expectedSignature = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.XOR(keyStream, 0, mac, 0, mac.Length);
-            if (!global::SMBLibrary.Utilities.ByteUtils.ByteUtils.AreByteArraysEqual(expectedSignature, signature))
+            var expectedSignature = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Xor(keyStream, 0, mac, 0, mac.Length);
+            if (!global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.AreByteArraysEqual(expectedSignature, signature))
                 throw new CryptographicException("The computed authentication value did not match the input");
             return data;
         }
@@ -85,9 +85,9 @@ namespace SMBLibrary.Utilities.Cryptography
         {
             var paddingLength = 16 - dataLength % 16 % 16;
             var keyStreamLength = 16 + dataLength + paddingLength;
-            var KeyStreamBlockCount = keyStreamLength / 16;
+            var keyStreamBlockCount = keyStreamLength / 16;
             var keyStreamInput = new byte[keyStreamLength];
-            for (var index = 0; index < KeyStreamBlockCount; index++)
+            for (var index = 0; index < keyStreamBlockCount; index++)
             {
                 var aBlock = BuildABlock(nonce, index);
                 ByteWriter.WriteBytes(keyStreamInput, index * 16, aBlock);

@@ -6,25 +6,25 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Query
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.15 - FileFullEaInformation
     /// </summary>
-    public class FileFullEAInformation : FileInformation
+    public class FileFullEaInformation : FileInformation
     {
-        public FileFullEAInformation()
+        public FileFullEaInformation()
         {
         }
 
-        public FileFullEAInformation(byte[] buffer, int offset)
+        public FileFullEaInformation(byte[] buffer, int offset)
         {
             Entries = ReadList(buffer, offset);
         }
 
-        public List<FileFullEAEntry> Entries { get; } = new List<FileFullEAEntry>();
+        public List<FileFullEaEntry> Entries { get; } = new List<FileFullEaEntry>();
 
         public override FileInformationClass FileInformationClass => FileInformationClass.FileFullEaInformation;
 
@@ -53,15 +53,15 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
             WriteList(buffer, offset, Entries);
         }
 
-        public static List<FileFullEAEntry> ReadList(byte[] buffer, int offset)
+        public static List<FileFullEaEntry> ReadList(byte[] buffer, int offset)
         {
-            var result = new List<FileFullEAEntry>();
+            var result = new List<FileFullEaEntry>();
             if (offset < buffer.Length)
             {
-                FileFullEAEntry entry;
+                FileFullEaEntry entry;
                 do
                 {
-                    entry = new FileFullEAEntry(buffer, offset);
+                    entry = new FileFullEaEntry(buffer, offset);
                     result.Add(entry);
                     offset += (int) entry.NextEntryOffset;
                 } while (entry.NextEntryOffset != 0);
@@ -70,7 +70,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
             return result;
         }
 
-        public static void WriteList(byte[] buffer, int offset, List<FileFullEAEntry> list)
+        public static void WriteList(byte[] buffer, int offset, List<FileFullEaEntry> list)
         {
             for (var index = 0; index < list.Count; index++)
             {

@@ -5,13 +5,11 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.RPC.Enums;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.RPC.Structures
+namespace RedstoneSmb.RPC.Structures
 {
     /// <summary>
     ///     p_result_t
@@ -22,13 +20,13 @@ namespace SMBLibrary.RPC.Structures
 
         public NegotiationResult Result;
         public RejectionReason Reason;
-        public SyntaxID TransferSyntax;
+        public SyntaxId TransferSyntax;
 
         public ResultElement(byte[] buffer, int offset)
         {
             Result = (NegotiationResult) LittleEndianConverter.ToUInt16(buffer, offset + 0);
             Reason = (RejectionReason) LittleEndianConverter.ToUInt16(buffer, offset + 2);
-            TransferSyntax = new SyntaxID(buffer, offset + 4);
+            TransferSyntax = new SyntaxId(buffer, offset + 4);
         }
 
         public void WriteBytes(byte[] buffer, int offset)

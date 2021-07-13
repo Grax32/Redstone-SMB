@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Structures.Enums
+namespace RedstoneSmb.SMB2.Structures.Enums
 {
     [Flags]
     public enum LockFlags : uint

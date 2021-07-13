@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.Negotiate
+namespace RedstoneSmb.SMB2.Enums.Negotiate
 {
     [Flags]
     public enum SecurityMode : ushort

@@ -6,11 +6,10 @@
  */
 
 using System.IO;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
+namespace RedstoneSmb.Authentication.GSSAPI.SPNEGO
 {
     public enum NegState : byte
     {
@@ -29,8 +28,8 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
         public const byte NegStateTag = 0xA0;
         public const byte SupportedMechanismTag = 0xA1;
         public const byte ResponseTokenTag = 0xA2;
-        public const byte MechanismListMICTag = 0xA3;
-        public byte[] MechanismListMIC; // Optional
+        public const byte MechanismListMicTag = 0xA3;
+        public byte[] MechanismListMic; // Optional
 
         public NegState? NegState; // Optional
         public byte[] ResponseToken; // Optional
@@ -58,8 +57,8 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
                     SupportedMechanism = ReadSupportedMechanism(buffer, ref offset);
                 else if (tag == ResponseTokenTag)
                     ResponseToken = ReadResponseToken(buffer, ref offset);
-                else if (tag == MechanismListMICTag)
-                    MechanismListMIC = ReadMechanismListMIC(buffer, ref offset);
+                else if (tag == MechanismListMicTag)
+                    MechanismListMic = ReadMechanismListMic(buffer, ref offset);
                 else
                     throw new InvalidDataException("Invalid negTokenResp structure");
             }
@@ -81,7 +80,7 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
             if (NegState.HasValue) WriteNegState(buffer, ref offset, NegState.Value);
             if (SupportedMechanism != null) WriteSupportedMechanism(buffer, ref offset, SupportedMechanism);
             if (ResponseToken != null) WriteResponseToken(buffer, ref offset, ResponseToken);
-            if (MechanismListMIC != null) WriteMechanismListMIC(buffer, ref offset, MechanismListMIC);
+            if (MechanismListMic != null) WriteMechanismListMic(buffer, ref offset, MechanismListMic);
             return buffer;
         }
 
@@ -118,16 +117,16 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
                 result += responseTokenLength;
             }
 
-            if (MechanismListMIC != null)
+            if (MechanismListMic != null)
             {
-                var mechanismListMICBytesLengthFieldSize =
-                    DerEncodingHelper.GetLengthFieldSize(MechanismListMIC.Length);
-                var mechanismListMICConstructionLength =
-                    1 + mechanismListMICBytesLengthFieldSize + MechanismListMIC.Length;
-                var mechanismListMICConstructionLengthFieldSize =
-                    DerEncodingHelper.GetLengthFieldSize(mechanismListMICConstructionLength);
-                var responseTokenLength = 1 + mechanismListMICConstructionLengthFieldSize + 1 +
-                                          mechanismListMICBytesLengthFieldSize + MechanismListMIC.Length;
+                var mechanismListMicBytesLengthFieldSize =
+                    DerEncodingHelper.GetLengthFieldSize(MechanismListMic.Length);
+                var mechanismListMicConstructionLength =
+                    1 + mechanismListMicBytesLengthFieldSize + MechanismListMic.Length;
+                var mechanismListMicConstructionLengthFieldSize =
+                    DerEncodingHelper.GetLengthFieldSize(mechanismListMicConstructionLength);
+                var responseTokenLength = 1 + mechanismListMicConstructionLengthFieldSize + 1 +
+                                          mechanismListMicBytesLengthFieldSize + MechanismListMic.Length;
                 result += responseTokenLength;
             }
 
@@ -161,7 +160,7 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
             return ByteReader.ReadBytes(buffer, ref offset, length);
         }
 
-        private static byte[] ReadMechanismListMIC(byte[] buffer, ref int offset)
+        private static byte[] ReadMechanismListMic(byte[] buffer, ref int offset)
         {
             var constructionLength = DerEncodingHelper.ReadLength(buffer, ref offset);
             var tag = ByteReader.ReadByte(buffer, ref offset);
@@ -200,15 +199,15 @@ namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
             ByteWriter.WriteBytes(buffer, ref offset, responseToken);
         }
 
-        private static void WriteMechanismListMIC(byte[] buffer, ref int offset, byte[] mechanismListMIC)
+        private static void WriteMechanismListMic(byte[] buffer, ref int offset, byte[] mechanismListMic)
         {
-            var mechanismListMICLengthFieldSize = DerEncodingHelper.GetLengthFieldSize(mechanismListMIC.Length);
-            ByteWriter.WriteByte(buffer, ref offset, MechanismListMICTag);
+            var mechanismListMicLengthFieldSize = DerEncodingHelper.GetLengthFieldSize(mechanismListMic.Length);
+            ByteWriter.WriteByte(buffer, ref offset, MechanismListMicTag);
             DerEncodingHelper.WriteLength(buffer, ref offset,
-                1 + mechanismListMICLengthFieldSize + mechanismListMIC.Length);
+                1 + mechanismListMicLengthFieldSize + mechanismListMic.Length);
             ByteWriter.WriteByte(buffer, ref offset, (byte) DerEncodingTag.ByteArray);
-            DerEncodingHelper.WriteLength(buffer, ref offset, mechanismListMIC.Length);
-            ByteWriter.WriteBytes(buffer, ref offset, mechanismListMIC);
+            DerEncodingHelper.WriteLength(buffer, ref offset, mechanismListMic.Length);
+            ByteWriter.WriteBytes(buffer, ref offset, mechanismListMic);
         }
     }
 }

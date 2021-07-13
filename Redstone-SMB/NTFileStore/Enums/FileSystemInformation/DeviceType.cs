@@ -1,13 +1,13 @@
-namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Enums.FileSystemInformation
 {
     public enum DeviceType : uint
     {
         Beep = 0x0001, // FILE_DEVICE_BEEP
-        CDRom = 0x0002, // FILE_DEVICE_CD_ROM
-        CDRomFileSystem = 0x0003, // FILE_DEVICE_CD_ROM_FILE_SYSTEM
+        CdRom = 0x0002, // FILE_DEVICE_CD_ROM
+        CdRomFileSystem = 0x0003, // FILE_DEVICE_CD_ROM_FILE_SYSTEM
         Controller = 0x0004, // FILE_DEVICE_CONTROLLER
         DataLink = 0x0005, // FILE_DEVICE_DATALINK
-        DFS = 0x0006, // FILE_DEVICE_DFS
+        Dfs = 0x0006, // FILE_DEVICE_DFS
         Disk = 0x0007, // FILE_DEVICE_DISK
         DiskFileSystem = 0x0008, // FILE_DEVICE_DISK_FILE_SYSTEM
         FileSystem = 0x0009, // FILE_DEVICE_FILE_SYSTEM
@@ -17,7 +17,7 @@ namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
         MidiIn = 0x000D, // FILE_DEVICE_MIDI_IN
         MidiOut = 0x000E, // FILE_DEVICE_MIDI_OUT
         Mouse = 0x000F, // FILE_DEVICE_MOUSE
-        MultiUNCProvider = 0x0010, // FILE_DEVICE_MULTI_UNC_PROVIDER
+        MultiUncProvider = 0x0010, // FILE_DEVICE_MULTI_UNC_PROVIDER
         NamedPipe = 0x0011, // FILE_DEVICE_NAMED_PIPE
         Network = 0x0012, // FILE_DEVICE_NETWORK
         NetworkBrowser = 0x0013, // FILE_DEVICE_NETWORK_BROWSER
@@ -40,7 +40,7 @@ namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
         VirtualDisk = 0x0024, // FILE_DEVICE_VIRTUAL_DISK
         WaveIn = 0x0025, // FILE_DEVICE_WAVE_IN
         WaveOut = 0x0026, // FILE_DEVICE_WAVE_OUT
-        PS2Port = 0x0027, // FILE_DEVICE_8042_PORT
+        Ps2Port = 0x0027, // FILE_DEVICE_8042_PORT
         NetworkRedirector = 0x0028, // FILE_DEVICE_NETWORK_REDIRECTOR
         Battery = 0x0029, // FILE_DEVICE_BATTERY
         BusExtender = 0x002A, // FILE_DEVICE_BUS_EXTENDER

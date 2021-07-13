@@ -6,14 +6,14 @@
  */
 
 using System;
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ShareInfo
 {
     /// <summary>
     ///     [MS-SRVS] SHARE_INFO Union
     /// </summary>
-    public class ShareInfo : INDRStructure
+    public class ShareInfo : INdrStructure
     {
         public IShareInfoEntry Info;
         public uint Level;
@@ -33,12 +33,12 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
             Info = info;
         }
 
-        public ShareInfo(NDRParser parser)
+        public ShareInfo(NdrParser parser)
         {
             Read(parser);
         }
 
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             parser.BeginStructure(); // SHARE_INFO Union
             Level = parser.ReadUInt32();
@@ -61,7 +61,7 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
             parser.EndStructure(); // SHARE_INFO Union
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             writer.BeginStructure(); // SHARE_INFO Union
             writer.WriteUInt32(Level);

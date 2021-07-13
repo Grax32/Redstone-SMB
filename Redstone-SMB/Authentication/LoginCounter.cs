@@ -8,34 +8,34 @@
 using System;
 using System.Collections.Generic;
 
-namespace SMBLibrary.Authentication
+namespace RedstoneSmb.Authentication
 {
     public class LoginCounter
     {
-        private readonly Dictionary<string, LoginEntry> m_loginEntries = new Dictionary<string, LoginEntry>();
-        private readonly TimeSpan m_loginWindowDuration;
+        private readonly Dictionary<string, LoginEntry> _mLoginEntries = new Dictionary<string, LoginEntry>();
+        private readonly TimeSpan _mLoginWindowDuration;
 
-        private readonly int m_maxLoginAttemptsInWindow;
+        private readonly int _mMaxLoginAttemptsInWindow;
 
         public LoginCounter(int maxLoginAttemptsInWindow, TimeSpan loginWindowDuration)
         {
-            m_maxLoginAttemptsInWindow = maxLoginAttemptsInWindow;
-            m_loginWindowDuration = loginWindowDuration;
+            _mMaxLoginAttemptsInWindow = maxLoginAttemptsInWindow;
+            _mLoginWindowDuration = loginWindowDuration;
         }
 
-        public bool HasRemainingLoginAttempts(string userID)
+        public bool HasRemainingLoginAttempts(string userId)
         {
-            return HasRemainingLoginAttempts(userID, false);
+            return HasRemainingLoginAttempts(userId, false);
         }
 
-        public bool HasRemainingLoginAttempts(string userID, bool incrementCount)
+        public bool HasRemainingLoginAttempts(string userId, bool incrementCount)
         {
-            lock (m_loginEntries)
+            lock (_mLoginEntries)
             {
                 LoginEntry entry;
-                if (m_loginEntries.TryGetValue(userID, out entry))
+                if (_mLoginEntries.TryGetValue(userId, out entry))
                 {
-                    if (entry.LoginWindowStartDT.Add(m_loginWindowDuration) >= DateTime.UtcNow)
+                    if (entry.LoginWindowStartDt.Add(_mLoginWindowDuration) >= DateTime.UtcNow)
                     {
                         // Existing login Window
                         if (incrementCount) entry.NumberOfAttempts++;
@@ -44,7 +44,7 @@ namespace SMBLibrary.Authentication
                     {
                         // New login Window
                         if (!incrementCount) return true;
-                        entry.LoginWindowStartDT = DateTime.UtcNow;
+                        entry.LoginWindowStartDt = DateTime.UtcNow;
                         entry.NumberOfAttempts = 1;
                     }
                 }
@@ -52,18 +52,18 @@ namespace SMBLibrary.Authentication
                 {
                     if (!incrementCount) return true;
                     entry = new LoginEntry();
-                    entry.LoginWindowStartDT = DateTime.UtcNow;
+                    entry.LoginWindowStartDt = DateTime.UtcNow;
                     entry.NumberOfAttempts = 1;
-                    m_loginEntries.Add(userID, entry);
+                    _mLoginEntries.Add(userId, entry);
                 }
 
-                return entry.NumberOfAttempts < m_maxLoginAttemptsInWindow;
+                return entry.NumberOfAttempts < _mMaxLoginAttemptsInWindow;
             }
         }
 
         public class LoginEntry
         {
-            public DateTime LoginWindowStartDT;
+            public DateTime LoginWindowStartDt;
             public int NumberOfAttempts;
         }
     }

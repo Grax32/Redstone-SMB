@@ -6,10 +6,10 @@
  */
 
 using System.IO;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.NetBios.NameServicePackets.Structures;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using RedstoneSmb.NetBios.NameServicePackets.Structures;
 
-namespace SMBLibrary.NetBios.NameServicePackets
+namespace RedstoneSmb.NetBios.NameServicePackets
 {
     /// <summary>
     ///     [RFC 1002] 4.2.12. NAME QUERY REQUEST
@@ -25,7 +25,7 @@ namespace SMBLibrary.NetBios.NameServicePackets
             Header.OpCode = NameServiceOperation.QueryRequest;
             Header.Flags = OperationFlags.RecursionDesired;
             Question = new QuestionSection();
-            Question.Type = NameRecordType.NB;
+            Question.Type = NameRecordType.Nb;
         }
 
         public NameQueryRequest(byte[] buffer, int offset)

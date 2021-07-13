@@ -1,4 +1,4 @@
-namespace SMBLibrary.SMB2.Enums.TreeConnect
+namespace RedstoneSmb.SMB2.Enums.TreeConnect
 {
     public enum ShareType : byte
     {

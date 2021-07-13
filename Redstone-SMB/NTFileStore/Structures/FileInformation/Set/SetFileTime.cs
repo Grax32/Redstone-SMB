@@ -8,7 +8,7 @@
 using System;
 using System.IO;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Set
 {
     /// <summary>
     ///     [MS-FSCC] When setting file attributes, a value of -1 indicates to the server that it MUST NOT change this
@@ -17,25 +17,25 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
     public struct SetFileTime
     {
         public bool MustNotChange;
-        private DateTime? m_time;
+        private DateTime? _mTime;
 
         public SetFileTime(bool mustNotChange)
         {
             MustNotChange = mustNotChange;
-            m_time = null;
+            _mTime = null;
         }
 
         public SetFileTime(DateTime? time)
         {
             MustNotChange = false;
-            m_time = time;
+            _mTime = time;
         }
 
         public long ToFileTimeUtc()
         {
             if (MustNotChange)
                 return -1;
-            if (!m_time.HasValue)
+            if (!_mTime.HasValue)
                 return 0;
             return Time.Value.ToFileTimeUtc();
         }
@@ -46,12 +46,12 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
             {
                 if (MustNotChange)
                     return null;
-                return m_time;
+                return _mTime;
             }
             set
             {
                 MustNotChange = false;
-                m_time = value;
+                _mTime = value;
             }
         }
 

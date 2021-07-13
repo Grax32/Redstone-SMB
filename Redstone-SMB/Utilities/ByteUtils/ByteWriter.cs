@@ -9,7 +9,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace SMBLibrary.Utilities.ByteUtils
+namespace RedstoneSmb.Utilities.ByteUtils
 {
     public class ByteWriter
     {
@@ -68,26 +68,26 @@ namespace SMBLibrary.Utilities.ByteUtils
             offset += fieldLength;
         }
 
-        public static void WriteUTF16String(byte[] buffer, int offset, string value)
+        public static void WriteUtf16String(byte[] buffer, int offset, string value)
         {
-            WriteUTF16String(buffer, offset, value, value.Length);
+            WriteUtf16String(buffer, offset, value, value.Length);
         }
 
-        public static void WriteUTF16String(byte[] buffer, ref int offset, string value)
+        public static void WriteUtf16String(byte[] buffer, ref int offset, string value)
         {
-            WriteUTF16String(buffer, ref offset, value, value.Length);
+            WriteUtf16String(buffer, ref offset, value, value.Length);
         }
 
-        public static void WriteUTF16String(byte[] buffer, int offset, string value, int maximumNumberOfCharacters)
+        public static void WriteUtf16String(byte[] buffer, int offset, string value, int maximumNumberOfCharacters)
         {
             var bytes = Encoding.Unicode.GetBytes(value);
             var maximumNumberOfBytes = Math.Min(value.Length, maximumNumberOfCharacters) * 2;
             Array.Copy(bytes, 0, buffer, offset, maximumNumberOfBytes);
         }
 
-        public static void WriteUTF16String(byte[] buffer, ref int offset, string value, int numberOfCharacters)
+        public static void WriteUtf16String(byte[] buffer, ref int offset, string value, int numberOfCharacters)
         {
-            WriteUTF16String(buffer, offset, value, numberOfCharacters);
+            WriteUtf16String(buffer, offset, value, numberOfCharacters);
             offset += numberOfCharacters * 2;
         }
 
@@ -103,15 +103,15 @@ namespace SMBLibrary.Utilities.ByteUtils
             offset += value.Length + 1;
         }
 
-        public static void WriteNullTerminatedUTF16String(byte[] buffer, int offset, string value)
+        public static void WriteNullTerminatedUtf16String(byte[] buffer, int offset, string value)
         {
-            WriteUTF16String(buffer, offset, value);
+            WriteUtf16String(buffer, offset, value);
             WriteBytes(buffer, offset + value.Length * 2, new byte[] {0x00, 0x00});
         }
 
-        public static void WriteNullTerminatedUTF16String(byte[] buffer, ref int offset, string value)
+        public static void WriteNullTerminatedUtf16String(byte[] buffer, ref int offset, string value)
         {
-            WriteNullTerminatedUTF16String(buffer, offset, value);
+            WriteNullTerminatedUtf16String(buffer, offset, value);
             offset += value.Length * 2 + 2;
         }
 
@@ -141,19 +141,19 @@ namespace SMBLibrary.Utilities.ByteUtils
             }
         }
 
-        public static void WriteUTF8String(Stream stream, string value)
+        public static void WriteUtf8String(Stream stream, string value)
         {
             var bytes = Encoding.UTF8.GetBytes(value);
             stream.Write(bytes, 0, bytes.Length);
         }
 
-        public static void WriteUTF16String(Stream stream, string value)
+        public static void WriteUtf16String(Stream stream, string value)
         {
             var bytes = Encoding.Unicode.GetBytes(value);
             stream.Write(bytes, 0, bytes.Length);
         }
 
-        public static void WriteUTF16BEString(Stream stream, string value)
+        public static void WriteUtf16BeString(Stream stream, string value)
         {
             var bytes = Encoding.BigEndianUnicode.GetBytes(value);
             stream.Write(bytes, 0, bytes.Length);

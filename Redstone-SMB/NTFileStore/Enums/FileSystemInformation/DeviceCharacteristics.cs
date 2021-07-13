@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.NTFileStore.Enums.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Enums.FileSystemInformation
 {
     [Flags]
     public enum DeviceCharacteristics : uint

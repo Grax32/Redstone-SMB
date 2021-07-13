@@ -1,4 +1,4 @@
-namespace SMBLibrary.RPC.Enums
+namespace RedstoneSmb.RPC.Enums
 {
     // Commented out packet types are connectionless-only
     public enum PacketTypeName : byte
@@ -22,7 +22,7 @@ namespace SMBLibrary.RPC.Enums
         AlterContext = 0x0E, // alter_context
         AlterContextResponse = 0x0F, // alter_context_resp
         Shutdown = 0x11,
-        COCancel = 0x12, // co_cancel
+        CoCancel = 0x12, // co_cancel
         Orphaned = 0x13
     }
 }

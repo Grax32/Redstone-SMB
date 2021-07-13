@@ -1,4 +1,4 @@
-namespace SMBLibrary.RPC.Enums
+namespace RedstoneSmb.RPC.Enums
 {
     public enum NegotiationResult : ushort
     {

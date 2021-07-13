@@ -5,12 +5,12 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-namespace SMBLibrary.RPC.NDR
+namespace RedstoneSmb.RPC.NDR
 {
     /// <summary>
     ///     Primitive and construced types
     /// </summary>
-    public enum NDRTypeName
+    public enum NdrTypeName
     {
         UnicodeString
     }

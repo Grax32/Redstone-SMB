@@ -7,35 +7,35 @@
 
 using System.Text;
 
-namespace SMBLibrary.RPC.NDR
+namespace RedstoneSmb.RPC.NDR
 {
-    public class NDRUnicodeString : INDRStructure
+    public class NdrUnicodeString : INdrStructure
     {
-        private readonly bool m_writeNullTerminationCharacter;
+        private readonly bool _mWriteNullTerminationCharacter;
 
         public string Value;
 
-        public NDRUnicodeString() : this(string.Empty, true)
+        public NdrUnicodeString() : this(string.Empty, true)
         {
         }
 
-        public NDRUnicodeString(string value) : this(value, true)
+        public NdrUnicodeString(string value) : this(value, true)
         {
         }
 
-        public NDRUnicodeString(string value, bool writeNullTerminationCharacter)
+        public NdrUnicodeString(string value, bool writeNullTerminationCharacter)
         {
-            m_writeNullTerminationCharacter = writeNullTerminationCharacter;
+            _mWriteNullTerminationCharacter = writeNullTerminationCharacter;
             Value = value;
         }
 
-        public NDRUnicodeString(NDRParser parser)
+        public NdrUnicodeString(NdrParser parser)
         {
             Read(parser);
         }
 
         // 14.3.4.2 - Conformant and Varying Strings
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             var maxCount = parser.ReadUInt32();
             // the offset from the first index of the string to the first index of the actual subset being passed
@@ -47,12 +47,12 @@ namespace SMBLibrary.RPC.NDR
             Value = builder.ToString().TrimEnd('\0');
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             var valueToWrite = string.Empty;
             if (Value != null) valueToWrite = Value;
 
-            if (m_writeNullTerminationCharacter) valueToWrite += '\0';
+            if (_mWriteNullTerminationCharacter) valueToWrite += '\0';
 
             var maxCount = (uint) valueToWrite.Length;
             writer.WriteUInt32(maxCount);

@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.NTFileStore.Enums.NtCreateFile
+namespace RedstoneSmb.NTFileStore.Enums.NtCreateFile
 {
     /// <summary>
     ///     No bits set = Prevents the file from being shared

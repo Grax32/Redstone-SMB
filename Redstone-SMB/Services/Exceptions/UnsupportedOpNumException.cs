@@ -7,7 +7,7 @@
 
 using System;
 
-namespace SMBLibrary.Services.Exceptions
+namespace RedstoneSmb.Services.Exceptions
 {
     public class UnsupportedOpNumException : Exception
     {

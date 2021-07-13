@@ -5,14 +5,13 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NTFileStore.Structures.SecurityInformation.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianReader = SMBLibrary.Utilities.ByteUtils.LittleEndianReader;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Structures.SecurityInformation.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianReader = RedstoneSmb.Utilities.ByteUtils.LittleEndianReader;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
+namespace RedstoneSmb.NTFileStore.Structures.SecurityInformation
 {
     /// <summary>
     ///     [MS-DTYP] SECURITY_DESCRIPTOR
@@ -21,18 +20,18 @@ namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
     {
         public const int FixedLength = 20;
         public SecurityDescriptorControl Control;
-        public ACL Dacl;
+        public Acl Dacl;
 
-        public SID GroupSid;
+        public Sid GroupSid;
 
         // uint OffsetOwner;
         // uint OffsetGroup;
         // uint OffsetSacl;
         // uint OffsetDacl;
-        public SID OwnerSid;
+        public Sid OwnerSid;
 
         public byte Revision;
-        public ACL Sacl;
+        public Acl Sacl;
         public byte Sbz1;
 
         public SecurityDescriptor()
@@ -49,13 +48,13 @@ namespace SMBLibrary.NTFileStore.Structures.SecurityInformation
             var offsetGroup = LittleEndianReader.ReadUInt32(buffer, ref offset);
             var offsetSacl = LittleEndianReader.ReadUInt32(buffer, ref offset);
             var offsetDacl = LittleEndianReader.ReadUInt32(buffer, ref offset);
-            if (offsetOwner != 0) OwnerSid = new SID(buffer, (int) offsetOwner);
+            if (offsetOwner != 0) OwnerSid = new Sid(buffer, (int) offsetOwner);
 
-            if (offsetGroup != 0) GroupSid = new SID(buffer, (int) offsetGroup);
+            if (offsetGroup != 0) GroupSid = new Sid(buffer, (int) offsetGroup);
 
-            if (offsetSacl != 0) Sacl = new ACL(buffer, (int) offsetSacl);
+            if (offsetSacl != 0) Sacl = new Acl(buffer, (int) offsetSacl);
 
-            if (offsetDacl != 0) Dacl = new ACL(buffer, (int) offsetDacl);
+            if (offsetDacl != 0) Dacl = new Acl(buffer, (int) offsetDacl);
         }
 
         public int Length

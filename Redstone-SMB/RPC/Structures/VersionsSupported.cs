@@ -6,11 +6,10 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.RPC.Structures
+namespace RedstoneSmb.RPC.Structures
 {
     /// <summary>
     ///     p_rt_versions_supported_t

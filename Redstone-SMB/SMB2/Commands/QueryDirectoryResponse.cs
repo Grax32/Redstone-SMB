@@ -6,55 +6,53 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.NTFileStore.Structures.FileInformation.QueryDirectory;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.NTFileStore.Structures.FileInformation.QueryDirectory;
+using RedstoneSmb.SMB2.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 QUERY_DIRECTORY Response
     /// </summary>
-    public class QueryDirectoryResponse : SMB2Command
+    public class QueryDirectoryResponse : Smb2Command
     {
         public const int FixedLength = 8;
         public const int DeclaredSize = 9;
         public byte[] OutputBuffer = new byte[0];
-        private uint OutputBufferLength;
-        private ushort OutputBufferOffset;
+        private uint _outputBufferLength;
+        private ushort _outputBufferOffset;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public QueryDirectoryResponse() : base(SMB2CommandName.QueryDirectory)
+        public QueryDirectoryResponse() : base(Smb2CommandName.QueryDirectory)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public QueryDirectoryResponse(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            OutputBufferOffset = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
-            OutputBufferLength = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            OutputBuffer = ByteReader.ReadBytes(buffer, offset + OutputBufferOffset, (int) OutputBufferLength);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            _outputBufferOffset = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 2);
+            _outputBufferLength = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            OutputBuffer = ByteReader.ReadBytes(buffer, offset + _outputBufferOffset, (int) _outputBufferLength);
         }
 
         public override int CommandLength => FixedLength + OutputBuffer.Length;
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            OutputBufferOffset = 0;
-            OutputBufferLength = (uint) OutputBuffer.Length;
-            if (OutputBuffer.Length > 0) OutputBufferOffset = SMB2Header.Length + FixedLength;
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 2, OutputBufferOffset);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 4, OutputBufferLength);
+            _outputBufferOffset = 0;
+            _outputBufferLength = (uint) OutputBuffer.Length;
+            if (OutputBuffer.Length > 0) _outputBufferOffset = Smb2Header.Length + FixedLength;
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 2, _outputBufferOffset);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 4, _outputBufferLength);
             ByteWriter.WriteBytes(buffer, offset + FixedLength, OutputBuffer);
         }
 

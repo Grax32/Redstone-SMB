@@ -6,9 +6,9 @@
  */
 
 using System;
-using SMBLibrary.Utilities.Conversion;
+using RedstoneSmb.Utilities.Conversion;
 
-namespace SMBLibrary.Utilities.ByteUtils
+namespace RedstoneSmb.Utilities.ByteUtils
 {
     public class LittleEndianReader
     {

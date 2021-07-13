@@ -6,14 +6,14 @@
  */
 
 using System;
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ShareInfo
 {
     /// <summary>
     ///     [MS-SRVS] SHARE_ENUM_STRUCT and the embedded SHARE_ENUM_UNION
     /// </summary>
-    public class ShareEnum : INDRStructure
+    public class ShareEnum : INdrStructure
     {
         public IShareInfoContainer Info;
         public uint Level;
@@ -33,12 +33,12 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
             Info = info;
         }
 
-        public ShareEnum(NDRParser parser)
+        public ShareEnum(NdrParser parser)
         {
             Read(parser);
         }
 
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             parser.BeginStructure(); // SHARE_ENUM_STRUCT
             Level = parser.ReadUInt32();
@@ -70,7 +70,7 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
             parser.EndStructure(); // SHARE_ENUM_STRUCT
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             if (Info != null && Level != Info.Level) throw new ArgumentException("SHARE_ENUM_STRUCT Level mismatch");
 

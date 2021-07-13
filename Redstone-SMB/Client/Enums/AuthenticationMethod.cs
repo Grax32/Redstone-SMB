@@ -1,9 +1,9 @@
-namespace SMBLibrary.Client.Enums
+namespace RedstoneSmb.Client.Enums
 {
     public enum AuthenticationMethod
     {
-        NTLMv1,
-        NTLMv1ExtendedSessionSecurity,
-        NTLMv2
+        NtlMv1,
+        NtlMv1ExtendedSessionSecurity,
+        NtlMv2
     }
 }

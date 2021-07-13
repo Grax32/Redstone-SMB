@@ -6,16 +6,16 @@
  */
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SMBLibrary.SMB2;
-using SMBLibrary.SMB2.Enums.Negotiate;
-using SMBLibrary.Utilities.ByteUtils;
+using RedstoneSmb.SMB2;
+using RedstoneSmb.SMB2.Enums.Negotiate;
+using RedstoneSmb.Utilities.ByteUtils;
 using Utilities;
 
 namespace SMBLibrary.Tests
 {
     [TestClass]
     // https://docs.microsoft.com/en-us/archive/blogs/openspecification/encryption-in-smb-3-0-a-protocol-perspective
-    public class SMB2EncryptionTests
+    public class Smb2EncryptionTests
     {
         [TestMethod]
         public void TestEncryptionKeyGeneration()
@@ -24,7 +24,7 @@ namespace SMBLibrary.Tests
 
             byte[] expectedEncryptionKey = new byte[] { 0x26, 0x1B, 0x72, 0x35, 0x05, 0x58, 0xF2, 0xE9, 0xDC, 0xF6, 0x13, 0x07, 0x03, 0x83, 0xED, 0xBF };
             
-            byte[] encryptionKey = SMB2Cryptography.GenerateClientEncryptionKey(sessionKey, SMB2Dialect.SMB300, null);
+            byte[] encryptionKey = Smb2Cryptography.GenerateClientEncryptionKey(sessionKey, Smb2Dialect.Smb300, null);
 
             Assert.IsTrue(ByteUtils.AreByteArraysEqual(expectedEncryptionKey, encryptionKey));
         }
@@ -34,7 +34,7 @@ namespace SMBLibrary.Tests
         {
             byte[] sessionKey = new byte[] { 0xB4, 0x54, 0x67, 0x71, 0xB5, 0x15, 0xF7, 0x66, 0xA8, 0x67, 0x35, 0x53, 0x2D, 0xD6, 0xC4, 0xF0 };
 
-            byte[] decryptionKey = SMB2Cryptography.GenerateClientDecryptionKey(sessionKey, SMB2Dialect.SMB300, null);
+            byte[] decryptionKey = Smb2Cryptography.GenerateClientDecryptionKey(sessionKey, Smb2Dialect.Smb300, null);
 
             byte[] expectedDecryptionKey = new byte[] { 0x8F, 0xE2, 0xB5, 0x7E, 0xC3, 0x4D, 0x2D, 0xB5, 0xB1, 0xA9, 0x72, 0x7F, 0x52, 0x6B, 0xBD, 0xB5 };
 
@@ -46,7 +46,7 @@ namespace SMBLibrary.Tests
         {
             byte[] encryptionKey = new byte[] { 0x26, 0x1B, 0x72, 0x35, 0x05, 0x58, 0xF2, 0xE9, 0xDC, 0xF6, 0x13, 0x07, 0x03, 0x83, 0xED, 0xBF };
             byte[] nonce = new byte[] { 0x66, 0xE6, 0x9A, 0x11, 0x18, 0x92, 0x58, 0x4F, 0xB5, 0xED, 0x52 };
-            ulong sessionID = 0x8e40014000011;
+            ulong sessionId = 0x8e40014000011;
 
             byte[] message = new byte[] { 0xFE, 0x53, 0x4D, 0x42, 0x40, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x40, 0x00,
                                           0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -71,7 +71,7 @@ namespace SMBLibrary.Tests
             byte[] expectedSignature = new byte[] { 0x81, 0xA2, 0x86, 0x53, 0x54, 0x15, 0x44, 0x5D, 0xAE, 0x39, 0x39, 0x21, 0xE4, 0x4F, 0xA4, 0x2E };
 
             byte[] signature;
-            byte[] encryptedMessage = SMB2Cryptography.EncryptMessage(encryptionKey, nonce, message, sessionID, out signature);
+            byte[] encryptedMessage = Smb2Cryptography.EncryptMessage(encryptionKey, nonce, message, sessionId, out signature);
 
             Assert.IsTrue(ByteUtils.AreByteArraysEqual(expectedEncrypted, encryptedMessage));
             // The associated data in this sample include non-zero nonce padding so we ignore signature validation
@@ -98,9 +98,9 @@ namespace SMBLibrary.Tests
                                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                            0x11, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-            SMB2TransformHeader transformHeader = new SMB2TransformHeader(transformedPacket, 0);
-            byte[] encryptedMessage = ByteReader.ReadBytes(transformedPacket, SMB2TransformHeader.Length, (int)transformHeader.OriginalMessageSize);
-            byte[] decryptedMessage = SMB2Cryptography.DecryptMessage(decryptionKey, transformHeader, encryptedMessage);
+            Smb2TransformHeader transformHeader = new Smb2TransformHeader(transformedPacket, 0);
+            byte[] encryptedMessage = ByteReader.ReadBytes(transformedPacket, Smb2TransformHeader.Length, (int)transformHeader.OriginalMessageSize);
+            byte[] decryptedMessage = Smb2Cryptography.DecryptMessage(decryptionKey, transformHeader, encryptedMessage);
 
             Assert.IsTrue(ByteUtils.AreByteArraysEqual(expectedDecryptedMessage, decryptedMessage));
         }

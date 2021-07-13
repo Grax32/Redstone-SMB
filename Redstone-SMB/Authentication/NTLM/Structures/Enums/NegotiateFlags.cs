@@ -1,12 +1,12 @@
 using System;
 
-namespace SMBLibrary.Authentication.NTLM.Structures.Enums
+namespace RedstoneSmb.Authentication.NTLM.Structures.Enums
 {
     [Flags]
     public enum NegotiateFlags : uint
     {
         UnicodeEncoding = 0x00000001, // NTLMSSP_NEGOTIATE_UNICODE
-        OEMEncoding = 0x00000002, // NTLM_NEGOTIATE_OEM
+        OemEncoding = 0x00000002, // NTLM_NEGOTIATE_OEM
         TargetNameSupplied = 0x00000004, // NTLMSSP_REQUEST_TARGET
         Sign = 0x00000010, // NTLMSSP_NEGOTIATE_SIGN
         Seal = 0x00000020, // NTLMSSP_NEGOTIATE_SEAL
@@ -17,7 +17,7 @@ namespace SMBLibrary.Authentication.NTLM.Structures.Enums
         ///     If both are set then LanManagerSessionKey must be ignored
         /// </summary>
         LanManagerSessionKey = 0x00000080, // NTLMSSP_NEGOTIATE_LM_KEY
-        NTLMSessionSecurity = 0x00000200, // NTLMSSP_NEGOTIATE_NTLM
+        NtlmSessionSecurity = 0x00000200, // NTLMSSP_NEGOTIATE_NTLM
 
         /// <summary>
         ///     If set, the connection SHOULD be anonymous
@@ -37,7 +37,7 @@ namespace SMBLibrary.Authentication.NTLM.Structures.Enums
         /// </summary>
         ExtendedSessionSecurity = 0x00080000, // NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY
         Identify = 0x00100000, // NTLMSSP_NEGOTIATE_IDENTIFY
-        RequestLMSessionKey = 0x00400000, // NTLMSSP_REQUEST_NON_NT_SESSION_KEY
+        RequestLmSessionKey = 0x00400000, // NTLMSSP_REQUEST_NON_NT_SESSION_KEY
         TargetInfo = 0x00800000, // NTLMSSP_NEGOTIATE_TARGET_INFO
         Version = 0x02000000, // NTLMSSP_NEGOTIATE_VERSION
         Use128BitEncryption = 0x20000000, // NTLMSSP_NEGOTIATE_128

@@ -6,16 +6,14 @@
  */
 
 using System;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using Conversion = SMBLibrary.Utilities.Conversion.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using Conversion = RedstoneSmb.Utilities.Conversion.Conversion;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Set
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.34.1 - FileRenameInformation Type 1
@@ -29,7 +27,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
     {
         public const int FixedLength = 12;
         public string FileName = string.Empty;
-        private uint FileNameLength;
+        private uint _fileNameLength;
 
         public bool ReplaceIfExists;
 
@@ -44,8 +42,8 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
         {
             ReplaceIfExists = Conversion.ToBoolean(ByteReader.ReadByte(buffer, offset + 0));
             RootDirectory = LittleEndianConverter.ToUInt32(buffer, offset + 4);
-            FileNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
-            FileName = ByteReader.ReadUTF16String(buffer, offset + 12, (int) FileNameLength / 2);
+            _fileNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
+            FileName = ByteReader.ReadUtf16String(buffer, offset + 12, (int) _fileNameLength / 2);
         }
 
         public override FileInformationClass FileInformationClass => FileInformationClass.FileRenameInformation;
@@ -54,11 +52,11 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
 
         public override void WriteBytes(byte[] buffer, int offset)
         {
-            FileNameLength = (uint) (FileName.Length * 2);
+            _fileNameLength = (uint) (FileName.Length * 2);
             ByteWriter.WriteByte(buffer, offset + 0, Convert.ToByte(ReplaceIfExists));
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, RootDirectory);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 8, FileNameLength);
-            ByteWriter.WriteUTF16String(buffer, offset + 12, FileName);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 8, _fileNameLength);
+            ByteWriter.WriteUtf16String(buffer, offset + 12, FileName);
         }
     }
 }

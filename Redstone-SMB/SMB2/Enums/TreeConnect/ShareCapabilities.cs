@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.TreeConnect
+namespace RedstoneSmb.SMB2.Enums.TreeConnect
 {
     [Flags]
     public enum ShareCapabilities : uint

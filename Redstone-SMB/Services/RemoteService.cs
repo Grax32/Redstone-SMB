@@ -7,7 +7,7 @@
 
 using System;
 
-namespace SMBLibrary.Services
+namespace RedstoneSmb.Services
 {
     public abstract class RemoteService
     {

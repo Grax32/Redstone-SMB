@@ -5,57 +5,55 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.Authentication.NTLM.Structures
+namespace RedstoneSmb.Authentication.NTLM.Structures
 {
     /// <summary>
     ///     [MS-NLMP] 2.2.2.10 - VERSION
     /// </summary>
-    public class NTLMVersion
+    public class NtlmVersion
     {
         public const int Length = 8;
 
-        public const byte NTLMSSP_REVISION_W2K3 = 0x0F;
+        public const byte NtlmsspRevisionW2K3 = 0x0F;
 
         // Reserved - 3 bytes
-        public byte NTLMRevisionCurrent;
+        public byte NtlmRevisionCurrent;
         public ushort ProductBuild;
 
         public byte ProductMajorVersion;
         public byte ProductMinorVersion;
 
-        public NTLMVersion(byte majorVersion, byte minorVersion, ushort build, byte ntlmRevisionCurrent)
+        public NtlmVersion(byte majorVersion, byte minorVersion, ushort build, byte ntlmRevisionCurrent)
         {
             ProductMajorVersion = majorVersion;
             ProductMinorVersion = minorVersion;
             ProductBuild = build;
-            NTLMRevisionCurrent = ntlmRevisionCurrent;
+            NtlmRevisionCurrent = ntlmRevisionCurrent;
         }
 
-        public NTLMVersion(byte[] buffer, int offset)
+        public NtlmVersion(byte[] buffer, int offset)
         {
             ProductMajorVersion = ByteReader.ReadByte(buffer, offset + 0);
             ProductMinorVersion = ByteReader.ReadByte(buffer, offset + 1);
             ProductBuild = LittleEndianConverter.ToUInt16(buffer, offset + 2);
-            NTLMRevisionCurrent = ByteReader.ReadByte(buffer, offset + 7);
+            NtlmRevisionCurrent = ByteReader.ReadByte(buffer, offset + 7);
         }
 
-        public static NTLMVersion WindowsXP => new NTLMVersion(5, 1, 2600, NTLMSSP_REVISION_W2K3);
+        public static NtlmVersion WindowsXp => new NtlmVersion(5, 1, 2600, NtlmsspRevisionW2K3);
 
-        public static NTLMVersion Server2003 => new NTLMVersion(5, 2, 3790, NTLMSSP_REVISION_W2K3);
+        public static NtlmVersion Server2003 => new NtlmVersion(5, 2, 3790, NtlmsspRevisionW2K3);
 
         public void WriteBytes(byte[] buffer, int offset)
         {
             ByteWriter.WriteByte(buffer, offset + 0, ProductMajorVersion);
             ByteWriter.WriteByte(buffer, offset + 1, ProductMinorVersion);
             LittleEndianWriter.WriteUInt16(buffer, offset + 2, ProductBuild);
-            ByteWriter.WriteByte(buffer, offset + 7, NTLMRevisionCurrent);
+            ByteWriter.WriteByte(buffer, offset + 7, NtlmRevisionCurrent);
         }
 
         public override string ToString()

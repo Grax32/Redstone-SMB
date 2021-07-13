@@ -7,14 +7,13 @@
 
 using System;
 using System.IO;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using BigEndianReader = SMBLibrary.Utilities.ByteUtils.BigEndianReader;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using BigEndianReader = RedstoneSmb.Utilities.ByteUtils.BigEndianReader;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NetBios.NameServicePackets.Structures
+namespace RedstoneSmb.NetBios.NameServicePackets.Structures
 {
     /// <summary>
     ///     [RFC 1002] 4.2.1.3. RESOURCE RECORD
@@ -26,7 +25,7 @@ namespace SMBLibrary.NetBios.NameServicePackets.Structures
         // ushort DataLength
         public byte[] Data;
         public string Name;
-        public uint TTL;
+        public uint Ttl;
         public NameRecordType Type;
 
         public ResourceRecord(NameRecordType type)
@@ -34,7 +33,7 @@ namespace SMBLibrary.NetBios.NameServicePackets.Structures
             Name = string.Empty;
             Type = type;
             Class = ResourceRecordClass.In;
-            TTL = (uint) new TimeSpan(7, 0, 0, 0).TotalSeconds;
+            Ttl = (uint) new TimeSpan(7, 0, 0, 0).TotalSeconds;
             Data = new byte[0];
         }
 
@@ -43,7 +42,7 @@ namespace SMBLibrary.NetBios.NameServicePackets.Structures
             Name = NetBiosUtils.DecodeName(buffer, ref offset);
             Type = (NameRecordType) BigEndianReader.ReadUInt16(buffer, ref offset);
             Class = (ResourceRecordClass) BigEndianReader.ReadUInt16(buffer, ref offset);
-            TTL = BigEndianReader.ReadUInt32(buffer, ref offset);
+            Ttl = BigEndianReader.ReadUInt32(buffer, ref offset);
             var dataLength = BigEndianReader.ReadUInt16(buffer, ref offset);
             Data = ByteReader.ReadBytes(buffer, ref offset, dataLength);
         }
@@ -67,7 +66,7 @@ namespace SMBLibrary.NetBios.NameServicePackets.Structures
 
             BigEndianWriter.WriteUInt16(stream, (ushort) Type);
             BigEndianWriter.WriteUInt16(stream, (ushort) Class);
-            BigEndianWriter.WriteUInt32(stream, TTL);
+            BigEndianWriter.WriteUInt32(stream, Ttl);
             BigEndianWriter.WriteUInt16(stream, (ushort) Data.Length);
             ByteWriter.WriteBytes(stream, Data);
         }

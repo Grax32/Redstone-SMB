@@ -1,9 +1,9 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums
+namespace RedstoneSmb.SMB2.Enums
 {
     [Flags]
-    public enum SMB2PacketHeaderFlags : uint
+    public enum Smb2PacketHeaderFlags : uint
     {
         ServerToRedir = 0x0000001, // SMB2_FLAGS_SERVER_TO_REDIR
         AsyncCommand = 0x0000002, // SMB2_FLAGS_ASYNC_COMMAND

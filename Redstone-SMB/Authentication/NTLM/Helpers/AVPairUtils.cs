@@ -7,78 +7,75 @@
 
 using System.Collections.Generic;
 using System.Text;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using SMBLibrary.Utilities.Generics;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianReader = SMBLibrary.Utilities.ByteUtils.LittleEndianReader;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianReader = RedstoneSmb.Utilities.ByteUtils.LittleEndianReader;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.Authentication.NTLM.Helpers
+namespace RedstoneSmb.Authentication.NTLM.Helpers
 {
-    public class AVPairUtils
+    public class AvPairUtils
     {
-        public static Utilities.Generics.KeyValuePairList<AVPairKey, byte[]> GetAVPairSequence(string domainName, string computerName)
+        public static Utilities.Generics.KeyValuePairList<AvPairKey, byte[]> GetAvPairSequence(string domainName, string computerName)
         {
-            var pairs = new Utilities.Generics.KeyValuePairList<AVPairKey, byte[]>();
-            pairs.Add(AVPairKey.NbDomainName, Encoding.Unicode.GetBytes(domainName));
-            pairs.Add(AVPairKey.NbComputerName, Encoding.Unicode.GetBytes(computerName));
+            var pairs = new Utilities.Generics.KeyValuePairList<AvPairKey, byte[]>();
+            pairs.Add(AvPairKey.NbDomainName, Encoding.Unicode.GetBytes(domainName));
+            pairs.Add(AvPairKey.NbComputerName, Encoding.Unicode.GetBytes(computerName));
             return pairs;
         }
 
-        public static byte[] GetAVPairSequenceBytes(Utilities.Generics.KeyValuePairList<AVPairKey, byte[]> pairs)
+        public static byte[] GetAvPairSequenceBytes(Utilities.Generics.KeyValuePairList<AvPairKey, byte[]> pairs)
         {
-            var length = GetAVPairSequenceLength(pairs);
+            var length = GetAvPairSequenceLength(pairs);
             var result = new byte[length];
             var offset = 0;
-            WriteAVPairSequence(result, ref offset, pairs);
+            WriteAvPairSequence(result, ref offset, pairs);
             return result;
         }
 
-        public static int GetAVPairSequenceLength(Utilities.Generics.KeyValuePairList<AVPairKey, byte[]> pairs)
+        public static int GetAvPairSequenceLength(Utilities.Generics.KeyValuePairList<AvPairKey, byte[]> pairs)
         {
             var length = 0;
             foreach (var pair in pairs) length += 4 + pair.Value.Length;
             return length + 4;
         }
 
-        public static void WriteAVPairSequence(byte[] buffer, ref int offset, Utilities.Generics.KeyValuePairList<AVPairKey, byte[]> pairs)
+        public static void WriteAvPairSequence(byte[] buffer, ref int offset, Utilities.Generics.KeyValuePairList<AvPairKey, byte[]> pairs)
         {
-            foreach (var pair in pairs) WriteAVPair(buffer, ref offset, pair.Key, pair.Value);
-            LittleEndianWriter.WriteUInt16(buffer, ref offset, (ushort) AVPairKey.EOL);
+            foreach (var pair in pairs) WriteAvPair(buffer, ref offset, pair.Key, pair.Value);
+            LittleEndianWriter.WriteUInt16(buffer, ref offset, (ushort) AvPairKey.Eol);
             LittleEndianWriter.WriteUInt16(buffer, ref offset, 0);
         }
 
-        private static void WriteAVPair(byte[] buffer, ref int offset, AVPairKey key, byte[] value)
+        private static void WriteAvPair(byte[] buffer, ref int offset, AvPairKey key, byte[] value)
         {
             LittleEndianWriter.WriteUInt16(buffer, ref offset, (ushort) key);
             LittleEndianWriter.WriteUInt16(buffer, ref offset, (ushort) value.Length);
             ByteWriter.WriteBytes(buffer, ref offset, value);
         }
 
-        public static Utilities.Generics.KeyValuePairList<AVPairKey, byte[]> ReadAVPairSequence(byte[] buffer, int offset)
+        public static Utilities.Generics.KeyValuePairList<AvPairKey, byte[]> ReadAvPairSequence(byte[] buffer, int offset)
         {
-            var result = new Utilities.Generics.KeyValuePairList<AVPairKey, byte[]>();
-            var key = (AVPairKey) LittleEndianConverter.ToUInt16(buffer, offset);
-            while (key != AVPairKey.EOL)
+            var result = new Utilities.Generics.KeyValuePairList<AvPairKey, byte[]>();
+            var key = (AvPairKey) LittleEndianConverter.ToUInt16(buffer, offset);
+            while (key != AvPairKey.Eol)
             {
-                var pair = ReadAVPair(buffer, ref offset);
+                var pair = ReadAvPair(buffer, ref offset);
                 result.Add(pair);
-                key = (AVPairKey) LittleEndianConverter.ToUInt16(buffer, offset);
+                key = (AvPairKey) LittleEndianConverter.ToUInt16(buffer, offset);
             }
 
             return result;
         }
 
-        private static KeyValuePair<AVPairKey, byte[]> ReadAVPair(byte[] buffer, ref int offset)
+        private static KeyValuePair<AvPairKey, byte[]> ReadAvPair(byte[] buffer, ref int offset)
         {
-            var key = (AVPairKey) LittleEndianReader.ReadUInt16(buffer, ref offset);
+            var key = (AvPairKey) LittleEndianReader.ReadUInt16(buffer, ref offset);
             var length = LittleEndianReader.ReadUInt16(buffer, ref offset);
             var value = ByteReader.ReadBytes(buffer, ref offset, length);
-            return new KeyValuePair<AVPairKey, byte[]>(key, value);
+            return new KeyValuePair<AvPairKey, byte[]>(key, value);
         }
     }
 }

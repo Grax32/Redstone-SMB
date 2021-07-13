@@ -7,107 +7,105 @@
 
 using System;
 using System.Security.Cryptography;
-using SMBLibrary.Helpers;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.Negotiate;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Cryptography;
-using AesCcm = SMBLibrary.Utilities.Cryptography.AesCcm;
-using AesCmac = SMBLibrary.Utilities.Cryptography.AesCmac;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.Helpers;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.Negotiate;
+using AesCcm = RedstoneSmb.Utilities.Cryptography.AesCcm;
+using AesCmac = RedstoneSmb.Utilities.Cryptography.AesCmac;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.SMB2
+namespace RedstoneSmb.SMB2
 {
-    internal class SMB2Cryptography
+    internal class Smb2Cryptography
     {
         private const int AesCcmNonceLength = 11;
 
-        public static byte[] CalculateSignature(byte[] signingKey, SMB2Dialect dialect, byte[] buffer, int offset,
+        public static byte[] CalculateSignature(byte[] signingKey, Smb2Dialect dialect, byte[] buffer, int offset,
             int paddedLength)
         {
-            if (dialect == SMB2Dialect.SMB202 || dialect == SMB2Dialect.SMB210)
+            if (dialect == Smb2Dialect.Smb202 || dialect == Smb2Dialect.Smb210)
                 return new HMACSHA256(signingKey).ComputeHash(buffer, offset, paddedLength);
             return AesCmac.CalculateAesCmac(signingKey, buffer, offset, paddedLength);
         }
 
-        public static byte[] GenerateSigningKey(byte[] sessionKey, SMB2Dialect dialect,
+        public static byte[] GenerateSigningKey(byte[] sessionKey, Smb2Dialect dialect,
             byte[] preauthIntegrityHashValue)
         {
-            if (dialect == SMB2Dialect.SMB202 || dialect == SMB2Dialect.SMB210) return sessionKey;
+            if (dialect == Smb2Dialect.Smb202 || dialect == Smb2Dialect.Smb210) return sessionKey;
 
-            if (dialect == SMB2Dialect.SMB311 && preauthIntegrityHashValue == null)
+            if (dialect == Smb2Dialect.Smb311 && preauthIntegrityHashValue == null)
                 throw new ArgumentNullException(nameof(preauthIntegrityHashValue));
 
-            var labelString = dialect == SMB2Dialect.SMB311 ? "SMBSigningKey" : "SMB2AESCMAC";
+            var labelString = dialect == Smb2Dialect.Smb311 ? "SMBSigningKey" : "SMB2AESCMAC";
             var label = GetNullTerminatedAnsiString(labelString);
-            var context = dialect == SMB2Dialect.SMB311
+            var context = dialect == Smb2Dialect.Smb311
                 ? preauthIntegrityHashValue
                 : GetNullTerminatedAnsiString("SmbSign");
 
             var hmac = new HMACSHA256(sessionKey);
-            return SP800_1008.DeriveKey(hmac, label, context, 128);
+            return Sp8001008.DeriveKey(hmac, label, context, 128);
         }
 
-        public static byte[] GenerateClientEncryptionKey(byte[] sessionKey, SMB2Dialect dialect,
+        public static byte[] GenerateClientEncryptionKey(byte[] sessionKey, Smb2Dialect dialect,
             byte[] preauthIntegrityHashValue)
         {
-            if (dialect == SMB2Dialect.SMB311 && preauthIntegrityHashValue == null)
+            if (dialect == Smb2Dialect.Smb311 && preauthIntegrityHashValue == null)
                 throw new ArgumentNullException(nameof(preauthIntegrityHashValue));
 
-            var labelString = dialect == SMB2Dialect.SMB311 ? "SMBC2SCipherKey" : "SMB2AESCCM";
+            var labelString = dialect == Smb2Dialect.Smb311 ? "SMBC2SCipherKey" : "SMB2AESCCM";
             var label = GetNullTerminatedAnsiString(labelString);
-            var context = dialect == SMB2Dialect.SMB311
+            var context = dialect == Smb2Dialect.Smb311
                 ? preauthIntegrityHashValue
                 : GetNullTerminatedAnsiString("ServerIn ");
 
             var hmac = new HMACSHA256(sessionKey);
-            return SP800_1008.DeriveKey(hmac, label, context, 128);
+            return Sp8001008.DeriveKey(hmac, label, context, 128);
         }
 
-        public static byte[] GenerateClientDecryptionKey(byte[] sessionKey, SMB2Dialect dialect,
+        public static byte[] GenerateClientDecryptionKey(byte[] sessionKey, Smb2Dialect dialect,
             byte[] preauthIntegrityHashValue)
         {
-            if (dialect == SMB2Dialect.SMB311 && preauthIntegrityHashValue == null)
+            if (dialect == Smb2Dialect.Smb311 && preauthIntegrityHashValue == null)
                 throw new ArgumentNullException(nameof(preauthIntegrityHashValue));
 
-            var labelString = dialect == SMB2Dialect.SMB311 ? "SMBS2CCipherKey" : "SMB2AESCCM";
+            var labelString = dialect == Smb2Dialect.Smb311 ? "SMBS2CCipherKey" : "SMB2AESCCM";
             var label = GetNullTerminatedAnsiString(labelString);
-            var context = dialect == SMB2Dialect.SMB311
+            var context = dialect == Smb2Dialect.Smb311
                 ? preauthIntegrityHashValue
                 : GetNullTerminatedAnsiString("ServerOut");
 
             var hmac = new HMACSHA256(sessionKey);
-            return SP800_1008.DeriveKey(hmac, label, context, 128);
+            return Sp8001008.DeriveKey(hmac, label, context, 128);
         }
 
         /// <summary>
         ///     Encyrpt message and prefix with SMB2 TransformHeader
         /// </summary>
-        public static byte[] TransformMessage(byte[] key, byte[] message, ulong sessionID)
+        public static byte[] TransformMessage(byte[] key, byte[] message, ulong sessionId)
         {
             var nonce = GenerateAesCcmNonce();
             byte[] signature;
-            var encryptedMessage = EncryptMessage(key, nonce, message, sessionID, out signature);
-            var transformHeader = CreateTransformHeader(nonce, message.Length, sessionID);
+            var encryptedMessage = EncryptMessage(key, nonce, message, sessionId, out signature);
+            var transformHeader = CreateTransformHeader(nonce, message.Length, sessionId);
             transformHeader.Signature = signature;
 
-            var buffer = new byte[SMB2TransformHeader.Length + message.Length];
+            var buffer = new byte[Smb2TransformHeader.Length + message.Length];
             transformHeader.WriteBytes(buffer, 0);
-            ByteWriter.WriteBytes(buffer, SMB2TransformHeader.Length, encryptedMessage);
+            ByteWriter.WriteBytes(buffer, Smb2TransformHeader.Length, encryptedMessage);
             return buffer;
         }
 
-        public static byte[] EncryptMessage(byte[] key, byte[] nonce, byte[] message, ulong sessionID,
+        public static byte[] EncryptMessage(byte[] key, byte[] nonce, byte[] message, ulong sessionId,
             out byte[] signature)
         {
-            var transformHeader = CreateTransformHeader(nonce, message.Length, sessionID);
+            var transformHeader = CreateTransformHeader(nonce, message.Length, sessionId);
             var associatedata = transformHeader.GetAssociatedData();
-            return AesCcm.Encrypt(key, nonce, message, associatedata, SMB2TransformHeader.SignatureLength,
+            return AesCcm.Encrypt(key, nonce, message, associatedata, Smb2TransformHeader.SignatureLength,
                 out signature);
         }
 
-        public static byte[] DecryptMessage(byte[] key, SMB2TransformHeader transformHeader, byte[] encryptedMessage)
+        public static byte[] DecryptMessage(byte[] key, Smb2TransformHeader transformHeader, byte[] encryptedMessage)
         {
             var associatedData = transformHeader.GetAssociatedData();
             var aesCcmNonce = ByteReader.ReadBytes(transformHeader.Nonce, 0, AesCcmNonceLength);
@@ -115,17 +113,17 @@ namespace SMBLibrary.SMB2
                 transformHeader.Signature);
         }
 
-        private static SMB2TransformHeader CreateTransformHeader(byte[] nonce, int originalMessageLength,
-            ulong sessionID)
+        private static Smb2TransformHeader CreateTransformHeader(byte[] nonce, int originalMessageLength,
+            ulong sessionId)
         {
-            var nonceWithPadding = new byte[SMB2TransformHeader.NonceLength];
+            var nonceWithPadding = new byte[Smb2TransformHeader.NonceLength];
             Array.Copy(nonce, nonceWithPadding, nonce.Length);
 
-            var transformHeader = new SMB2TransformHeader();
+            var transformHeader = new Smb2TransformHeader();
             transformHeader.Nonce = nonceWithPadding;
             transformHeader.OriginalMessageSize = (uint) originalMessageLength;
-            transformHeader.Flags = SMB2TransformHeaderFlags.Encrypted;
-            transformHeader.SessionId = sessionID;
+            transformHeader.Flags = Smb2TransformHeaderFlags.Encrypted;
+            transformHeader.SessionId = sessionId;
 
             return transformHeader;
         }

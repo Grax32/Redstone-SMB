@@ -8,7 +8,7 @@
 
 using System;
 
-namespace SMBLibrary.Utilities.Conversion
+namespace RedstoneSmb.Utilities.Conversion
 {
     public class BigEndianConverter
     {

@@ -5,22 +5,22 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
+using RedstoneSmb.RPC.NDR;
 
-namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
+namespace RedstoneSmb.Services.ServerService.Structures.ShareInfo
 {
     /// <summary>
     ///     [MS-SRVS] SHARE_INFO_0_CONTAINER
     /// </summary>
     public class ShareInfo0Container : IShareInfoContainer
     {
-        public NDRConformantArray<ShareInfo0Entry> Entries;
+        public NdrConformantArray<ShareInfo0Entry> Entries;
 
         public ShareInfo0Container()
         {
         }
 
-        public ShareInfo0Container(NDRParser parser)
+        public ShareInfo0Container(NdrParser parser)
         {
             Read(parser);
         }
@@ -35,7 +35,7 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
             }
         }
 
-        public void Read(NDRParser parser)
+        public void Read(NdrParser parser)
         {
             parser.BeginStructure();
             var count = parser.ReadUInt32();
@@ -43,7 +43,7 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
             parser.EndStructure();
         }
 
-        public void Write(NDRWriter writer)
+        public void Write(NdrWriter writer)
         {
             writer.BeginStructure();
             writer.WriteUInt32((uint) Count);
@@ -55,7 +55,7 @@ namespace SMBLibrary.Services.ServerService.Structures.ShareInfo
 
         public void Add(ShareInfo0Entry entry)
         {
-            if (Entries == null) Entries = new NDRConformantArray<ShareInfo0Entry>();
+            if (Entries == null) Entries = new NdrConformantArray<ShareInfo0Entry>();
             Entries.Add(entry);
         }
     }

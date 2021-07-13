@@ -7,16 +7,14 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SMBLibrary.RPC;
-using SMBLibrary.Services;
-using SMBLibrary.Services.ServerService;
-using SMBLibrary.Services.WorkstationService;
+using RedstoneSmb.Services.ServerService;
+using RedstoneSmb.Services.WorkstationService;
 using Utilities;
 
 namespace SMBLibrary.Tests
 {
     [TestClass]
-    public class RPCTests
+    public class RpcTests
     {
         [TestMethod]
         public void Test1()

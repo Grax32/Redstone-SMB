@@ -7,52 +7,51 @@
 
 using System.Collections.Generic;
 using System.IO;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.RPC.NDR
+namespace RedstoneSmb.RPC.NDR
 {
     /// <summary>
     ///     NDR - Native Data Representation
     ///     See DCE 1.1: Remote Procedure Call, Chapter 14 - Transfer Syntax NDR
     /// </summary>
-    public class NDRWriter
+    public class NdrWriter
     {
-        private readonly List<INDRStructure> m_deferredStructures = new List<INDRStructure>();
-        private int m_depth;
-        private uint m_nextReferentID = 0x00020000;
-        private readonly Dictionary<uint, INDRStructure> m_referentToInstance = new Dictionary<uint, INDRStructure>();
-        private readonly MemoryStream m_stream = new MemoryStream();
+        private readonly List<INdrStructure> _mDeferredStructures = new List<INdrStructure>();
+        private int _mDepth;
+        private uint _mNextReferentId = 0x00020000;
+        private readonly Dictionary<uint, INdrStructure> _mReferentToInstance = new Dictionary<uint, INdrStructure>();
+        private readonly MemoryStream _mStream = new MemoryStream();
 
         public void BeginStructure()
         {
-            m_depth++;
+            _mDepth++;
         }
 
         /// <summary>
         ///     Add embedded pointer deferred structure (referent) writer
         /// </summary>
-        private void AddDeferredStructure(INDRStructure structure)
+        private void AddDeferredStructure(INdrStructure structure)
         {
-            m_deferredStructures.Add(structure);
+            _mDeferredStructures.Add(structure);
         }
 
         public void EndStructure()
         {
-            m_depth--;
+            _mDepth--;
             // 14.3.12.3 - Algorithm for Deferral of Referents
             // Representations of (embedded) pointer referents are ordered according to a left-to-right, depth-first traversal of the embedding construction.
             // referent representations for the embedded construction are further deferred to a position in the octet stream that
             // follows the representation of the embedding construction. The set of referent representations for the embedded construction
             // is inserted among the referent representations for any pointers in the embedding construction, according to the order of elements or
             // members in the embedding construction
-            if (m_depth == 0)
+            if (_mDepth == 0)
             {
                 // Make a copy of all the deferred structures, additional deferred structures will be inserted to m_deferredStructures
                 // as we process the existing list
-                var deferredStructures = new List<INDRStructure>(m_deferredStructures);
-                m_deferredStructures.Clear();
+                var deferredStructures = new List<INdrStructure>(_mDeferredStructures);
+                _mDeferredStructures.Clear();
                 // Write all deferred types:
                 foreach (var deferredStructure in deferredStructures) deferredStructure.Write(this);
             }
@@ -60,11 +59,11 @@ namespace SMBLibrary.RPC.NDR
 
         public void WriteUnicodeString(string value)
         {
-            var unicodeString = new NDRUnicodeString(value);
+            var unicodeString = new NdrUnicodeString(value);
             unicodeString.Write(this);
         }
 
-        public void WriteStructure(INDRStructure structure)
+        public void WriteStructure(INdrStructure structure)
         {
             structure.Write(this);
         }
@@ -78,15 +77,15 @@ namespace SMBLibrary.RPC.NDR
             }
 
             // Note: We do not bother searching for existing values
-            var referentID = GetNextReferentID();
-            WriteUInt32(referentID);
-            var unicodeString = new NDRUnicodeString(value);
+            var referentId = GetNextReferentId();
+            WriteUInt32(referentId);
+            var unicodeString = new NdrUnicodeString(value);
             unicodeString.Write(this);
-            m_referentToInstance.Add(referentID, unicodeString);
+            _mReferentToInstance.Add(referentId, unicodeString);
         }
 
         // 14.3.12.1 Embedded Full Pointers
-        public void WriteEmbeddedStructureFullPointer(INDRStructure structure)
+        public void WriteEmbeddedStructureFullPointer(INdrStructure structure)
         {
             if (structure == null)
             {
@@ -95,46 +94,46 @@ namespace SMBLibrary.RPC.NDR
             else
             {
                 // Note: We do not bother searching for existing values
-                var referentID = GetNextReferentID();
-                WriteUInt32(referentID);
+                var referentId = GetNextReferentId();
+                WriteUInt32(referentId);
                 AddDeferredStructure(structure);
-                m_referentToInstance.Add(referentID, structure);
+                _mReferentToInstance.Add(referentId, structure);
             }
         }
 
         // 14.2.2 - Alignment of Primitive Types
         public void WriteUInt16(ushort value)
         {
-            var padding = (uint) (2 - m_stream.Position % 2) % 2;
-            m_stream.Position += padding;
-            LittleEndianWriter.WriteUInt16(m_stream, value);
+            var padding = (uint) (2 - _mStream.Position % 2) % 2;
+            _mStream.Position += padding;
+            LittleEndianWriter.WriteUInt16(_mStream, value);
         }
 
         // 14.2.2 - Alignment of Primitive Types
         public void WriteUInt32(uint value)
         {
-            var padding = (uint) (4 - m_stream.Position % 4) % 4;
-            m_stream.Position += padding;
-            LittleEndianWriter.WriteUInt32(m_stream, value);
+            var padding = (uint) (4 - _mStream.Position % 4) % 4;
+            _mStream.Position += padding;
+            LittleEndianWriter.WriteUInt32(_mStream, value);
         }
 
         public void WriteBytes(byte[] value)
         {
-            ByteWriter.WriteBytes(m_stream, value);
+            ByteWriter.WriteBytes(_mStream, value);
         }
 
         public byte[] GetBytes()
         {
-            var buffer = new byte[m_stream.Length];
-            m_stream.Seek(0, SeekOrigin.Begin);
-            m_stream.Read(buffer, 0, buffer.Length);
+            var buffer = new byte[_mStream.Length];
+            _mStream.Seek(0, SeekOrigin.Begin);
+            _mStream.Read(buffer, 0, buffer.Length);
             return buffer;
         }
 
-        private uint GetNextReferentID()
+        private uint GetNextReferentId()
         {
-            var result = m_nextReferentID;
-            m_nextReferentID++;
+            var result = _mNextReferentId;
+            _mNextReferentId++;
             return result;
         }
     }

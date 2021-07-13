@@ -6,59 +6,57 @@
  */
 
 using System;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.Read;
-using SMBLibrary.SMB2.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.Read;
+using RedstoneSmb.SMB2.Structures;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 READ Request
     /// </summary>
-    public class ReadRequest : SMB2Command
+    public class ReadRequest : Smb2Command
     {
         public const int FixedSize = 48;
         public const int DeclaredSize = 49;
         public uint Channel;
-        public FileID FileId;
+        public FileId FileId;
         public ReadFlags Flags;
         public uint MinimumCount;
         public ulong Offset;
         public byte Padding;
         public byte[] ReadChannelInfo = new byte[0];
-        private ushort ReadChannelInfoLength;
-        private ushort ReadChannelInfoOffset;
+        private ushort _readChannelInfoLength;
+        private ushort _readChannelInfoOffset;
         public uint ReadLength;
         public uint RemainingBytes;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public ReadRequest() : base(SMB2CommandName.Read)
+        public ReadRequest() : base(Smb2CommandName.Read)
         {
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public ReadRequest(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            Padding = ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 2);
-            Flags = (ReadFlags) ByteReader.ReadByte(buffer, offset + SMB2Header.Length + 3);
-            ReadLength = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            Offset = LittleEndianConverter.ToUInt64(buffer, offset + SMB2Header.Length + 8);
-            FileId = new FileID(buffer, offset + SMB2Header.Length + 16);
-            MinimumCount = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 32);
-            Channel = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 36);
-            RemainingBytes = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 40);
-            ReadChannelInfoOffset = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 44);
-            ReadChannelInfoLength = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 46);
-            if (ReadChannelInfoLength > 0)
-                ReadChannelInfo = ByteReader.ReadBytes(buffer, offset + ReadChannelInfoOffset, ReadChannelInfoLength);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            Padding = ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 2);
+            Flags = (ReadFlags) ByteReader.ReadByte(buffer, offset + Smb2Header.Length + 3);
+            ReadLength = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            Offset = LittleEndianConverter.ToUInt64(buffer, offset + Smb2Header.Length + 8);
+            FileId = new FileId(buffer, offset + Smb2Header.Length + 16);
+            MinimumCount = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 32);
+            Channel = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 36);
+            RemainingBytes = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 40);
+            _readChannelInfoOffset = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 44);
+            _readChannelInfoLength = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 46);
+            if (_readChannelInfoLength > 0)
+                ReadChannelInfo = ByteReader.ReadBytes(buffer, offset + _readChannelInfoOffset, _readChannelInfoLength);
         }
 
         public override int CommandLength =>
@@ -67,10 +65,10 @@ namespace SMBLibrary.SMB2.Commands
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            ReadChannelInfoOffset = 0;
-            ReadChannelInfoLength = (ushort) ReadChannelInfo.Length;
-            if (ReadChannelInfo.Length > 0) ReadChannelInfoOffset = SMB2Header.Length + FixedSize;
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            _readChannelInfoOffset = 0;
+            _readChannelInfoLength = (ushort) ReadChannelInfo.Length;
+            if (ReadChannelInfo.Length > 0) _readChannelInfoOffset = Smb2Header.Length + FixedSize;
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             ByteWriter.WriteByte(buffer, offset + 2, Padding);
             ByteWriter.WriteByte(buffer, offset + 3, (byte) Flags);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, ReadLength);
@@ -79,8 +77,8 @@ namespace SMBLibrary.SMB2.Commands
             LittleEndianWriter.WriteUInt32(buffer, offset + 32, MinimumCount);
             LittleEndianWriter.WriteUInt32(buffer, offset + 36, Channel);
             LittleEndianWriter.WriteUInt32(buffer, offset + 40, RemainingBytes);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 44, ReadChannelInfoOffset);
-            LittleEndianWriter.WriteUInt16(buffer, offset + 46, ReadChannelInfoLength);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 44, _readChannelInfoOffset);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 46, _readChannelInfoLength);
             if (ReadChannelInfo.Length > 0)
                 ByteWriter.WriteBytes(buffer, offset + FixedSize, ReadChannelInfo);
             else

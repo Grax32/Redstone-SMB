@@ -6,8 +6,8 @@
  */
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Cryptography;
+using RedstoneSmb.Utilities.ByteUtils;
+using RedstoneSmb.Utilities.Cryptography;
 
 namespace SMBLibrary.Tests
 {

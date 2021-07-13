@@ -7,19 +7,17 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.Negotiate;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.Negotiate;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 NEGOTIATE Request
     /// </summary>
-    public class NegotiateRequest : SMB2Command
+    public class NegotiateRequest : Smb2Command
     {
         public const int DeclaredSize = 36;
 
@@ -28,35 +26,35 @@ namespace SMBLibrary.SMB2.Commands
 
         public Guid ClientGuid;
         public DateTime ClientStartTime;
-        public List<SMB2Dialect> Dialects = new List<SMB2Dialect>();
+        public List<Smb2Dialect> Dialects = new List<Smb2Dialect>();
 
         public ushort Reserved;
 
         // ushort DialectCount;
         public SecurityMode SecurityMode;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public NegotiateRequest() : base(SMB2CommandName.Negotiate)
+        public NegotiateRequest() : base(Smb2CommandName.Negotiate)
         {
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public NegotiateRequest(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            var dialectCount = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
-            SecurityMode = (SecurityMode) LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 4);
-            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 6);
-            Capabilities = (Capabilities) LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 8);
-            ClientGuid = LittleEndianConverter.ToGuid(buffer, offset + SMB2Header.Length + 12);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            var dialectCount = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 2);
+            SecurityMode = (SecurityMode) LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 4);
+            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 6);
+            Capabilities = (Capabilities) LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 8);
+            ClientGuid = LittleEndianConverter.ToGuid(buffer, offset + Smb2Header.Length + 12);
             ClientStartTime =
-                DateTime.FromFileTimeUtc(LittleEndianConverter.ToInt64(buffer, offset + SMB2Header.Length + 28));
+                DateTime.FromFileTimeUtc(LittleEndianConverter.ToInt64(buffer, offset + Smb2Header.Length + 28));
 
             for (var index = 0; index < dialectCount; index++)
             {
                 var dialect =
-                    (SMB2Dialect) LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 36 + index * 2);
+                    (Smb2Dialect) LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 36 + index * 2);
                 Dialects.Add(dialect);
             }
         }
@@ -65,7 +63,7 @@ namespace SMBLibrary.SMB2.Commands
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             LittleEndianWriter.WriteUInt16(buffer, offset + 2, (ushort) Dialects.Count);
             LittleEndianWriter.WriteUInt16(buffer, offset + 4, (ushort) SecurityMode);
             LittleEndianWriter.WriteUInt16(buffer, offset + 6, Reserved);

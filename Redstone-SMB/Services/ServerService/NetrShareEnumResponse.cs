@@ -5,11 +5,11 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Enums;
-using SMBLibrary.RPC.NDR;
-using SMBLibrary.Services.ServerService.Structures.ShareInfo;
+using RedstoneSmb.Enums;
+using RedstoneSmb.RPC.NDR;
+using RedstoneSmb.Services.ServerService.Structures.ShareInfo;
 
-namespace SMBLibrary.Services.ServerService
+namespace RedstoneSmb.Services.ServerService
 {
     /// <summary>
     ///     NetrShareEnum Response (opnum 15)
@@ -29,7 +29,7 @@ namespace SMBLibrary.Services.ServerService
 
         public NetrShareEnumResponse(byte[] buffer)
         {
-            var parser = new NDRParser(buffer);
+            var parser = new NdrParser(buffer);
             InfoStruct = new ShareEnum(parser);
             TotalEntries = parser.ReadUInt32();
             ResumeHandle = parser.ReadUInt32();
@@ -38,7 +38,7 @@ namespace SMBLibrary.Services.ServerService
 
         public byte[] GetBytes()
         {
-            var writer = new NDRWriter();
+            var writer = new NdrWriter();
             writer.WriteStructure(InfoStruct);
             writer.WriteUInt32(TotalEntries);
             writer.WriteUInt32(ResumeHandle);

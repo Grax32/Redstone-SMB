@@ -1,13 +1,13 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.QueryDirectory
+namespace RedstoneSmb.SMB2.Enums.QueryDirectory
 {
     [Flags]
     public enum QueryDirectoryFlags : byte
     {
-        SMB2_RESTART_SCANS = 0x01,
-        SMB2_RETURN_SINGLE_ENTRY = 0x02,
-        SMB2_INDEX_SPECIFIED = 0x04,
-        SMB2_REOPEN = 0x10
+        Smb2RestartScans = 0x01,
+        Smb2ReturnSingleEntry = 0x02,
+        Smb2IndexSpecified = 0x04,
+        Smb2Reopen = 0x10
     }
 }

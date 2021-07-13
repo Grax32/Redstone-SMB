@@ -1,13 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NLog.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using NLog.Extensions.Logging;
 
-namespace SMBLibrary.Log
+namespace RedstoneSmb.Log
 {
     public static class Logger
     {

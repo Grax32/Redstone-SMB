@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.Create
+namespace RedstoneSmb.SMB2.Enums.Create
 {
     [Flags]
     public enum CreateResponseFlags : byte

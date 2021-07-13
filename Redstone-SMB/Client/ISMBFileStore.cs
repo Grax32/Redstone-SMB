@@ -5,17 +5,17 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Enums;
-using SMBLibrary.NTFileStore;
+using RedstoneSmb.Enums;
+using RedstoneSmb.NTFileStore;
 
-namespace SMBLibrary.Client
+namespace RedstoneSmb.Client
 {
-    public interface ISMBFileStore : INTFileStore
+    public interface ISmbFileStore : INtFileStore
     {
         uint MaxReadSize { get; }
 
         uint MaxWriteSize { get; }
 
-        NTStatus Disconnect();
+        NtStatus Disconnect();
     }
 }

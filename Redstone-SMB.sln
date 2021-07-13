@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redstone-SMB", "Redstone-SM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redstone-SMB.Tests", "Redstone-SMB.Tests\Redstone-SMB.Tests.csproj", "{DB6E028F-4ADE-4E88-AB68-E743C106F759}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redstone-SMB.Demo", "Redstone-SMB.Demo\Redstone-SMB.Demo.csproj", "{08331F02-A98F-4A5D-AB72-4F15C1037B46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DB6E028F-4ADE-4E88-AB68-E743C106F759}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB6E028F-4ADE-4E88-AB68-E743C106F759}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB6E028F-4ADE-4E88-AB68-E743C106F759}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08331F02-A98F-4A5D-AB72-4F15C1037B46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08331F02-A98F-4A5D-AB72-4F15C1037B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08331F02-A98F-4A5D-AB72-4F15C1037B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08331F02-A98F-4A5D-AB72-4F15C1037B46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

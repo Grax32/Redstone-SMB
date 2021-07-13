@@ -5,10 +5,10 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Exceptions;
-using SMBLibrary.NTFileStore.Enums.FileSystemInformation;
+using RedstoneSmb.Exceptions;
+using RedstoneSmb.NTFileStore.Enums.FileSystemInformation;
 
-namespace SMBLibrary.NTFileStore.Structures.FileSystemInformation
+namespace RedstoneSmb.NTFileStore.Structures.FileSystemInformation
 {
     public abstract class FileSystemInformation
     {

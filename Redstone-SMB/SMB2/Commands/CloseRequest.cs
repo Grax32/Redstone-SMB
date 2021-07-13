@@ -5,39 +5,37 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Enums.Close;
-using SMBLibrary.SMB2.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Enums.Close;
+using RedstoneSmb.SMB2.Structures;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 CLOSE Request
     /// </summary>
-    public class CloseRequest : SMB2Command
+    public class CloseRequest : Smb2Command
     {
         public const int DeclaredSize = 24;
-        public FileID FileId;
+        public FileId FileId;
         public CloseFlags Flags;
         public uint Reserved;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public CloseRequest() : base(SMB2CommandName.Close)
+        public CloseRequest() : base(Smb2CommandName.Close)
         {
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
         public CloseRequest(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            Flags = (CloseFlags) LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
-            Reserved = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            FileId = new FileID(buffer, offset + SMB2Header.Length + 8);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            Flags = (CloseFlags) LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 2);
+            Reserved = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            FileId = new FileId(buffer, offset + Smb2Header.Length + 8);
         }
 
         public bool PostQueryAttributes => (Flags & CloseFlags.PostQueryAttributes) > 0;
@@ -46,7 +44,7 @@ namespace SMBLibrary.SMB2.Commands
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             LittleEndianWriter.WriteUInt16(buffer, offset + 2, (ushort) Flags);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, Reserved);
             FileId.WriteBytes(buffer, offset + 8);

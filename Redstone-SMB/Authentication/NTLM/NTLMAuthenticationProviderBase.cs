@@ -5,22 +5,22 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Authentication.GSSAPI;
-using SMBLibrary.Authentication.GSSAPI.Enums;
-using SMBLibrary.Authentication.NTLM.Helpers;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Enums;
+using RedstoneSmb.Authentication.GSSAPI;
+using RedstoneSmb.Authentication.GSSAPI.Enums;
+using RedstoneSmb.Authentication.NTLM.Helpers;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using RedstoneSmb.Enums;
 
-namespace SMBLibrary.Authentication.NTLM
+namespace RedstoneSmb.Authentication.NTLM
 {
-    public abstract class NTLMAuthenticationProviderBase : IGSSMechanism
+    public abstract class NtlmAuthenticationProviderBase : IGssMechanism
     {
-        public static readonly byte[] NTLMSSPIdentifier = {0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x02, 0x0a};
+        public static readonly byte[] NtlmsspIdentifier = {0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x02, 0x0a};
 
-        public NTStatus AcceptSecurityContext(ref object context, byte[] inputToken, out byte[] outputToken)
+        public NtStatus AcceptSecurityContext(ref object context, byte[] inputToken, out byte[] outputToken)
         {
             outputToken = null;
-            if (!AuthenticationMessageUtils.IsSignatureValid(inputToken)) return NTStatus.SEC_E_INVALID_TOKEN;
+            if (!AuthenticationMessageUtils.IsSignatureValid(inputToken)) return NtStatus.SecEInvalidToken;
 
             var messageType = AuthenticationMessageUtils.GetMessageType(inputToken);
             if (messageType == MessageTypeName.Negotiate)
@@ -31,18 +31,18 @@ namespace SMBLibrary.Authentication.NTLM
 
             if (messageType == MessageTypeName.Authenticate)
                 return Authenticate(context, inputToken);
-            return NTStatus.SEC_E_INVALID_TOKEN;
+            return NtStatus.SecEInvalidToken;
         }
 
         public abstract bool DeleteSecurityContext(ref object context);
 
-        public abstract object GetContextAttribute(object context, GSSAttributeName attributeName);
+        public abstract object GetContextAttribute(object context, GssAttributeName attributeName);
 
-        public byte[] Identifier => NTLMSSPIdentifier;
+        public byte[] Identifier => NtlmsspIdentifier;
 
-        public abstract NTStatus GetChallengeMessage(out object context, byte[] negotiateMessageBytes,
+        public abstract NtStatus GetChallengeMessage(out object context, byte[] negotiateMessageBytes,
             out byte[] challengeMessageBytes);
 
-        public abstract NTStatus Authenticate(object context, byte[] authenticateMessageBytes);
+        public abstract NtStatus Authenticate(object context, byte[] authenticateMessageBytes);
     }
 }

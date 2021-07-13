@@ -6,14 +6,12 @@
  */
 
 using System;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.IOCtl
+namespace RedstoneSmb.NTFileStore.Structures.IOCtl
 {
     /// <summary>
     ///     [MS-FSCC] 2.3.31 - FSCTL_PIPE_WAIT Request
@@ -22,7 +20,7 @@ namespace SMBLibrary.NTFileStore.Structures.IOCtl
     {
         public const int FixedLength = 14;
         public string Name;
-        private readonly uint NameLength;
+        private readonly uint _nameLength;
         public byte Padding;
 
         public ulong Timeout;
@@ -35,10 +33,10 @@ namespace SMBLibrary.NTFileStore.Structures.IOCtl
         public PipeWaitRequest(byte[] buffer, int offset)
         {
             Timeout = LittleEndianConverter.ToUInt64(buffer, offset + 0);
-            NameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
+            _nameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
             TimeSpecified = Convert.ToBoolean(ByteReader.ReadByte(buffer, offset + 12));
             Padding = ByteReader.ReadByte(buffer, offset + 13);
-            Name = ByteReader.ReadUTF16String(buffer, offset + 14, (int) (NameLength / 2));
+            Name = ByteReader.ReadUtf16String(buffer, offset + 14, (int) (_nameLength / 2));
         }
 
         public int Length => FixedLength + Name.Length * 2;
@@ -50,7 +48,7 @@ namespace SMBLibrary.NTFileStore.Structures.IOCtl
             LittleEndianWriter.WriteUInt32(buffer, 8, (uint) (Name.Length * 2));
             ByteWriter.WriteByte(buffer, 12, Convert.ToByte(TimeSpecified));
             ByteWriter.WriteByte(buffer, 13, Padding);
-            ByteWriter.WriteUTF16String(buffer, 14, Name);
+            ByteWriter.WriteUtf16String(buffer, 14, Name);
             return buffer;
         }
     }

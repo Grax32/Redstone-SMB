@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.NTFileStore.Enums.FileInformation
+namespace RedstoneSmb.NTFileStore.Enums.FileInformation
 {
     /// <summary>
     ///     [MS-FSCC] 2.6 - FileAttributes

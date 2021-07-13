@@ -5,24 +5,22 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Structures
+namespace RedstoneSmb.SMB2.Structures
 {
     /// <summary>
     ///     [MS-SMB2] 2.2.14.1 - SMB2_FILEID
     /// </summary>
-    public struct FileID
+    public struct FileId
     {
         public const int Length = 16;
 
         public ulong Persistent;
         public ulong Volatile;
 
-        public FileID(byte[] buffer, int offset)
+        public FileId(byte[] buffer, int offset)
         {
             Persistent = LittleEndianConverter.ToUInt64(buffer, offset + 0);
             Volatile = LittleEndianConverter.ToUInt64(buffer, offset + 8);

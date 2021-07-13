@@ -6,54 +6,54 @@
  */
 
 using System.IO;
-using SMBLibrary.Enums;
-using SMBLibrary.Models;
-using SMBLibrary.NTFileStore.Enums.AccessMask;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.NTFileStore.Enums.NtCreateFile;
-using SMBLibrary.NTFileStore.Structures.FileInformation;
-using SMBLibrary.NTFileStore.Structures.FileInformation.Query;
+using RedstoneSmb.Enums;
+using RedstoneSmb.Models;
+using RedstoneSmb.NTFileStore.Enums.AccessMask;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.NTFileStore.Enums.NtCreateFile;
+using RedstoneSmb.NTFileStore.Structures.FileInformation;
+using RedstoneSmb.NTFileStore.Structures.FileInformation.Query;
 
-namespace SMBLibrary.NTFileStore
+namespace RedstoneSmb.NTFileStore
 {
-    public class NTFileStoreHelper
+    public class NtFileStoreHelper
     {
         public static FileAccess ToCreateFileAccess(AccessMask desiredAccess, CreateDisposition createDisposition)
         {
             FileAccess result = 0;
 
-            if (((FileAccessMask) desiredAccess & FileAccessMask.FILE_READ_DATA) > 0 ||
-                ((FileAccessMask) desiredAccess & FileAccessMask.FILE_READ_EA) > 0 ||
-                ((FileAccessMask) desiredAccess & FileAccessMask.FILE_READ_ATTRIBUTES) > 0 ||
-                (desiredAccess & AccessMask.MAXIMUM_ALLOWED) > 0 ||
-                (desiredAccess & AccessMask.GENERIC_ALL) > 0 ||
-                (desiredAccess & AccessMask.GENERIC_READ) > 0)
+            if (((FileAccessMask) desiredAccess & FileAccessMask.FileReadData) > 0 ||
+                ((FileAccessMask) desiredAccess & FileAccessMask.FileReadEa) > 0 ||
+                ((FileAccessMask) desiredAccess & FileAccessMask.FileReadAttributes) > 0 ||
+                (desiredAccess & AccessMask.MaximumAllowed) > 0 ||
+                (desiredAccess & AccessMask.GenericAll) > 0 ||
+                (desiredAccess & AccessMask.GenericRead) > 0)
                 result |= FileAccess.Read;
 
-            if (((FileAccessMask) desiredAccess & FileAccessMask.FILE_WRITE_DATA) > 0 ||
-                ((FileAccessMask) desiredAccess & FileAccessMask.FILE_APPEND_DATA) > 0 ||
-                ((FileAccessMask) desiredAccess & FileAccessMask.FILE_WRITE_EA) > 0 ||
-                ((FileAccessMask) desiredAccess & FileAccessMask.FILE_WRITE_ATTRIBUTES) > 0 ||
-                (desiredAccess & AccessMask.DELETE) > 0 ||
-                (desiredAccess & AccessMask.WRITE_DAC) > 0 ||
-                (desiredAccess & AccessMask.WRITE_OWNER) > 0 ||
-                (desiredAccess & AccessMask.MAXIMUM_ALLOWED) > 0 ||
-                (desiredAccess & AccessMask.GENERIC_ALL) > 0 ||
-                (desiredAccess & AccessMask.GENERIC_WRITE) > 0)
+            if (((FileAccessMask) desiredAccess & FileAccessMask.FileWriteData) > 0 ||
+                ((FileAccessMask) desiredAccess & FileAccessMask.FileAppendData) > 0 ||
+                ((FileAccessMask) desiredAccess & FileAccessMask.FileWriteEa) > 0 ||
+                ((FileAccessMask) desiredAccess & FileAccessMask.FileWriteAttributes) > 0 ||
+                (desiredAccess & AccessMask.Delete) > 0 ||
+                (desiredAccess & AccessMask.WriteDac) > 0 ||
+                (desiredAccess & AccessMask.WriteOwner) > 0 ||
+                (desiredAccess & AccessMask.MaximumAllowed) > 0 ||
+                (desiredAccess & AccessMask.GenericAll) > 0 ||
+                (desiredAccess & AccessMask.GenericWrite) > 0)
                 result |= FileAccess.Write;
 
-            if (((DirectoryAccessMask) desiredAccess & DirectoryAccessMask.FILE_DELETE_CHILD) > 0)
+            if (((DirectoryAccessMask) desiredAccess & DirectoryAccessMask.FileDeleteChild) > 0)
                 result |= FileAccess.Write;
 
             // Technically, FILE_OPEN_IF should only require Write access if the file does not exist,
             // However, It's uncommon for a client to open a file with FILE_OPEN_IF
             // without requesting any kind of write access in the access mask.
             // (because [if the file does not exist] an empty file will be created without the ability to write data to the file). 
-            if (createDisposition == CreateDisposition.FILE_CREATE ||
-                createDisposition == CreateDisposition.FILE_SUPERSEDE ||
-                createDisposition == CreateDisposition.FILE_OPEN_IF ||
-                createDisposition == CreateDisposition.FILE_OVERWRITE ||
-                createDisposition == CreateDisposition.FILE_OVERWRITE_IF)
+            if (createDisposition == CreateDisposition.FileCreate ||
+                createDisposition == CreateDisposition.FileSupersede ||
+                createDisposition == CreateDisposition.FileOpenIf ||
+                createDisposition == CreateDisposition.FileOverwrite ||
+                createDisposition == CreateDisposition.FileOverwriteIf)
                 result |= FileAccess.Write;
 
             return result;
@@ -73,17 +73,17 @@ namespace SMBLibrary.NTFileStore
         public static FileAccess ToFileAccess(FileAccessMask desiredAccess)
         {
             FileAccess result = 0;
-            if ((desiredAccess & FileAccessMask.FILE_READ_DATA) > 0 ||
-                (desiredAccess & FileAccessMask.MAXIMUM_ALLOWED) > 0 ||
-                (desiredAccess & FileAccessMask.GENERIC_ALL) > 0 ||
-                (desiredAccess & FileAccessMask.GENERIC_READ) > 0)
+            if ((desiredAccess & FileAccessMask.FileReadData) > 0 ||
+                (desiredAccess & FileAccessMask.MaximumAllowed) > 0 ||
+                (desiredAccess & FileAccessMask.GenericAll) > 0 ||
+                (desiredAccess & FileAccessMask.GenericRead) > 0)
                 result |= FileAccess.Read;
 
-            if ((desiredAccess & FileAccessMask.FILE_WRITE_DATA) > 0 ||
-                (desiredAccess & FileAccessMask.FILE_APPEND_DATA) > 0 ||
-                (desiredAccess & FileAccessMask.MAXIMUM_ALLOWED) > 0 ||
-                (desiredAccess & FileAccessMask.GENERIC_ALL) > 0 ||
-                (desiredAccess & FileAccessMask.GENERIC_WRITE) > 0)
+            if ((desiredAccess & FileAccessMask.FileWriteData) > 0 ||
+                (desiredAccess & FileAccessMask.FileAppendData) > 0 ||
+                (desiredAccess & FileAccessMask.MaximumAllowed) > 0 ||
+                (desiredAccess & FileAccessMask.GenericAll) > 0 ||
+                (desiredAccess & FileAccessMask.GenericWrite) > 0)
                 result |= FileAccess.Write;
 
             return result;
@@ -101,29 +101,29 @@ namespace SMBLibrary.NTFileStore
             return result;
         }
 
-        public static FileNetworkOpenInformation GetNetworkOpenInformation(INTFileStore fileStore, string path,
+        public static FileNetworkOpenInformation GetNetworkOpenInformation(INtFileStore fileStore, string path,
             SecurityContext securityContext)
         {
             object handle;
             FileStatus fileStatus;
             var openStatus = fileStore.CreateFile(out handle, out fileStatus, path,
-                (AccessMask) FileAccessMask.FILE_READ_ATTRIBUTES, 0, ShareAccess.Read | ShareAccess.Write,
-                CreateDisposition.FILE_OPEN, 0, securityContext);
-            if (openStatus != NTStatus.STATUS_SUCCESS) return null;
+                (AccessMask) FileAccessMask.FileReadAttributes, 0, ShareAccess.Read | ShareAccess.Write,
+                CreateDisposition.FileOpen, 0, securityContext);
+            if (openStatus != NtStatus.StatusSuccess) return null;
             FileInformation fileInfo;
             var queryStatus =
                 fileStore.GetFileInformation(out fileInfo, handle, FileInformationClass.FileNetworkOpenInformation);
             fileStore.CloseFile(handle);
-            if (queryStatus != NTStatus.STATUS_SUCCESS) return null;
+            if (queryStatus != NtStatus.StatusSuccess) return null;
             return (FileNetworkOpenInformation) fileInfo;
         }
 
-        public static FileNetworkOpenInformation GetNetworkOpenInformation(INTFileStore fileStore, object handle)
+        public static FileNetworkOpenInformation GetNetworkOpenInformation(INtFileStore fileStore, object handle)
         {
             FileInformation fileInfo;
             var status =
                 fileStore.GetFileInformation(out fileInfo, handle, FileInformationClass.FileNetworkOpenInformation);
-            if (status != NTStatus.STATUS_SUCCESS) return null;
+            if (status != NtStatus.StatusSuccess) return null;
 
             return (FileNetworkOpenInformation) fileInfo;
         }

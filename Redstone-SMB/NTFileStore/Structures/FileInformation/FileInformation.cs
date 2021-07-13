@@ -6,12 +6,12 @@
  */
 
 using System;
-using SMBLibrary.Exceptions;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.NTFileStore.Structures.FileInformation.Query;
-using SMBLibrary.NTFileStore.Structures.FileInformation.Set;
+using RedstoneSmb.Exceptions;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using RedstoneSmb.NTFileStore.Structures.FileInformation.Query;
+using RedstoneSmb.NTFileStore.Structures.FileInformation.Set;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation
 {
     public abstract class FileInformation
     {
@@ -54,7 +54,7 @@ namespace SMBLibrary.NTFileStore.Structures.FileInformation
                 case FileInformationClass.FilePositionInformation:
                     return new FilePositionInformation(buffer, offset);
                 case FileInformationClass.FileFullEaInformation:
-                    return new FileFullEAInformation(buffer, offset);
+                    return new FileFullEaInformation(buffer, offset);
                 case FileInformationClass.FileModeInformation:
                     return new FileModeInformation(buffer, offset);
                 case FileInformationClass.FileAlignmentInformation:

@@ -7,23 +7,22 @@
 
 using System;
 using System.IO;
-using SMBLibrary.NetBios.SessionPackets;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
+using RedstoneSmb.NetBios.SessionPackets;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
 
-namespace SMBLibrary.NetBios
+namespace RedstoneSmb.NetBios
 {
-    public class NBTConnectionReceiveBuffer
+    public class NbtConnectionReceiveBuffer
     {
-        private int? m_packetLength;
-        private int m_readOffset;
+        private int? _mPacketLength;
+        private int _mReadOffset;
 
-        public NBTConnectionReceiveBuffer() : this(SessionPacket.MaxSessionPacketLength)
+        public NbtConnectionReceiveBuffer() : this(SessionPacket.MaxSessionPacketLength)
         {
         }
 
         /// <param name="bufferLength">Must be large enough to hold the largest possible NBT packet</param>
-        public NBTConnectionReceiveBuffer(int bufferLength)
+        public NbtConnectionReceiveBuffer(int bufferLength)
         {
             if (bufferLength < SessionPacket.MaxSessionPacketLength)
                 throw new ArgumentException(
@@ -33,19 +32,19 @@ namespace SMBLibrary.NetBios
 
         public byte[] Buffer { get; private set; }
 
-        public int WriteOffset => m_readOffset + BytesInBuffer;
+        public int WriteOffset => _mReadOffset + BytesInBuffer;
 
         public int BytesInBuffer { get; private set; }
 
-        public int AvailableLength => Buffer.Length - (m_readOffset + BytesInBuffer);
+        public int AvailableLength => Buffer.Length - (_mReadOffset + BytesInBuffer);
 
         public void IncreaseBufferSize(int bufferLength)
         {
             var buffer = new byte[bufferLength];
             if (BytesInBuffer > 0)
             {
-                Array.Copy(Buffer, m_readOffset, buffer, 0, BytesInBuffer);
-                m_readOffset = 0;
+                Array.Copy(Buffer, _mReadOffset, buffer, 0, BytesInBuffer);
+                _mReadOffset = 0;
             }
 
             Buffer = buffer;
@@ -60,10 +59,10 @@ namespace SMBLibrary.NetBios
         {
             if (BytesInBuffer >= 4)
             {
-                if (!m_packetLength.HasValue)
-                    m_packetLength = SessionPacket.GetSessionPacketLength(Buffer, m_readOffset);
+                if (!_mPacketLength.HasValue)
+                    _mPacketLength = SessionPacket.GetSessionPacketLength(Buffer, _mReadOffset);
 
-                return BytesInBuffer >= m_packetLength.Value;
+                return BytesInBuffer >= _mPacketLength.Value;
             }
 
             return false;
@@ -78,7 +77,7 @@ namespace SMBLibrary.NetBios
             SessionPacket packet;
             try
             {
-                packet = SessionPacket.GetSessionPacket(Buffer, m_readOffset);
+                packet = SessionPacket.GetSessionPacket(Buffer, _mReadOffset);
             }
             catch (IndexOutOfRangeException ex)
             {
@@ -94,27 +93,27 @@ namespace SMBLibrary.NetBios
         /// </summary>
         public byte[] DequeuePacketBytes()
         {
-            var packetBytes = ByteReader.ReadBytes(Buffer, m_readOffset, m_packetLength.Value);
+            var packetBytes = ByteReader.ReadBytes(Buffer, _mReadOffset, _mPacketLength.Value);
             RemovePacketBytes();
             return packetBytes;
         }
 
         private void RemovePacketBytes()
         {
-            BytesInBuffer -= m_packetLength.Value;
+            BytesInBuffer -= _mPacketLength.Value;
             if (BytesInBuffer == 0)
             {
-                m_readOffset = 0;
-                m_packetLength = null;
+                _mReadOffset = 0;
+                _mPacketLength = null;
             }
             else
             {
-                m_readOffset += m_packetLength.Value;
-                m_packetLength = null;
+                _mReadOffset += _mPacketLength.Value;
+                _mPacketLength = null;
                 if (!HasCompletePacket())
                 {
-                    Array.Copy(Buffer, m_readOffset, Buffer, 0, BytesInBuffer);
-                    m_readOffset = 0;
+                    Array.Copy(Buffer, _mReadOffset, Buffer, 0, BytesInBuffer);
+                    _mReadOffset = 0;
                 }
             }
         }

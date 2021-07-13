@@ -7,13 +7,11 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.QueryDirectory
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.QueryDirectory
 {
     public abstract class QueryDirectoryFileInformation : FileInformation
     {

@@ -4,9 +4,9 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
-using SMBLibrary.Utilities.ByteUtils;
+using RedstoneSmb.Utilities.ByteUtils;
 
-namespace SMBLibrary.Utilities.Cryptography
+namespace RedstoneSmb.Utilities.Cryptography
 {
     public static class AesCmac
     {
@@ -20,20 +20,20 @@ namespace SMBLibrary.Utilities.Cryptography
         {
             // SubKey generation
             // step 1, AES-128 with key K is applied to an all-zero input block.
-            var L = AESEncrypt(key, new byte[16], new byte[16]);
+            var l = AesEncrypt(key, new byte[16], new byte[16]);
 
             // step 2, K1 is derived through the following operation:
-            var FirstSubkey =
-                Rol(L); //If the most significant bit of L is equal to 0, K1 is the left-shift of L by 1 bit.
-            if ((L[0] & 0x80) == 0x80)
-                FirstSubkey[15] ^=
+            var firstSubkey =
+                Rol(l); //If the most significant bit of L is equal to 0, K1 is the left-shift of L by 1 bit.
+            if ((l[0] & 0x80) == 0x80)
+                firstSubkey[15] ^=
                     0x87; // Otherwise, K1 is the exclusive-OR of const_Rb and the left-shift of L by 1 bit.
 
             // step 3, K2 is derived through the following operation:
-            var SecondSubkey =
-                Rol(FirstSubkey); // If the most significant bit of K1 is equal to 0, K2 is the left-shift of K1 by 1 bit.
-            if ((FirstSubkey[0] & 0x80) == 0x80)
-                SecondSubkey[15] ^=
+            var secondSubkey =
+                Rol(firstSubkey); // If the most significant bit of K1 is equal to 0, K2 is the left-shift of K1 by 1 bit.
+            if ((firstSubkey[0] & 0x80) == 0x80)
+                secondSubkey[15] ^=
                     0x87; // Otherwise, K2 is the exclusive-OR of const_Rb and the left-shift of K1 by 1 bit.
 
             // MAC computing
@@ -41,8 +41,8 @@ namespace SMBLibrary.Utilities.Cryptography
             {
                 // If the size of the input message block is equal to a positive multiple of the block size (namely, 128 bits),
                 // the last block shall be exclusive-OR'ed with K1 before processing
-                for (var j = 0; j < FirstSubkey.Length; j++)
-                    data[data.Length - 16 + j] ^= FirstSubkey[j];
+                for (var j = 0; j < firstSubkey.Length; j++)
+                    data[data.Length - 16 + j] ^= firstSubkey[j];
             }
             else
             {
@@ -50,23 +50,23 @@ namespace SMBLibrary.Utilities.Cryptography
                 var padding = new byte[16 - data.Length % 16];
                 padding[0] = 0x80;
 
-                data = global::SMBLibrary.Utilities.ByteUtils.ByteUtils.Concatenate(data, padding);
+                data = global::RedstoneSmb.Utilities.ByteUtils.ByteUtils.Concatenate(data, padding);
 
                 // and exclusive-OR'ed with K2
-                for (var j = 0; j < SecondSubkey.Length; j++)
-                    data[data.Length - 16 + j] ^= SecondSubkey[j];
+                for (var j = 0; j < secondSubkey.Length; j++)
+                    data[data.Length - 16 + j] ^= secondSubkey[j];
             }
 
             // The result of the previous process will be the input of the last encryption.
-            var encResult = AESEncrypt(key, new byte[16], data);
+            var encResult = AesEncrypt(key, new byte[16], data);
 
-            var HashValue = new byte[16];
-            Array.Copy(encResult, encResult.Length - HashValue.Length, HashValue, 0, HashValue.Length);
+            var hashValue = new byte[16];
+            Array.Copy(encResult, encResult.Length - hashValue.Length, hashValue, 0, hashValue.Length);
 
-            return HashValue;
+            return hashValue;
         }
 
-        private static byte[] AESEncrypt(byte[] key, byte[] iv, byte[] data)
+        private static byte[] AesEncrypt(byte[] key, byte[] iv, byte[] data)
         {
             using (var ms = new MemoryStream())
             {

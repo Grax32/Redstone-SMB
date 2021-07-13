@@ -7,14 +7,12 @@
 
 using System;
 using System.Collections.Generic;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures
+namespace RedstoneSmb.NTFileStore.Structures
 {
     public enum FileAction : uint
     {
@@ -27,8 +25,8 @@ namespace SMBLibrary.NTFileStore.Structures
         RemovedStream = 0x00000007, // FILE_ACTION_REMOVED_STREAM
         ModifiedStream = 0x00000008, // FILE_ACTION_MODIFIED_STREAM
         RemovedByDelete = 0x00000009, // FILE_ACTION_REMOVED_BY_DELETE
-        IDNotTunneled = 0x0000000A, // FILE_ACTION_ID_NOT_TUNNELLED
-        TunneledIDCollision = 0x0000000B // FILE_ACTION_TUNNELLED_ID_COLLISION
+        IdNotTunneled = 0x0000000A, // FILE_ACTION_ID_NOT_TUNNELLED
+        TunneledIdCollision = 0x0000000B // FILE_ACTION_TUNNELLED_ID_COLLISION
     }
 
     /// <summary>
@@ -39,7 +37,7 @@ namespace SMBLibrary.NTFileStore.Structures
         public const int FixedLength = 12;
         public FileAction Action;
         public string FileName;
-        private uint FileNameLength;
+        private uint _fileNameLength;
 
         public uint NextEntryOffset;
 
@@ -52,19 +50,19 @@ namespace SMBLibrary.NTFileStore.Structures
         {
             NextEntryOffset = LittleEndianConverter.ToUInt32(buffer, offset + 0);
             Action = (FileAction) LittleEndianConverter.ToUInt32(buffer, offset + 4);
-            FileNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
-            FileName = ByteReader.ReadUTF16String(buffer, offset + 12, (int) (FileNameLength / 2));
+            _fileNameLength = LittleEndianConverter.ToUInt32(buffer, offset + 8);
+            FileName = ByteReader.ReadUtf16String(buffer, offset + 12, (int) (_fileNameLength / 2));
         }
 
         public int Length => FixedLength + FileName.Length * 2;
 
         public void WriteBytes(byte[] buffer, int offset)
         {
-            FileNameLength = (uint) (FileName.Length * 2);
+            _fileNameLength = (uint) (FileName.Length * 2);
             LittleEndianWriter.WriteUInt32(buffer, offset + 0, NextEntryOffset);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, (uint) Action);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 8, FileNameLength);
-            ByteWriter.WriteUTF16String(buffer, offset + 12, FileName);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 8, _fileNameLength);
+            ByteWriter.WriteUtf16String(buffer, offset + 12, FileName);
         }
 
         public static List<FileNotifyInformation> ReadList(byte[] buffer, int offset)

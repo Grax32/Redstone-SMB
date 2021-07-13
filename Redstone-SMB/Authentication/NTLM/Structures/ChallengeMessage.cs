@@ -5,17 +5,14 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.Authentication.NTLM.Helpers;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using SMBLibrary.Utilities.Generics;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Authentication.NTLM.Helpers;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.Authentication.NTLM.Structures
+namespace RedstoneSmb.Authentication.NTLM.Structures
 {
     /// <summary>
     ///     [MS-NLMP] CHALLENGE_MESSAGE (Type 2 Message)
@@ -29,9 +26,9 @@ namespace SMBLibrary.Authentication.NTLM.Structures
         public string Signature; // 8 bytes
 
         // Reserved - 8 bytes
-        public Utilities.Generics.KeyValuePairList<AVPairKey, byte[]> TargetInfo = new Utilities.Generics.KeyValuePairList<AVPairKey, byte[]>();
+        public Utilities.Generics.KeyValuePairList<AvPairKey, byte[]> TargetInfo = new Utilities.Generics.KeyValuePairList<AvPairKey, byte[]>();
         public string TargetName;
-        public NTLMVersion Version;
+        public NtlmVersion Version;
 
         public ChallengeMessage()
         {
@@ -48,15 +45,15 @@ namespace SMBLibrary.Authentication.NTLM.Structures
             ServerChallenge = ByteReader.ReadBytes(buffer, 24, 8);
             // Reserved
             var targetInfoBytes = AuthenticationMessageUtils.ReadBufferPointer(buffer, 40);
-            if (targetInfoBytes.Length > 0) TargetInfo = AVPairUtils.ReadAVPairSequence(targetInfoBytes, 0);
-            if ((NegotiateFlags & NegotiateFlags.Version) > 0) Version = new NTLMVersion(buffer, 48);
+            if (targetInfoBytes.Length > 0) TargetInfo = AvPairUtils.ReadAvPairSequence(targetInfoBytes, 0);
+            if ((NegotiateFlags & NegotiateFlags.Version) > 0) Version = new NtlmVersion(buffer, 48);
         }
 
         public byte[] GetBytes()
         {
             if ((NegotiateFlags & NegotiateFlags.TargetNameSupplied) == 0) TargetName = string.Empty;
 
-            var targetInfoBytes = AVPairUtils.GetAVPairSequenceBytes(TargetInfo);
+            var targetInfoBytes = AvPairUtils.GetAvPairSequenceBytes(TargetInfo);
             if ((NegotiateFlags & NegotiateFlags.TargetInfo) == 0) targetInfoBytes = new byte[0];
 
             var fixedLength = 48;
@@ -71,7 +68,7 @@ namespace SMBLibrary.Authentication.NTLM.Structures
 
             var offset = fixedLength;
             AuthenticationMessageUtils.WriteBufferPointer(buffer, 12, (ushort) (TargetName.Length * 2), (uint) offset);
-            ByteWriter.WriteUTF16String(buffer, ref offset, TargetName);
+            ByteWriter.WriteUtf16String(buffer, ref offset, TargetName);
             AuthenticationMessageUtils.WriteBufferPointer(buffer, 40, (ushort) targetInfoBytes.Length, (uint) offset);
             ByteWriter.WriteBytes(buffer, ref offset, targetInfoBytes);
 

@@ -7,9 +7,9 @@
  * Based on: https://bitlush.com/blog/rc4-encryption-in-c-sharp
  */
 
-namespace SMBLibrary.Authentication.NTLM.Helpers
+namespace RedstoneSmb.Authentication.NTLM.Helpers
 {
-    public class RC4
+    public class Rc4
     {
         public static byte[] Encrypt(byte[] key, byte[] data)
         {

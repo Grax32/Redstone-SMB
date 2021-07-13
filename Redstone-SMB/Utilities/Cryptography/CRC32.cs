@@ -4,29 +4,29 @@
 
 using System.Security.Cryptography;
 
-namespace SMBLibrary.Utilities.Cryptography
+namespace RedstoneSmb.Utilities.Cryptography
 {
-    public class CRC32 : HashAlgorithm
+    public class Crc32 : HashAlgorithm
     {
         public const uint DefaultPolynomial = 0xedb88320;
         public const uint DefaultSeed = 0xffffffff;
-        private static uint[] defaultTable;
+        private static uint[] _defaultTable;
 
-        private uint hash;
-        private readonly uint seed;
-        private readonly uint[] table;
+        private uint _hash;
+        private readonly uint _seed;
+        private readonly uint[] _table;
 
-        public CRC32()
+        public Crc32()
         {
-            table = InitializeTable(DefaultPolynomial);
-            seed = DefaultSeed;
+            _table = InitializeTable(DefaultPolynomial);
+            _seed = DefaultSeed;
             Initialize();
         }
 
-        public CRC32(uint polynomial, uint seed)
+        public Crc32(uint polynomial, uint seed)
         {
-            table = InitializeTable(polynomial);
-            this.seed = seed;
+            _table = InitializeTable(polynomial);
+            this._seed = seed;
             Initialize();
         }
 
@@ -34,17 +34,17 @@ namespace SMBLibrary.Utilities.Cryptography
 
         public override void Initialize()
         {
-            hash = seed;
+            _hash = _seed;
         }
 
         protected override void HashCore(byte[] buffer, int start, int length)
         {
-            hash = CalculateHash(table, hash, buffer, start, length);
+            _hash = CalculateHash(_table, _hash, buffer, start, length);
         }
 
         protected override byte[] HashFinal()
         {
-            var hashBuffer = UInt32ToBigEndianBytes(~hash);
+            var hashBuffer = UInt32ToBigEndianBytes(~_hash);
             HashValue = hashBuffer;
             return hashBuffer;
         }
@@ -66,8 +66,8 @@ namespace SMBLibrary.Utilities.Cryptography
 
         private static uint[] InitializeTable(uint polynomial)
         {
-            if (polynomial == DefaultPolynomial && defaultTable != null)
-                return defaultTable;
+            if (polynomial == DefaultPolynomial && _defaultTable != null)
+                return _defaultTable;
 
             var createTable = new uint[256];
             for (var i = 0; i < 256; i++)
@@ -82,7 +82,7 @@ namespace SMBLibrary.Utilities.Cryptography
             }
 
             if (polynomial == DefaultPolynomial)
-                defaultTable = createTable;
+                _defaultTable = createTable;
 
             return createTable;
         }
@@ -111,7 +111,7 @@ namespace SMBLibrary.Utilities.Cryptography
         }
 
         // Added by Tal Aloni 2013.07.11
-        public static uint UPDC32(byte octet, uint crc)
+        public static uint Updc32(byte octet, uint crc)
         {
             var table = InitializeTable(DefaultPolynomial);
             return table[(crc ^ octet) & 0xff] ^ (crc >> 8);

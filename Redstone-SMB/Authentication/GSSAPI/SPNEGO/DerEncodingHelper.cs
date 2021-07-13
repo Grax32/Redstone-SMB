@@ -7,11 +7,10 @@
 
 using System.Collections.Generic;
 using System.Text;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.Authentication.GSSAPI.SPNEGO
+namespace RedstoneSmb.Authentication.GSSAPI.SPNEGO
 {
     public enum DerEncodingTag : byte
     {

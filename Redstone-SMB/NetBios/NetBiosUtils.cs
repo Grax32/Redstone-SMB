@@ -8,13 +8,12 @@
 using System;
 using System.IO;
 using System.Text;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NetBios
+namespace RedstoneSmb.NetBios
 {
     public class NetBiosUtils
     {
@@ -23,7 +22,7 @@ namespace SMBLibrary.NetBios
         ///     Microsoft, however, limits NetBIOS names to 15 characters and uses the 16th character as a NetBIOS suffix
         ///     See http://support.microsoft.com/kb/163409/en-us
         /// </summary>
-        public static string GetMSNetBiosName(string name, NetBiosSuffix suffix)
+        public static string GetMsNetBiosName(string name, NetBiosSuffix suffix)
         {
             if (name.Length > 15)
                 name = name.Substring(0, 15);
@@ -32,7 +31,7 @@ namespace SMBLibrary.NetBios
             return name + (char) suffix;
         }
 
-        public static string GetNameFromMSNetBiosName(string netBiosName)
+        public static string GetNameFromMsNetBiosName(string netBiosName)
         {
             if (netBiosName.Length != 16) throw new ArgumentException("Invalid MS NetBIOS name");
 
@@ -40,24 +39,24 @@ namespace SMBLibrary.NetBios
             return netBiosName.TrimEnd(' ');
         }
 
-        public static NetBiosSuffix GetSuffixFromMSNetBiosName(string netBiosName)
+        public static NetBiosSuffix GetSuffixFromMsNetBiosName(string netBiosName)
         {
             if (netBiosName.Length != 16) throw new ArgumentException("Invalid MS NetBIOS name");
 
             return (NetBiosSuffix) netBiosName[15];
         }
 
-        public static byte[] EncodeName(string name, NetBiosSuffix suffix, string scopeID)
+        public static byte[] EncodeName(string name, NetBiosSuffix suffix, string scopeId)
         {
-            var netBiosName = GetMSNetBiosName(name, suffix);
-            return EncodeName(netBiosName, scopeID);
+            var netBiosName = GetMsNetBiosName(name, suffix);
+            return EncodeName(netBiosName, scopeId);
         }
 
         /// <param name="netBiosName">NetBIOS name</param>
-        /// <param name="scopeID">dot-separated labels, formatted per DNS naming rules</param>
-        public static byte[] EncodeName(string netBiosName, string scopeID)
+        /// <param name="scopeId">dot-separated labels, formatted per DNS naming rules</param>
+        public static byte[] EncodeName(string netBiosName, string scopeId)
         {
-            var domainName = FirstLevelEncoding(netBiosName, scopeID);
+            var domainName = FirstLevelEncoding(netBiosName, scopeId);
             return SecondLevelEncoding(domainName);
         }
 
@@ -69,8 +68,8 @@ namespace SMBLibrary.NetBios
         // Thus, the '&' character (0x26) would be encoded as "CG".
         // NetBIOS names are usually padded with spaces before being encoded. 
         /// <param name="netBiosName">NetBIOS name</param>
-        /// <param name="scopeID">dot-separated labels, formatted per DNS naming rules</param>
-        public static string FirstLevelEncoding(string netBiosName, string scopeID)
+        /// <param name="scopeId">dot-separated labels, formatted per DNS naming rules</param>
+        public static string FirstLevelEncoding(string netBiosName, string scopeId)
         {
             // RFC 1001: NetBIOS names as seen across the client interface to NetBIOS are exactly 16 bytes long
             if (netBiosName.Length != 16) throw new ArgumentException("Invalid MS NetBIOS name");
@@ -85,10 +84,10 @@ namespace SMBLibrary.NetBios
                 builder.Append((char) low);
             }
 
-            if (scopeID.Length > 0)
+            if (scopeId.Length > 0)
             {
                 builder.Append(".");
-                builder.Append(scopeID);
+                builder.Append(scopeId);
             }
 
             return builder.ToString();

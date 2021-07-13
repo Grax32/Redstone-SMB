@@ -6,58 +6,56 @@
  */
 
 using System;
-using SMBLibrary.SMB2.Enums;
-using SMBLibrary.SMB2.Structures;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.SMB2.Enums;
+using RedstoneSmb.SMB2.Structures;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.SMB2.Commands
+namespace RedstoneSmb.SMB2.Commands
 {
     /// <summary>
     ///     SMB2 IOCTL Request
     /// </summary>
-    public class IOCtlResponse : SMB2Command
+    public class IoCtlResponse : Smb2Command
     {
         public const int FixedLength = 48;
         public const int DeclaredSize = 49;
         public uint CtlCode;
-        public FileID FileId;
+        public FileId FileId;
         public uint Flags;
         public byte[] Input = new byte[0];
-        private uint InputCount;
-        private uint InputOffset;
+        private uint _inputCount;
+        private uint _inputOffset;
         public byte[] Output = new byte[0];
-        private uint OutputCount;
-        private uint OutputOffset;
+        private uint _outputCount;
+        private uint _outputOffset;
         public ushort Reserved;
         public uint Reserved2;
 
-        private readonly ushort StructureSize;
+        private readonly ushort _structureSize;
 
-        public IOCtlResponse() : base(SMB2CommandName.IOCtl)
+        public IoCtlResponse() : base(Smb2CommandName.IoCtl)
         {
             Header.IsResponse = true;
-            StructureSize = DeclaredSize;
+            _structureSize = DeclaredSize;
         }
 
-        public IOCtlResponse(byte[] buffer, int offset) : base(buffer, offset)
+        public IoCtlResponse(byte[] buffer, int offset) : base(buffer, offset)
         {
-            StructureSize = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 0);
-            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + SMB2Header.Length + 2);
-            CtlCode = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 4);
-            FileId = new FileID(buffer, offset + SMB2Header.Length + 8);
-            InputOffset = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 24);
-            InputCount = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 28);
-            OutputOffset = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 32);
-            OutputCount = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 36);
-            Flags = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 40);
-            Reserved2 = LittleEndianConverter.ToUInt32(buffer, offset + SMB2Header.Length + 44);
-            Input = ByteReader.ReadBytes(buffer, offset + (int) InputOffset, (int) InputCount);
-            Output = ByteReader.ReadBytes(buffer, offset + (int) OutputOffset, (int) OutputCount);
+            _structureSize = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 0);
+            Reserved = LittleEndianConverter.ToUInt16(buffer, offset + Smb2Header.Length + 2);
+            CtlCode = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 4);
+            FileId = new FileId(buffer, offset + Smb2Header.Length + 8);
+            _inputOffset = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 24);
+            _inputCount = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 28);
+            _outputOffset = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 32);
+            _outputCount = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 36);
+            Flags = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 40);
+            Reserved2 = LittleEndianConverter.ToUInt32(buffer, offset + Smb2Header.Length + 44);
+            Input = ByteReader.ReadBytes(buffer, offset + (int) _inputOffset, (int) _inputCount);
+            Output = ByteReader.ReadBytes(buffer, offset + (int) _outputOffset, (int) _outputCount);
         }
 
         public override int CommandLength
@@ -71,22 +69,22 @@ namespace SMBLibrary.SMB2.Commands
 
         public override void WriteCommandBytes(byte[] buffer, int offset)
         {
-            InputOffset = 0;
-            InputCount = (uint) Input.Length;
-            OutputOffset = 0;
-            OutputCount = (uint) Output.Length;
-            if (Input.Length > 0) InputOffset = SMB2Header.Length + FixedLength;
+            _inputOffset = 0;
+            _inputCount = (uint) Input.Length;
+            _outputOffset = 0;
+            _outputCount = (uint) Output.Length;
+            if (Input.Length > 0) _inputOffset = Smb2Header.Length + FixedLength;
             // MS-SMB2: the output offset MUST be set to InputOffset + InputCount rounded up to a multiple of 8
             var paddedInputLength = (int) Math.Ceiling((double) Input.Length / 8) * 8;
-            if (Output.Length > 0) OutputOffset = SMB2Header.Length + FixedLength + (uint) paddedInputLength;
-            LittleEndianWriter.WriteUInt16(buffer, offset + 0, StructureSize);
+            if (Output.Length > 0) _outputOffset = Smb2Header.Length + FixedLength + (uint) paddedInputLength;
+            LittleEndianWriter.WriteUInt16(buffer, offset + 0, _structureSize);
             LittleEndianWriter.WriteUInt16(buffer, offset + 2, Reserved);
             LittleEndianWriter.WriteUInt32(buffer, offset + 4, CtlCode);
             FileId.WriteBytes(buffer, offset + 8);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 24, InputOffset);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 28, InputCount);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 32, OutputOffset);
-            LittleEndianWriter.WriteUInt32(buffer, offset + 36, OutputCount);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 24, _inputOffset);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 28, _inputCount);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 32, _outputOffset);
+            LittleEndianWriter.WriteUInt32(buffer, offset + 36, _outputCount);
             LittleEndianWriter.WriteUInt32(buffer, offset + 40, Flags);
             LittleEndianWriter.WriteUInt32(buffer, offset + 44, Reserved2);
             if (Input.Length > 0) ByteWriter.WriteBytes(buffer, offset + FixedLength, Input);

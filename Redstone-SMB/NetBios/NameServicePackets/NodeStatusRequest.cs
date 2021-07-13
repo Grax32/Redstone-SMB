@@ -6,10 +6,10 @@
  */
 
 using System.IO;
-using SMBLibrary.NetBios.NameServicePackets.Enums;
-using SMBLibrary.NetBios.NameServicePackets.Structures;
+using RedstoneSmb.NetBios.NameServicePackets.Enums;
+using RedstoneSmb.NetBios.NameServicePackets.Structures;
 
-namespace SMBLibrary.NetBios.NameServicePackets
+namespace RedstoneSmb.NetBios.NameServicePackets
 {
     /// <summary>
     ///     [RFC 1002] 4.2.17. NODE STATUS REQUEST
@@ -24,7 +24,7 @@ namespace SMBLibrary.NetBios.NameServicePackets
             Header = new NameServicePacketHeader();
             Header.OpCode = NameServiceOperation.QueryRequest;
             Question = new QuestionSection();
-            Question.Type = NameRecordType.NBStat;
+            Question.Type = NameRecordType.NbStat;
         }
 
         public NodeStatusRequest(byte[] buffer, int offset)

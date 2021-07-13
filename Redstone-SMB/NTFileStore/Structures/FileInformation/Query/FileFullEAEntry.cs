@@ -5,54 +5,53 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianReader = SMBLibrary.Utilities.ByteUtils.LittleEndianReader;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianReader = RedstoneSmb.Utilities.ByteUtils.LittleEndianReader;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Query
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Query
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.15 - FileFullEaInformation data element
     /// </summary>
-    public class FileFullEAEntry
+    public class FileFullEaEntry
     {
         public const int FixedLength = 8;
         public string EaName; // 8-bit ASCII followed by a single terminating null character byte
-        private byte EaNameLength;
+        private byte _eaNameLength;
         public string EaValue; // 8-bit ASCII
-        private ushort EaValueLength;
+        private ushort _eaValueLength;
         public ExtendedAttributeFlags Flags;
 
         public uint NextEntryOffset;
 
-        public FileFullEAEntry()
+        public FileFullEaEntry()
         {
         }
 
-        public FileFullEAEntry(byte[] buffer, int offset)
+        public FileFullEaEntry(byte[] buffer, int offset)
         {
             NextEntryOffset = LittleEndianReader.ReadUInt32(buffer, ref offset);
             Flags = (ExtendedAttributeFlags) ByteReader.ReadByte(buffer, ref offset);
-            EaNameLength = ByteReader.ReadByte(buffer, ref offset);
-            EaValueLength = LittleEndianReader.ReadUInt16(buffer, ref offset);
-            EaName = ByteReader.ReadAnsiString(buffer, ref offset, EaNameLength);
+            _eaNameLength = ByteReader.ReadByte(buffer, ref offset);
+            _eaValueLength = LittleEndianReader.ReadUInt16(buffer, ref offset);
+            EaName = ByteReader.ReadAnsiString(buffer, ref offset, _eaNameLength);
             offset++; // terminating null
-            EaValue = ByteReader.ReadAnsiString(buffer, ref offset, EaValueLength);
+            EaValue = ByteReader.ReadAnsiString(buffer, ref offset, _eaValueLength);
         }
 
         public int Length => FixedLength + EaName.Length + 1 + EaValue.Length;
 
         public void WriteBytes(byte[] buffer, int offset)
         {
-            EaNameLength = (byte) EaName.Length;
-            EaValueLength = (ushort) EaValue.Length;
+            _eaNameLength = (byte) EaName.Length;
+            _eaValueLength = (ushort) EaValue.Length;
             LittleEndianWriter.WriteUInt32(buffer, ref offset, NextEntryOffset);
             ByteWriter.WriteByte(buffer, ref offset, (byte) Flags);
-            ByteWriter.WriteByte(buffer, ref offset, EaNameLength);
-            LittleEndianWriter.WriteUInt16(buffer, ref offset, EaValueLength);
+            ByteWriter.WriteByte(buffer, ref offset, _eaNameLength);
+            LittleEndianWriter.WriteUInt16(buffer, ref offset, _eaValueLength);
             ByteWriter.WriteAnsiString(buffer, ref offset, EaName);
             ByteWriter.WriteByte(buffer, ref offset, 0); // terminating null
             ByteWriter.WriteAnsiString(buffer, ref offset, EaValue);

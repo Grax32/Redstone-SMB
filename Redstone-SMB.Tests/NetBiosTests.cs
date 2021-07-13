@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SMBLibrary.NetBios;
-using SMBLibrary.Utilities.ByteUtils;
+using RedstoneSmb.NetBios;
+using RedstoneSmb.Utilities.ByteUtils;
 
 namespace SMBLibrary.Tests
 {

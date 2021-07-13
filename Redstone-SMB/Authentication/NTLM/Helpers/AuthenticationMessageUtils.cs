@@ -6,16 +6,14 @@
  */
 
 using System.Text;
-using SMBLibrary.Authentication.NTLM.Structures;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteUtils = SMBLibrary.Utilities.ByteUtils.ByteUtils;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.Authentication.NTLM.Structures;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteUtils = RedstoneSmb.Utilities.ByteUtils.ByteUtils;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.Authentication.NTLM.Helpers
+namespace RedstoneSmb.Authentication.NTLM.Helpers
 {
     public class AuthenticationMessageUtils
     {
@@ -63,7 +61,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <remarks>
         ///     LMResponse is 24 bytes for NTLM v1, NTLM v1 Extended Session Security and NTLM v2.
         /// </remarks>
-        public static bool IsNTLMv1ExtendedSessionSecurity(byte[] lmResponse)
+        public static bool IsNtlMv1ExtendedSessionSecurity(byte[] lmResponse)
         {
             if (lmResponse.Length == 24)
             {
@@ -79,11 +77,11 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <remarks>
         ///     NTLM v1 / NTLM v1 Extended Session Security NTResponse is 24 bytes.
         /// </remarks>
-        public static bool IsNTLMv2NTResponse(byte[] ntResponse)
+        public static bool IsNtlMv2NtResponse(byte[] ntResponse)
         {
-            return ntResponse.Length >= 16 + NTLMv2ClientChallenge.MinimumLength &&
-                   ntResponse[16] == NTLMv2ClientChallenge.StructureVersion &&
-                   ntResponse[17] == NTLMv2ClientChallenge.StructureVersion;
+            return ntResponse.Length >= 16 + NtlMv2ClientChallenge.MinimumLength &&
+                   ntResponse[16] == NtlMv2ClientChallenge.StructureVersion &&
+                   ntResponse[17] == NtlMv2ClientChallenge.StructureVersion;
         }
 
         public static MessageTypeName GetMessageType(byte[] messageBytes)

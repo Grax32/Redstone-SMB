@@ -1,8 +1,8 @@
-namespace SMBLibrary.SMB2.Enums.Negotiate
+namespace RedstoneSmb.SMB2.Enums.Negotiate
 {
     public enum NegotiateContextType : ushort
     {
-        SMB2_PREAUTH_INTEGRITY_CAPABILITIES = 0x0001,
-        SMB2_ENCRYPTION_CAPABILITIES = 0x0002
+        Smb2PreauthIntegrityCapabilities = 0x0001,
+        Smb2EncryptionCapabilities = 0x0002
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace SMBLibrary.SMB2.Enums.Close
+namespace RedstoneSmb.SMB2.Enums.Close
 {
     [Flags]
     public enum CloseFlags : byte

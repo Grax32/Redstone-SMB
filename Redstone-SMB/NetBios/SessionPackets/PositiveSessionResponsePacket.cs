@@ -5,9 +5,9 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.NetBios.SessionPackets.Enums;
+using RedstoneSmb.NetBios.SessionPackets.Enums;
 
-namespace SMBLibrary.NetBios.SessionPackets
+namespace RedstoneSmb.NetBios.SessionPackets
 {
     /// <summary>
     ///     [RFC 1002] 4.3.3. POSITIVE SESSION RESPONSE PACKET

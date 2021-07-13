@@ -8,18 +8,16 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteUtils = SMBLibrary.Utilities.ByteUtils.ByteUtils;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteUtils = RedstoneSmb.Utilities.ByteUtils.ByteUtils;
 
-namespace SMBLibrary.Authentication.NTLM.Helpers
+namespace RedstoneSmb.Authentication.NTLM.Helpers
 {
-    public static class NTLMCryptography
+    public static class NtlmCryptography
     {
         private static bool _isReady = InitCodePage();
 
@@ -33,20 +31,20 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
 
         public static byte[] ComputeLMv1Response(byte[] challenge, string password)
         {
-            var hash = LMOWFv1(password);
+            var hash = LmowFv1(password);
             return DesLongEncrypt(hash, challenge);
         }
 
-        public static byte[] ComputeNTLMv1Response(byte[] challenge, string password)
+        public static byte[] ComputeNtlMv1Response(byte[] challenge, string password)
         {
-            var hash = NTOWFv1(password);
+            var hash = NtowFv1(password);
             return DesLongEncrypt(hash, challenge);
         }
 
-        public static byte[] ComputeNTLMv1ExtendedSessionSecurityResponse(byte[] serverChallenge,
+        public static byte[] ComputeNtlMv1ExtendedSessionSecurityResponse(byte[] serverChallenge,
             byte[] clientChallenge, string password)
         {
-            var passwordHash = NTOWFv1(password);
+            var passwordHash = NtowFv1(password);
             var challengeHash = MD5.Create().ComputeHash(ByteUtils.Concatenate(serverChallenge, clientChallenge));
             var challengeHashShort = new byte[8];
             Array.Copy(challengeHash, 0, challengeHashShort, 0, 8);
@@ -56,7 +54,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         public static byte[] ComputeLMv2Response(byte[] serverChallenge, byte[] clientChallenge, string password,
             string user, string domain)
         {
-            var key = LMOWFv2(password, user, domain);
+            var key = LmowFv2(password, user, domain);
             var bytes = ByteUtils.Concatenate(serverChallenge, clientChallenge);
             var hmac = new HMACMD5(key);
             var hash = hmac.ComputeHash(bytes, 0, bytes.Length);
@@ -68,16 +66,16 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         ///     [MS-NLMP] https://msdn.microsoft.com/en-us/library/cc236700.aspx
         /// </summary>
         /// <param name="clientChallengeStructurePadded">ClientChallengeStructure with 4 zero bytes padding, a.k.a. temp</param>
-        public static byte[] ComputeNTLMv2Proof(byte[] serverChallenge, byte[] clientChallengeStructurePadded,
+        public static byte[] ComputeNtlMv2Proof(byte[] serverChallenge, byte[] clientChallengeStructurePadded,
             string password, string user, string domain)
         {
-            var key = NTOWFv2(password, user, domain);
+            var key = NtowFv2(password, user, domain);
             var temp = clientChallengeStructurePadded;
 
             var hmac = new HMACMD5(key);
-            var _NTProof = hmac.ComputeHash(ByteUtils.Concatenate(serverChallenge, temp), 0,
+            var ntProof = hmac.ComputeHash(ByteUtils.Concatenate(serverChallenge, temp), 0,
                 serverChallenge.Length + temp.Length);
-            return _NTProof;
+            return ntProof;
         }
 
         public static byte[] DesEncrypt(byte[] key, byte[] plainText)
@@ -93,11 +91,11 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             return result;
         }
 
-        public static ICryptoTransform CreateWeakDesEncryptor(CipherMode mode, byte[] rgbKey, byte[] rgbIV)
+        public static ICryptoTransform CreateWeakDesEncryptor(CipherMode mode, byte[] rgbKey, byte[] rgbIv)
         {
             var des = DES.Create();
             des.Mode = mode;
-            var trans = des.CreateEncryptor(rgbKey, rgbIV);
+            var trans = des.CreateEncryptor(rgbKey, rgbIv);
             return trans;
         }
 
@@ -119,9 +117,9 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             Array.Copy(padded, 7, k2, 0, 7);
             Array.Copy(padded, 14, k3, 0, 7);
 
-            var r1 = DesEncrypt(ExtendDESKey(k1), plainText);
-            var r2 = DesEncrypt(ExtendDESKey(k2), plainText);
-            var r3 = DesEncrypt(ExtendDESKey(k3), plainText);
+            var r1 = DesEncrypt(ExtendDesKey(k1), plainText);
+            var r2 = DesEncrypt(ExtendDesKey(k2), plainText);
+            var r3 = DesEncrypt(ExtendDesKey(k3), plainText);
 
             var result = new byte[24];
             Array.Copy(r1, 0, result, 0, 8);
@@ -131,7 +129,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             return result;
         }
 
-        public static Encoding GetOEMEncoding()
+        public static Encoding GetOemEncoding()
         {
             while (!_isReady)
             {
@@ -145,10 +143,10 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <summary>
         ///     LM Hash
         /// </summary>
-        public static byte[] LMOWFv1(string password)
+        public static byte[] LmowFv1(string password)
         {
             var plainText = Encoding.ASCII.GetBytes("KGS!@#$%");
-            var passwordBytes = GetOEMEncoding().GetBytes(password.ToUpper());
+            var passwordBytes = GetOemEncoding().GetBytes(password.ToUpper());
             var key = new byte[14];
             Array.Copy(passwordBytes, key, Math.Min(passwordBytes.Length, 14));
 
@@ -157,8 +155,8 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
             Array.Copy(key, 0, k1, 0, 7);
             Array.Copy(key, 7, k2, 0, 7);
 
-            var part1 = DesEncrypt(ExtendDESKey(k1), plainText);
-            var part2 = DesEncrypt(ExtendDESKey(k2), plainText);
+            var part1 = DesEncrypt(ExtendDesKey(k1), plainText);
+            var part2 = DesEncrypt(ExtendDesKey(k2), plainText);
 
             return ByteUtils.Concatenate(part1, part2);
         }
@@ -166,24 +164,24 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <summary>
         ///     NTLM hash (NT hash)
         /// </summary>
-        public static byte[] NTOWFv1(string password)
+        public static byte[] NtowFv1(string password)
         {
             var passwordBytes = Encoding.Unicode.GetBytes(password);
-            return new MD4().GetByteHashFromBytes(passwordBytes);
+            return new Md4().GetByteHashFromBytes(passwordBytes);
         }
 
         /// <summary>
         ///     LMOWFv2 is identical to NTOWFv2
         /// </summary>
-        public static byte[] LMOWFv2(string password, string user, string domain)
+        public static byte[] LmowFv2(string password, string user, string domain)
         {
-            return NTOWFv2(password, user, domain);
+            return NtowFv2(password, user, domain);
         }
 
-        public static byte[] NTOWFv2(string password, string user, string domain)
+        public static byte[] NtowFv2(string password, string user, string domain)
         {
             var passwordBytes = Encoding.Unicode.GetBytes(password);
-            var key = new MD4().GetByteHashFromBytes(passwordBytes);
+            var key = new Md4().GetByteHashFromBytes(passwordBytes);
             var text = user.ToUpper() + domain;
             var bytes = Encoding.Unicode.GetBytes(text);
             var hmac = new HMACMD5(key);
@@ -195,7 +193,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         ///     Note: The DES key ostensibly consists of 64 bits, however, only 56 of these are actually used by the algorithm.
         ///     Eight bits are used solely for checking parity, and are thereafter discarded
         /// </summary>
-        private static byte[] ExtendDESKey(byte[] key)
+        private static byte[] ExtendDesKey(byte[] key)
         {
             var result = new byte[8];
             int i;
@@ -219,7 +217,7 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
         /// <remarks>
         ///     If NTLM v2 is used, KeyExchangeKey MUST be set to the value of SessionBaseKey.
         /// </remarks>
-        public static byte[] KXKey(byte[] sessionBaseKey, NegotiateFlags negotiateFlags, byte[] lmChallengeResponse,
+        public static byte[] KxKey(byte[] sessionBaseKey, NegotiateFlags negotiateFlags, byte[] lmChallengeResponse,
             byte[] serverChallenge, byte[] lmowf)
         {
             if ((negotiateFlags & NegotiateFlags.ExtendedSessionSecurity) == 0)
@@ -229,13 +227,13 @@ namespace SMBLibrary.Authentication.NTLM.Helpers
                     var k1 = ByteReader.ReadBytes(lmowf, 0, 7);
                     var k2 = ByteUtils.Concatenate(ByteReader.ReadBytes(lmowf, 7, 1),
                         new byte[] { 0xBD, 0xBD, 0xBD, 0xBD, 0xBD, 0xBD });
-                    var temp1 = DesEncrypt(ExtendDESKey(k1), ByteReader.ReadBytes(lmChallengeResponse, 0, 8));
-                    var temp2 = DesEncrypt(ExtendDESKey(k2), ByteReader.ReadBytes(lmChallengeResponse, 0, 8));
+                    var temp1 = DesEncrypt(ExtendDesKey(k1), ByteReader.ReadBytes(lmChallengeResponse, 0, 8));
+                    var temp2 = DesEncrypt(ExtendDesKey(k2), ByteReader.ReadBytes(lmChallengeResponse, 0, 8));
                     var keyExchangeKey = ByteUtils.Concatenate(temp1, temp2);
                     return keyExchangeKey;
                 }
 
-                if ((negotiateFlags & NegotiateFlags.RequestLMSessionKey) > 0)
+                if ((negotiateFlags & NegotiateFlags.RequestLmSessionKey) > 0)
                 {
                     var keyExchangeKey = ByteUtils.Concatenate(ByteReader.ReadBytes(lmowf, 0, 8), new byte[8]);
                     return keyExchangeKey;

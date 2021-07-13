@@ -5,43 +5,42 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianReader = SMBLibrary.Utilities.ByteUtils.LittleEndianReader;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.RPC.Enums;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianReader = RedstoneSmb.Utilities.ByteUtils.LittleEndianReader;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.RPC.PDU
+namespace RedstoneSmb.RPC.PDU
 {
     /// <summary>
     ///     rpcconn_fault_hdr_t
     /// </summary>
-    public class FaultPDU : RPCPDU
+    public class FaultPdu : Rpcpdu
     {
         public const int FaultFieldsLength = 16;
 
         public uint AllocationHint;
         public byte[] AuthVerifier;
         public byte CancelCount;
-        public ushort ContextID;
+        public ushort ContextId;
         public byte[] Data;
         public byte Reserved;
         public uint Reserved2;
         public FaultStatus Status;
 
-        public FaultPDU()
+        public FaultPdu()
         {
             PacketType = PacketTypeName.Fault;
             Data = new byte[0];
             AuthVerifier = new byte[0];
         }
 
-        public FaultPDU(byte[] buffer, int offset) : base(buffer, offset)
+        public FaultPdu(byte[] buffer, int offset) : base(buffer, offset)
         {
             offset += CommonFieldsLength;
             AllocationHint = LittleEndianReader.ReadUInt32(buffer, ref offset);
-            ContextID = LittleEndianReader.ReadUInt16(buffer, ref offset);
+            ContextId = LittleEndianReader.ReadUInt16(buffer, ref offset);
             CancelCount = ByteReader.ReadByte(buffer, ref offset);
             Reserved = ByteReader.ReadByte(buffer, ref offset);
             Status = (FaultStatus) LittleEndianReader.ReadUInt32(buffer, ref offset);
@@ -60,7 +59,7 @@ namespace SMBLibrary.RPC.PDU
             WriteCommonFieldsBytes(buffer);
             var offset = CommonFieldsLength;
             LittleEndianWriter.WriteUInt32(buffer, ref offset, AllocationHint);
-            LittleEndianWriter.WriteUInt16(buffer, ref offset, ContextID);
+            LittleEndianWriter.WriteUInt16(buffer, ref offset, ContextId);
             ByteWriter.WriteByte(buffer, ref offset, CancelCount);
             ByteWriter.WriteByte(buffer, ref offset, Reserved);
             LittleEndianWriter.WriteUInt32(buffer, ref offset, (uint) Status);

@@ -2,16 +2,15 @@
 
 using System;
 using System.Security.Cryptography;
-using SMBLibrary.Utilities.ByteUtils;
-using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
+using BigEndianWriter = RedstoneSmb.Utilities.ByteUtils.BigEndianWriter;
 
-namespace SMBLibrary.Helpers
+namespace RedstoneSmb.Helpers
 {
     /// <summary>
     ///     Implements the NIST SP800-108 key derivation routine in counter mode with an HMAC PRF.
     ///     See: http://csrc.nist.gov/publications/nistpubs/800-108/sp800-108.pdf
     /// </summary>
-    internal class SP800_1008
+    internal class Sp8001008
     {
         public static byte[] DeriveKey(HMAC hmac, byte[] label, byte[] context, int keyLengthInBits)
         {
@@ -40,11 +39,11 @@ namespace SMBLibrary.Helpers
             {
                 BigEndianWriter.WriteUInt32(buffer, 0,
                     i); // set the first 32 bits of the buffer to be the current iteration value
-                var K_i = hmac.ComputeHash(buffer);
+                var kI = hmac.ComputeHash(buffer);
 
                 // copy the leftmost bits of K_i into the output buffer
-                var numBytesToCopy = Math.Min(numBytesRemaining, K_i.Length);
-                Buffer.BlockCopy(K_i, 0, output, numBytesWritten, numBytesToCopy);
+                var numBytesToCopy = Math.Min(numBytesRemaining, kI.Length);
+                Buffer.BlockCopy(kI, 0, output, numBytesWritten, numBytesToCopy);
                 numBytesWritten += numBytesToCopy;
                 numBytesRemaining -= numBytesToCopy;
             }

@@ -1,4 +1,4 @@
-namespace SMBLibrary.Authentication.NTLM.Structures.Enums
+namespace RedstoneSmb.Authentication.NTLM.Structures.Enums
 {
     public enum MessageTypeName : uint
     {

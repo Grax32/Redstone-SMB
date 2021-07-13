@@ -1,4 +1,4 @@
-namespace SMBLibrary.SMB2.Enums
+namespace RedstoneSmb.SMB2.Enums
 {
     public enum InfoType : byte
     {

@@ -6,12 +6,11 @@
  */
 
 using System;
-using SMBLibrary.NTFileStore.Enums.FileInformation;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
+using RedstoneSmb.NTFileStore.Enums.FileInformation;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
 
-namespace SMBLibrary.NTFileStore.Structures.FileInformation.Set
+namespace RedstoneSmb.NTFileStore.Structures.FileInformation.Set
 {
     /// <summary>
     ///     [MS-FSCC] 2.4.11 - FileDispositionInformation

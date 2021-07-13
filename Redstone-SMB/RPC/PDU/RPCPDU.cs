@@ -6,25 +6,23 @@
  */
 
 using System;
-using SMBLibrary.RPC.Enums;
-using SMBLibrary.RPC.EnumStructures;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
-using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
-using ByteWriter = SMBLibrary.Utilities.ByteUtils.ByteWriter;
-using LittleEndianConverter = SMBLibrary.Utilities.Conversion.LittleEndianConverter;
-using LittleEndianWriter = SMBLibrary.Utilities.ByteUtils.LittleEndianWriter;
+using RedstoneSmb.RPC.Enums;
+using RedstoneSmb.RPC.EnumStructures;
+using ByteReader = RedstoneSmb.Utilities.ByteUtils.ByteReader;
+using ByteWriter = RedstoneSmb.Utilities.ByteUtils.ByteWriter;
+using LittleEndianConverter = RedstoneSmb.Utilities.Conversion.LittleEndianConverter;
+using LittleEndianWriter = RedstoneSmb.Utilities.ByteUtils.LittleEndianWriter;
 
-namespace SMBLibrary.RPC.PDU
+namespace RedstoneSmb.RPC.PDU
 {
     /// <summary>
     ///     See DCE 1.1: Remote Procedure Call, Chapter 12.6 - Connection-oriented RPC PDUs
     /// </summary>
-    public abstract class RPCPDU
+    public abstract class Rpcpdu
     {
         public const int CommonFieldsLength = 16;
         public ushort AuthLength;
-        public uint CallID;
+        public uint CallId;
         public DataRepresentationFormat DataRepresentation;
         public PacketFlags Flags;
         protected ushort FragmentLength; // The length of the entire PDU
@@ -34,13 +32,13 @@ namespace SMBLibrary.RPC.PDU
         public byte VersionMajor; // rpc_vers
         public byte VersionMinor; // rpc_vers_minor
 
-        public RPCPDU()
+        public Rpcpdu()
         {
             VersionMajor = 5;
             VersionMinor = 0;
         }
 
-        public RPCPDU(byte[] buffer, int offset)
+        public Rpcpdu(byte[] buffer, int offset)
         {
             VersionMajor = ByteReader.ReadByte(buffer, offset + 0);
             VersionMinor = ByteReader.ReadByte(buffer, offset + 1);
@@ -49,7 +47,7 @@ namespace SMBLibrary.RPC.PDU
             DataRepresentation = new DataRepresentationFormat(buffer, offset + 4);
             FragmentLength = LittleEndianConverter.ToUInt16(buffer, offset + 8);
             AuthLength = LittleEndianConverter.ToUInt16(buffer, offset + 10);
-            CallID = LittleEndianConverter.ToUInt32(buffer, offset + 12);
+            CallId = LittleEndianConverter.ToUInt32(buffer, offset + 12);
         }
 
         /// <summary>
@@ -68,32 +66,32 @@ namespace SMBLibrary.RPC.PDU
             DataRepresentation.WriteBytes(buffer, 4);
             LittleEndianWriter.WriteUInt16(buffer, 8, (ushort) Length);
             LittleEndianWriter.WriteUInt16(buffer, 10, AuthLength);
-            LittleEndianWriter.WriteUInt32(buffer, 12, CallID);
+            LittleEndianWriter.WriteUInt32(buffer, 12, CallId);
         }
 
-        public static RPCPDU GetPDU(byte[] buffer, int offset)
+        public static Rpcpdu GetPdu(byte[] buffer, int offset)
         {
             var packetType = (PacketTypeName) ByteReader.ReadByte(buffer, 2);
             switch (packetType)
             {
                 case PacketTypeName.Request:
-                    return new RequestPDU(buffer, offset);
+                    return new RequestPdu(buffer, offset);
                 case PacketTypeName.Response:
-                    return new ResponsePDU(buffer, offset);
+                    return new ResponsePdu(buffer, offset);
                 case PacketTypeName.Fault:
-                    return new FaultPDU(buffer, offset);
+                    return new FaultPdu(buffer, offset);
                 case PacketTypeName.Bind:
-                    return new BindPDU(buffer, offset);
+                    return new BindPdu(buffer, offset);
                 case PacketTypeName.BindAck:
-                    return new BindAckPDU(buffer, offset);
+                    return new BindAckPdu(buffer, offset);
                 case PacketTypeName.BindNak:
-                    return new BindNakPDU(buffer, offset);
+                    return new BindNakPdu(buffer, offset);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public static ushort GetPDULength(byte[] buffer, int offset)
+        public static ushort GetPduLength(byte[] buffer, int offset)
         {
             var fragmentLength = LittleEndianConverter.ToUInt16(buffer, offset + 8);
             return fragmentLength;

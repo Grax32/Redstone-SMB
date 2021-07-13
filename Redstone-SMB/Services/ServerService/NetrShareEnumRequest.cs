@@ -5,10 +5,10 @@
  * either version 3 of the License, or (at your option) any later version.
  */
 
-using SMBLibrary.RPC.NDR;
-using SMBLibrary.Services.ServerService.Structures.ShareInfo;
+using RedstoneSmb.RPC.NDR;
+using RedstoneSmb.Services.ServerService.Structures.ShareInfo;
 
-namespace SMBLibrary.Services.ServerService
+namespace RedstoneSmb.Services.ServerService
 {
     /// <summary>
     ///     NetrShareEnum Request (opnum 15)
@@ -26,7 +26,7 @@ namespace SMBLibrary.Services.ServerService
 
         public NetrShareEnumRequest(byte[] buffer)
         {
-            var parser = new NDRParser(buffer);
+            var parser = new NdrParser(buffer);
             ServerName = parser.ReadTopLevelUnicodeStringPointer();
             InfoStruct = new ShareEnum(parser);
             PreferedMaximumLength = parser.ReadUInt32();
@@ -35,7 +35,7 @@ namespace SMBLibrary.Services.ServerService
 
         public byte[] GetBytes()
         {
-            var writer = new NDRWriter();
+            var writer = new NdrWriter();
             writer.WriteTopLevelUnicodeStringPointer(ServerName);
             writer.WriteStructure(InfoStruct);
             writer.WriteUInt32(PreferedMaximumLength);

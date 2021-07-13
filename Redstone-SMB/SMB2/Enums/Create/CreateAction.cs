@@ -1,10 +1,10 @@
-namespace SMBLibrary.SMB2.Enums.Create
+namespace RedstoneSmb.SMB2.Enums.Create
 {
     public enum CreateAction : uint
     {
-        FILE_SUPERSEDED = 0x00000000,
-        FILE_OPENED = 0x00000001,
-        FILE_CREATED = 0x00000002,
-        FILE_OVERWRITTEN = 0x00000003
+        FileSuperseded = 0x00000000,
+        FileOpened = 0x00000001,
+        FileCreated = 0x00000002,
+        FileOverwritten = 0x00000003
     }
 }

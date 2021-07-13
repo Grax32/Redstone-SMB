@@ -6,55 +6,54 @@
  */
 
 using System.Collections.Generic;
-using SMBLibrary.Authentication.GSSAPI.Enums;
-using SMBLibrary.Authentication.GSSAPI.SPNEGO;
-using SMBLibrary.Authentication.NTLM.Helpers;
-using SMBLibrary.Authentication.NTLM.Structures;
-using SMBLibrary.Authentication.NTLM.Structures.Enums;
-using SMBLibrary.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using ByteUtils = SMBLibrary.Utilities.ByteUtils.ByteUtils;
+using RedstoneSmb.Authentication.GSSAPI.Enums;
+using RedstoneSmb.Authentication.GSSAPI.SPNEGO;
+using RedstoneSmb.Authentication.NTLM.Helpers;
+using RedstoneSmb.Authentication.NTLM.Structures;
+using RedstoneSmb.Authentication.NTLM.Structures.Enums;
+using RedstoneSmb.Enums;
+using ByteUtils = RedstoneSmb.Utilities.ByteUtils.ByteUtils;
 
-namespace SMBLibrary.Authentication.GSSAPI
+namespace RedstoneSmb.Authentication.GSSAPI
 {
-    public class GSSContext
+    public class GssContext
     {
-        internal IGSSMechanism Mechanism;
+        internal IGssMechanism Mechanism;
         internal object MechanismContext;
 
-        internal GSSContext(IGSSMechanism mechanism, object mechanismContext)
+        internal GssContext(IGssMechanism mechanism, object mechanismContext)
         {
             Mechanism = mechanism;
             MechanismContext = mechanismContext;
         }
     }
 
-    public class GSSProvider
+    public class GssProvider
     {
-        public static readonly byte[] NTLMSSPIdentifier = {0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x02, 0x0a};
+        public static readonly byte[] NtlmsspIdentifier = {0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x02, 0x0a};
 
-        private readonly List<IGSSMechanism> m_mechanisms;
+        private readonly List<IGssMechanism> _mMechanisms;
 
-        public GSSProvider(IGSSMechanism mechanism)
+        public GssProvider(IGssMechanism mechanism)
         {
-            m_mechanisms = new List<IGSSMechanism>();
-            m_mechanisms.Add(mechanism);
+            _mMechanisms = new List<IGssMechanism>();
+            _mMechanisms.Add(mechanism);
         }
 
-        public GSSProvider(List<IGSSMechanism> mechanisms)
+        public GssProvider(List<IGssMechanism> mechanisms)
         {
-            m_mechanisms = mechanisms;
+            _mMechanisms = mechanisms;
         }
 
-        public byte[] GetSPNEGOTokenInitBytes()
+        public byte[] GetSpnegoTokenInitBytes()
         {
             var token = new SimpleProtectedNegotiationTokenInit();
             token.MechanismTypeList = new List<byte[]>();
-            foreach (var mechanism in m_mechanisms) token.MechanismTypeList.Add(mechanism.Identifier);
+            foreach (var mechanism in _mMechanisms) token.MechanismTypeList.Add(mechanism.Identifier);
             return token.GetBytes(true);
         }
 
-        public virtual NTStatus AcceptSecurityContext(ref GSSContext context, byte[] inputToken, out byte[] outputToken)
+        public virtual NtStatus AcceptSecurityContext(ref GssContext context, byte[] inputToken, out byte[] outputToken)
         {
             outputToken = null;
             SimpleProtectedNegotiationToken spnegoToken = null;
@@ -71,7 +70,7 @@ namespace SMBLibrary.Authentication.GSSAPI
                 if (spnegoToken is SimpleProtectedNegotiationTokenInit)
                 {
                     var tokenInit = (SimpleProtectedNegotiationTokenInit) spnegoToken;
-                    if (tokenInit.MechanismTypeList.Count == 0) return NTStatus.SEC_E_INVALID_TOKEN;
+                    if (tokenInit.MechanismTypeList.Count == 0) return NtStatus.SecEInvalidToken;
 
                     // RFC 4178: Note that in order to avoid an extra round trip, the first context establishment token
                     // of the initiator's preferred mechanism SHOULD be embedded in the initial negotiation message.
@@ -82,35 +81,35 @@ namespace SMBLibrary.Authentication.GSSAPI
 
                     if (mechanism != null)
                     {
-                        NTStatus status;
-                        context = new GSSContext(mechanism, null);
+                        NtStatus status;
+                        context = new GssContext(mechanism, null);
                         if (isPreferredMechanism)
                         {
                             byte[] mechanismOutput;
                             status = mechanism.AcceptSecurityContext(ref context.MechanismContext,
                                 tokenInit.MechanismToken, out mechanismOutput);
-                            outputToken = GetSPNEGOTokenResponseBytes(mechanismOutput, status, mechanism.Identifier);
+                            outputToken = GetSpnegoTokenResponseBytes(mechanismOutput, status, mechanism.Identifier);
                         }
                         else
                         {
-                            status = NTStatus.SEC_I_CONTINUE_NEEDED;
-                            outputToken = GetSPNEGOTokenResponseBytes(null, status, mechanism.Identifier);
+                            status = NtStatus.SecIContinueNeeded;
+                            outputToken = GetSpnegoTokenResponseBytes(null, status, mechanism.Identifier);
                         }
 
                         return status;
                     }
 
-                    return NTStatus.SEC_E_SECPKG_NOT_FOUND;
+                    return NtStatus.SecESecpkgNotFound;
                 }
                 else // SimpleProtectedNegotiationTokenResponse
                 {
-                    if (context == null) return NTStatus.SEC_E_INVALID_TOKEN;
+                    if (context == null) return NtStatus.SecEInvalidToken;
                     var mechanism = context.Mechanism;
                     var tokenResponse = (SimpleProtectedNegotiationTokenResponse) spnegoToken;
                     byte[] mechanismOutput;
                     var status = mechanism.AcceptSecurityContext(ref context.MechanismContext,
                         tokenResponse.ResponseToken, out mechanismOutput);
-                    outputToken = GetSPNEGOTokenResponseBytes(mechanismOutput, status, null);
+                    outputToken = GetSpnegoTokenResponseBytes(mechanismOutput, status, null);
                     return status;
                 }
             }
@@ -120,33 +119,33 @@ namespace SMBLibrary.Authentication.GSSAPI
             if (AuthenticationMessageUtils.IsSignatureValid(inputToken))
             {
                 var messageType = AuthenticationMessageUtils.GetMessageType(inputToken);
-                var ntlmAuthenticationProvider = FindMechanism(NTLMSSPIdentifier);
+                var ntlmAuthenticationProvider = FindMechanism(NtlmsspIdentifier);
                 if (ntlmAuthenticationProvider != null)
                 {
                     if (messageType == MessageTypeName.Negotiate)
-                        context = new GSSContext(ntlmAuthenticationProvider, null);
+                        context = new GssContext(ntlmAuthenticationProvider, null);
 
-                    if (context == null) return NTStatus.SEC_E_INVALID_TOKEN;
+                    if (context == null) return NtStatus.SecEInvalidToken;
 
                     var status = ntlmAuthenticationProvider.AcceptSecurityContext(ref context.MechanismContext,
                         inputToken, out outputToken);
                     return status;
                 }
 
-                return NTStatus.SEC_E_SECPKG_NOT_FOUND;
+                return NtStatus.SecESecpkgNotFound;
             }
 
-            return NTStatus.SEC_E_INVALID_TOKEN;
+            return NtStatus.SecEInvalidToken;
         }
 
-        public virtual object GetContextAttribute(GSSContext context, GSSAttributeName attributeName)
+        public virtual object GetContextAttribute(GssContext context, GssAttributeName attributeName)
         {
             if (context == null) return null;
             var mechanism = context.Mechanism;
             return mechanism.GetContextAttribute(context.MechanismContext, attributeName);
         }
 
-        public virtual bool DeleteSecurityContext(ref GSSContext context)
+        public virtual bool DeleteSecurityContext(ref GssContext context)
         {
             if (context != null)
             {
@@ -160,13 +159,13 @@ namespace SMBLibrary.Authentication.GSSAPI
         /// <summary>
         ///     Helper method for legacy implementation.
         /// </summary>
-        public virtual NTStatus GetNTLMChallengeMessage(out GSSContext context, NegotiateMessage negotiateMessage,
+        public virtual NtStatus GetNtlmChallengeMessage(out GssContext context, NegotiateMessage negotiateMessage,
             out ChallengeMessage challengeMessage)
         {
-            var ntlmAuthenticationProvider = FindMechanism(NTLMSSPIdentifier);
+            var ntlmAuthenticationProvider = FindMechanism(NtlmsspIdentifier);
             if (ntlmAuthenticationProvider != null)
             {
-                context = new GSSContext(ntlmAuthenticationProvider, null);
+                context = new GssContext(ntlmAuthenticationProvider, null);
                 byte[] outputToken;
                 var result = ntlmAuthenticationProvider.AcceptSecurityContext(ref context.MechanismContext,
                     negotiateMessage.GetBytes(), out outputToken);
@@ -176,15 +175,15 @@ namespace SMBLibrary.Authentication.GSSAPI
 
             context = null;
             challengeMessage = null;
-            return NTStatus.SEC_E_SECPKG_NOT_FOUND;
+            return NtStatus.SecESecpkgNotFound;
         }
 
         /// <summary>
         ///     Helper method for legacy implementation.
         /// </summary>
-        public virtual NTStatus NTLMAuthenticate(GSSContext context, AuthenticateMessage authenticateMessage)
+        public virtual NtStatus NtlmAuthenticate(GssContext context, AuthenticateMessage authenticateMessage)
         {
-            if (context != null && ByteUtils.AreByteArraysEqual(context.Mechanism.Identifier, NTLMSSPIdentifier))
+            if (context != null && ByteUtils.AreByteArraysEqual(context.Mechanism.Identifier, NtlmsspIdentifier))
             {
                 var mechanism = context.Mechanism;
                 byte[] outputToken;
@@ -193,10 +192,10 @@ namespace SMBLibrary.Authentication.GSSAPI
                 return result;
             }
 
-            return NTStatus.SEC_E_SECPKG_NOT_FOUND;
+            return NtStatus.SecESecpkgNotFound;
         }
 
-        public IGSSMechanism FindMechanism(List<byte[]> mechanismIdentifiers)
+        public IGssMechanism FindMechanism(List<byte[]> mechanismIdentifiers)
         {
             foreach (var identifier in mechanismIdentifiers)
             {
@@ -207,21 +206,21 @@ namespace SMBLibrary.Authentication.GSSAPI
             return null;
         }
 
-        public IGSSMechanism FindMechanism(byte[] mechanismIdentifier)
+        public IGssMechanism FindMechanism(byte[] mechanismIdentifier)
         {
-            foreach (var mechanism in m_mechanisms)
+            foreach (var mechanism in _mMechanisms)
                 if (ByteUtils.AreByteArraysEqual(mechanism.Identifier, mechanismIdentifier))
                     return mechanism;
             return null;
         }
 
-        private static byte[] GetSPNEGOTokenResponseBytes(byte[] mechanismOutput, NTStatus status,
+        private static byte[] GetSpnegoTokenResponseBytes(byte[] mechanismOutput, NtStatus status,
             byte[] mechanismIdentifier)
         {
             var tokenResponse = new SimpleProtectedNegotiationTokenResponse();
-            if (status == NTStatus.STATUS_SUCCESS)
+            if (status == NtStatus.StatusSuccess)
                 tokenResponse.NegState = NegState.AcceptCompleted;
-            else if (status == NTStatus.SEC_I_CONTINUE_NEEDED)
+            else if (status == NtStatus.SecIContinueNeeded)
                 tokenResponse.NegState = NegState.AcceptIncomplete;
             else
                 tokenResponse.NegState = NegState.Reject;
