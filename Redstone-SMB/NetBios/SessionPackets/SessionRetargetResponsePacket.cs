@@ -18,18 +18,18 @@ namespace SMBLibrary.NetBios.SessionPackets
     /// </summary>
     public class SessionRetargetResponsePacket : SessionPacket
     {
-        private readonly uint IPAddress;
-        private readonly ushort Port;
+        private readonly uint _iPAddress;
+        private readonly ushort _port;
 
-        public SessionRetargetResponsePacket()
+        public SessionRetargetResponsePacket() : base()
         {
             Type = SessionPacketTypeName.RetargetSessionResponse;
         }
 
         public SessionRetargetResponsePacket(byte[] buffer, int offset) : base(buffer, offset)
         {
-            IPAddress = BigEndianConverter.ToUInt32(Trailer, offset + 0);
-            Port = BigEndianConverter.ToUInt16(Trailer, offset + 4);
+            _iPAddress = BigEndianConverter.ToUInt32(Trailer, offset + 0);
+            _port = BigEndianConverter.ToUInt16(Trailer, offset + 4);
         }
 
         public override int Length => HeaderLength + 6;
@@ -37,8 +37,8 @@ namespace SMBLibrary.NetBios.SessionPackets
         public override byte[] GetBytes()
         {
             Trailer = new byte[6];
-            BigEndianWriter.WriteUInt32(Trailer, 0, IPAddress);
-            BigEndianWriter.WriteUInt16(Trailer, 4, Port);
+            BigEndianWriter.WriteUInt32(Trailer, 0, _iPAddress);
+            BigEndianWriter.WriteUInt16(Trailer, 4, _port);
             return base.GetBytes();
         }
     }

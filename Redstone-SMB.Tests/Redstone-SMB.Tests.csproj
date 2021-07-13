@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SMBClient\SMBClient.csproj" />
+    <ProjectReference Include="..\Redstone-SMB\Redstone-SMB.csproj" />
   </ItemGroup>
 
 </Project>

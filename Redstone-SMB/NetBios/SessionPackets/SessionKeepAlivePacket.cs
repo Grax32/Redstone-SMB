@@ -10,16 +10,16 @@ using SMBLibrary.NetBios.SessionPackets.Enums;
 namespace SMBLibrary.NetBios.SessionPackets
 {
     /// <summary>
-    ///     [RFC 1002] 4.3.3. POSITIVE SESSION RESPONSE PACKET
+    ///     [RFC 1002] 4.3.7. SESSION KEEP ALIVE PACKET
     /// </summary>
-    public class PositiveSessionResponsePacket : SessionPacket
+    public class SessionKeepAlivePacket : SessionPacket
     {
-        public PositiveSessionResponsePacket()
+        public SessionKeepAlivePacket() : base()
         {
-            Type = SessionPacketTypeName.PositiveSessionResponse;
+            Type = SessionPacketTypeName.SessionKeepAlive;
         }
 
-        public PositiveSessionResponsePacket(byte[] buffer, int offset) : base(buffer, offset)
+        public SessionKeepAlivePacket(byte[] buffer, int offset) : base(buffer, offset)
         {
         }
 

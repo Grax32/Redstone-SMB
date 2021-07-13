@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMBClient", "SMBClient\SMBClient.csproj", "{8D9E8F5D-FD13-4E4C-9723-A333DA2034A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redstone-SMB", "Redstone-SMB\Redstone-SMB.csproj", "{8D9E8F5D-FD13-4E4C-9723-A333DA2034A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMBClient.Tests", "SMBClient.Tests\SMBClient.Tests.csproj", "{DB6E028F-4ADE-4E88-AB68-E743C106F759}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redstone-SMB.Tests", "Redstone-SMB.Tests\Redstone-SMB.Tests.csproj", "{DB6E028F-4ADE-4E88-AB68-E743C106F759}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

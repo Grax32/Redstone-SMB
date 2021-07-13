@@ -62,6 +62,7 @@ namespace SMBLibrary.NetBios
             {
                 if (!m_packetLength.HasValue)
                     m_packetLength = SessionPacket.GetSessionPacketLength(Buffer, m_readOffset);
+
                 return BytesInBuffer >= m_packetLength.Value;
             }
 

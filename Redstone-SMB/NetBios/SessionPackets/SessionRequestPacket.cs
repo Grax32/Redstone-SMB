@@ -16,10 +16,7 @@ namespace SMBLibrary.NetBios.SessionPackets
     /// </summary>
     public class SessionRequestPacket : SessionPacket
     {
-        public string CalledName;
-        public string CallingName;
-
-        public SessionRequestPacket()
+        public SessionRequestPacket() : base()
         {
             Type = SessionPacketTypeName.SessionRequest;
         }
@@ -39,6 +36,9 @@ namespace SMBLibrary.NetBios.SessionPackets
                 return HeaderLength + part1.Length + part2.Length;
             }
         }
+
+        public string CalledName { get; set; }
+        public string CallingName { get; set; }
 
         public override byte[] GetBytes()
         {

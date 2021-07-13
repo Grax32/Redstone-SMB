@@ -8,8 +8,6 @@
 using System;
 using System.IO;
 using SMBLibrary.NetBios.SessionPackets.Enums;
-using SMBLibrary.Utilities.ByteUtils;
-using SMBLibrary.Utilities.Conversion;
 using BigEndianConverter = SMBLibrary.Utilities.Conversion.BigEndianConverter;
 using BigEndianWriter = SMBLibrary.Utilities.ByteUtils.BigEndianWriter;
 using ByteReader = SMBLibrary.Utilities.ByteUtils.ByteReader;
@@ -31,34 +29,33 @@ namespace SMBLibrary.NetBios.SessionPackets
         public const int MaxSessionPacketLength = 131075;
         public const int MaxDirectTcpPacketLength = 16777215;
         public byte[] Trailer;
-        private int TrailerLength; // Session packet: 17 bits, Direct TCP transport packet: 3 bytes
+        private int _trailerLength; // Session packet: 17 bits, Direct TCP transport packet: 3 bytes
 
         public SessionPacketTypeName Type;
 
-        public SessionPacket()
-        {
-        }
+        protected SessionPacket() { }
 
-        public SessionPacket(byte[] buffer, int offset)
+        protected SessionPacket(byte[] buffer, int offset)
         {
             Type = (SessionPacketTypeName) ByteReader.ReadByte(buffer, offset + 0);
-            TrailerLength = (ByteReader.ReadByte(buffer, offset + 1) << 16) |
+            _trailerLength = (ByteReader.ReadByte(buffer, offset + 1) << 16) |
                             BigEndianConverter.ToUInt16(buffer, offset + 2);
-            Trailer = ByteReader.ReadBytes(buffer, offset + 4, TrailerLength);
+            Trailer = ByteReader.ReadBytes(buffer, offset + 4, _trailerLength);
         }
 
         public virtual int Length => HeaderLength + Trailer.Length;
 
         public virtual byte[] GetBytes()
         {
-            TrailerLength = Trailer.Length;
+            _trailerLength = Trailer.Length;
 
-            var flags = Convert.ToByte(TrailerLength >> 16);
+            var flags = Convert.ToByte(_trailerLength >> 16);
 
             var buffer = new byte[HeaderLength + Trailer.Length];
+
             ByteWriter.WriteByte(buffer, 0, (byte) Type);
             ByteWriter.WriteByte(buffer, 1, flags);
-            BigEndianWriter.WriteUInt16(buffer, 2, (ushort) (TrailerLength & 0xFFFF));
+            BigEndianWriter.WriteUInt16(buffer, 2, (ushort) (_trailerLength & 0xFFFF));
             ByteWriter.WriteBytes(buffer, 4, Trailer);
 
             return buffer;
@@ -68,12 +65,14 @@ namespace SMBLibrary.NetBios.SessionPackets
         {
             var trailerLength = (ByteReader.ReadByte(buffer, offset + 1) << 16) |
                                 BigEndianConverter.ToUInt16(buffer, offset + 2);
+
             return 4 + trailerLength;
         }
 
         public static SessionPacket GetSessionPacket(byte[] buffer, int offset)
         {
             var type = (SessionPacketTypeName) ByteReader.ReadByte(buffer, offset);
+
             switch (type)
             {
                 case SessionPacketTypeName.SessionMessage:
